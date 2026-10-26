@@ -287,6 +287,7 @@ button{font-family:var(--hud)}
 .clb b{display:block;font-size:14px;letter-spacing:.1em}.clb span{font-size:12px;color:var(--green);font-weight:700}
 .clb.on{border-color:var(--amber);background:rgba(227,162,59,.12)}
 .short .crBar .go{font-size:18px;padding:10px 18px 8px}.short .crHd h3{font-size:21px}.short .swb{width:32px;height:32px}
+.verTag{position:absolute;right:max(12px,env(safe-area-inset-right,0px));bottom:calc(8px + env(safe-area-inset-bottom,0px));font-size:11px;letter-spacing:.14em;color:rgba(236,230,211,.28);font-weight:700}
 </style>
 </head>
 <body>
@@ -345,11 +346,10 @@ button{font-family:var(--hud)}
   <div class="crL"><canvas id="crCv"></canvas><div class="crBar"><button class="ghost" id="crRnd" type="button">🎲 ALEATÓRIO</button><button class="go" id="crGo" type="button">COMEÇAR</button></div></div>
   <div class="crR" id="crR"><header class="crHd"><small id="crK">NOVO SOBREVIVENTE</small><h3 id="crH">CRIE SEU HERÓI</h3></header><div id="crBody"></div></div>
 </div>
-<div id="title" class="ov">
+<div id="title" class="ov"><span id="updV" class="verTag"></span>
   <div class="card0">
     <div class="kick">SETOR 7 · QUARENTENA ROMPIDA</div>
     <h1>ZONA <em>MORTA</em></h1>
-    <div class="upd"><span class="chip">NOVA ATUALIZAÇÃO</span><b id="updV">v3</b><p id="updN"></p></div>
     <button class="go" id="play">JOGAR</button>
     <div class="qual" role="group" aria-label="Qualidade gráfica"><span>QUALIDADE</span><button id="qHigh" class="on" type="button">MÁXIMA</button><button id="qLow" type="button">BAIXA</button></div>
   </div>
@@ -377,7 +377,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v6', NOTES='Criação de personagem, novos zumbis, física e peças de arma';
+const VERSION='v7', NOTES='Tela inicial mais limpa';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -2566,7 +2566,7 @@ function start(){
   dragScroll($('sIn'));dragScroll($('crR'));
   $('crGo').addEventListener('click',creatorDone);$('crRnd').addEventListener('click',()=>{const L=CR.look;for(const k of['skin','hair','bandana','jacket','top','pants'])L[k]=pick(LOOKOPT[k]);L.hairStyle=pick(LOOKOPT.hairStyle)[0];L.beard=pick(LOOKOPT.beard)[0];SFX.click();renderCreator()});
   loadSave();houseTier(SV.tier||1);QH=SV.quality!=='low';$('qHigh').classList.toggle('on',QH);$('qLow').classList.toggle('on',!QH);
-  $('updV').textContent=VERSION;$('updN').textContent=NOTES;
+  $('updV').textContent=VERSION;
   resize();makeRain();titleInit();newPhase();setScreen('title');
   addEventListener('resize',resize);
   if(screen.orientation&&screen.orientation.addEventListener)screen.orientation.addEventListener('change',()=>setTimeout(resize,120));
