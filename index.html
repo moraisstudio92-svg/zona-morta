@@ -3775,7 +3775,7 @@ const BP={n:500,i:0,px:null,py:null,pz:null,vx:null,vy:null,vz:null,l:null},DP={
 let FIRE3=[],TRSET=[],MFLASH=null,GLOWTEX=null;
 const HAS3=!!window.THREE;const _m4=HAS3?new THREE.Matrix4():null,_q=HAS3?new THREE.Quaternion():null,_v=HAS3?new THREE.Vector3():null,_s=HAS3?new THREE.Vector3():null,_e=HAS3?new THREE.Euler():null;
 function buildFx3D(){
-  BLD3=new THREE.InstancedMesh(new THREE.BoxGeometry(0.07,0.07,0.07),new THREE.MeshBasicMaterial({color:0x9a0f0b}),BP.n);BLD3.frustumCulled=false;SC3.add(BLD3);
+  BLD3=new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.03,0),new THREE.MeshLambertMaterial({color:0x5a0605,emissive:0x1a0000}),BP.n);BLD3.frustumCulled=false;SC3.add(BLD3);
   for(const k of['px','py','pz','vx','vy','vz','l'])BP[k]=new Float32Array(BP.n);_m4.makeScale(0,0,0);for(let i=0;i<BP.n;i++)BLD3.setMatrixAt(i,_m4);
   DEC3=new THREE.InstancedMesh(new THREE.CircleGeometry(1,12),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0.85,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}),DP.n);DEC3.frustumCulled=false;
   for(let i=0;i<DP.n;i++){DEC3.setMatrixAt(i,_m4);DEC3.setColorAt(i,new THREE.Color(0x5a0806))}SC3.add(DEC3);
