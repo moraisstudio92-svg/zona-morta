@@ -1,5 +1,5 @@
 // Zona Morta service worker. Each release has its own cache; a new release waits until the player taps BORA!
-const V = "zona-morta-v14";
+const V = "zona-morta-v15";
 const CORE = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "apple-touch-icon.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(V).then(c => Promise.all(CORE.map(u => fetch(new Request(u, {cache:"reload"})).then(r => c.put(u, r)).catch(()=>{})))));

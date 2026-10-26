@@ -396,7 +396,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v14', NOTES='Corrida, sons dos zumbis e recarga das armas';
+const VERSION='v15', NOTES='Som de cadeado nos baús';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -526,6 +526,10 @@ const SFX={
     if(type==='runner'){if(r<0.45)zShriek(v);else if(r<0.75)zClick(v);else zHiss(v)}
     else if(type==='brute'){if(r<0.5)zGrowl(v,1);else if(r<0.8)SFX.groan(v*1.3);else zGurgle(v,0.7)}
     else{if(r<0.32)SFX.groan(v);else if(r<0.55)zGurgle(v,1);else if(r<0.72)zClick(v);else if(r<0.86)zHiss(v);else zGrowl(v,1.4)}},
+  // padlock
+  lockRattle(){for(let i=0;i<5;i++){sT(rnd(2600,4200),rnd(2000,2600),0.04,0.07,'triangle',i*0.028+Math.random()*0.01);sN(0.025,rnd(5000,7000),3500,0.12,'bandpass',8,i*0.03)}sN(0.06,1400,900,0.12,'bandpass',4,0.02)},
+  lockPick(){for(let i=0;i<3;i++)sN(0.012,rnd(4500,6500),4000,0.14,'bandpass',10,i*rnd(0.05,0.09));sT(1700,1500,0.02,0.04,'square',0.06)},
+  lockOpen(){sN(0.03,4200,3000,0.4,'bandpass',6);sT(2200,1800,0.03,0.14,'square');sT(900,1400,0.12,0.06,'triangle',0.03);for(let i=0;i<6;i++)sT(rnd(2400,3800),2000,0.05,0.05,'triangle',0.12+i*0.05);sN(0.1,700,250,0.2,'lowpass',1.5,0.4)},
   splat(v){sN(0.12,900,300,0.18*(v||1),'lowpass',2);sN(0.06,2400,1200,0.08*(v||1),'bandpass',3,0.02)},
   clank(){sT(rnd(700,900),rnd(500,600),0.12,0.16,'square');sN(0.18,3200,900,0.35,'bandpass',3);sT(160,90,0.1,0.25,'triangle')},
   gate(v){sN(0.25,500,120,0.5*v,'lowpass',1);sT(90,50,0.2,0.35*v,'triangle');sN(0.08,2400,1200,0.12*v,'bandpass',3)},
@@ -640,7 +644,7 @@ const ATTRS=[['for','FORÇA','+4% de dano por ponto'],['agi','AGILIDADE','+3% ve
 function defLook(){return{fem:false,name:'',skin:'#c8916c',hair:'#2e2018',hairStyle:'messy',beard:'stubble',bandana:'#9a2a22',jacket:'#4f5638',top:'#bdb8ad',pants:'#4a3d2e'}}
 const HOC={};
 function heroOutfit(i,Lx){
-  const L=Lx||(typeof SV!=='undefined'&&SV.look)||defLook(),key=i+'|'+JSON.stringify(L);const ck=Lx?'x'+i:i;if(HOC[ck]&&HOC[ck].k===key)return HOC[ck].o;
+  const L=Object.assign(defLook(),Lx||(typeof SV!=='undefined'&&SV.look)||{}),key=i+'|'+JSON.stringify(L);const ck=Lx?'x'+i:i;if(HOC[ck]&&HOC[ck].k===key)return HOC[ck].o;
   const of=OUTFITS[i],o=Object.assign({},of,{fem:!!L.fem,skin:L.skin,hair:L.hair,hairStyle:L.hairStyle,beard:L.beard,bandana:L.bandana});
   if(L.bandana){o.rag=L.bandana;o.wrap=L.bandana;o.laces=L.bandana}else{o.rag=null;o.wrap='#3a3630';o.laces='#3a3630'}
   if(i<=3)o.jacket=i===0||i===3?L.jacket:shade(L.jacket,0.88);
@@ -2124,8 +2128,8 @@ function update(dt){
     if(running)want=false;
     const semi=P.wid==='shotgun'||P.wid==='sniper'||P.wid==='revolver';
     if(want){if(!semi||!IN.latch||SV.auto){fire();IN.latch=true}}else IN.latch=false;
-    if(P.unlock){const c=P.unlock.c;if(Math.abs(P.x-c.x)>60||c.opened){P.unlock=null}else{P.unlock.t+=dt;P.unlock.k-=dt;if(P.unlock.k<=0){P.unlock.k=0.32;SFX.clank();G.shake=Math.max(G.shake,1.5)}
-      if(P.unlock.t>=1.8){P.unlock=null;openChest(c)}}}
+    if(P.unlock){const c=P.unlock.c;if(Math.abs(P.x-c.x)>60||c.opened){P.unlock=null}else{P.unlock.t+=dt;P.unlock.k-=dt;if(P.unlock.k<=0){P.unlock.n=(P.unlock.n||0)+1;P.unlock.k=rnd(0.22,0.34);if(P.unlock.n%3===0)SFX.lockPick();else SFX.lockRattle();c.shake=0.2;G.shake=Math.max(G.shake,1)}
+      if(P.unlock.t>=1.8){P.unlock=null;SFX.lockOpen();c.lockDrop={x:0,y:0,vy:-120,vx:rnd(-60,60),rot:0};openChest(c)}}}
     if(P.x>GATE_X-150)spawnTick(dt);
     hordeTick(dt);towerTick(dt);
     SV.far=Math.max(SV.far,P.x);
@@ -2314,7 +2318,11 @@ function drawChest(c){
   g.fillStyle='#3b4652';g.fillRect(-30,-9,6,9);g.fillRect(24,-9,6,9);
   if(!c.opened){g.fillStyle='#ffcf33';g.font='bold 15px sans-serif';g.textAlign='center';g.fillText('?',-12,-3);g.fillText('?',12,-3);g.textAlign='left'}
   g.restore();
-  g.fillStyle='#2c3640';rr(-6,-22+bob,12,12,2);g.fill();g.fillStyle='#0f1418';ell(0,-17+bob,2,2);g.fill();g.fillRect(-1,-17+bob,2,4);
+  g.fillStyle='#2c3640';rr(-7,-24+bob,14,10,2);g.fill();
+  const pl=(lx,ly,rot)=>{g.save();g.translate(lx,ly);g.rotate(rot);g.strokeStyle='#9aa2a8';g.lineWidth=2.4;g.beginPath();g.arc(0,-4,4.2,Math.PI,0);g.lineTo(4.2,0);g.moveTo(-4.2,-4);g.lineTo(-4.2,0);g.stroke();
+    const lg=g.createLinearGradient(-6,0,6,0);lg.addColorStop(0,'#8a6a22');lg.addColorStop(0.5,'#e0b84a');lg.addColorStop(1,'#7a5a1a');g.fillStyle=lg;rr(-6,0,12,10,2);g.fill();g.fillStyle='#2a1e08';ell(0,4,1.4,1.4);g.fill();g.fillRect(-0.6,4,1.2,3.5);g.restore()};
+  if(!c.opened){const sh=(c.shake||0)>0?Math.sin(T*90)*0.35:0;if(c.shake)c.shake=Math.max(0,c.shake-1/60);pl(0,-17+bob,sh)}
+  else if(c.lockDrop){const d=c.lockDrop;if(d.y<26){d.vy+=900/60;d.x+=d.vx/60;d.y+=d.vy/60;d.rot+=d.vx/60*0.08}else{d.y=26;d.vx*=0.8}pl(d.x,-17+d.y,d.rot)}
   if(P&&P.unlock&&P.unlock.c===c){const k=clamp(P.unlock.t/1.8,0,1);g.fillStyle='rgba(0,0,0,.75)';rr(-32,-62,64,9,4);g.fill();g.fillStyle='#e3a23b';rr(-31,-61,62*k,7,3);g.fill();
     if(Math.sin(T*30)>0){g.strokeStyle='rgba(255,230,160,.7)';g.lineWidth=1.5;for(let i=0;i<3;i++){const a=-Math.PI/2+(i-1)*0.6;g.beginPath();g.moveTo(Math.cos(a)*16,-30+Math.sin(a)*16);g.lineTo(Math.cos(a)*24,-30+Math.sin(a)*24);g.stroke()}}}
   g.restore();
@@ -2576,7 +2584,7 @@ function personThumb(of,w,h){
 
 
 /* ================= CHEST NOISE + BASE DEFENSES ================= */
-function startUnlock(c){P.unlock={c,t:0,k:0};toast('Destrancando… o barulho atrai zumbis!');
+function startUnlock(c){P.unlock={c,t:0,k:0};
   const zp=Math.max(1,zoneAt(c.x)),n=2+Math.floor(Math.random()*2)+(SV.night?1:0);
   for(let i=0;i<n;i++){const side=Math.random()<0.5?-1:1;let x=c.x+side*rnd(420,700);if(x<GATE_X+220)x=c.x+rnd(420,700);const r=Math.random();spawnZ(r<0.7?'walker':r<0.92?'runner':'brute',x,zoneAt(x)||zp);const z=Z[Z.length-1];z.groan=rnd(0.2,1)}}
 const DEFS={
