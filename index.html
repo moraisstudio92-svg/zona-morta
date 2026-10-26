@@ -417,7 +417,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v22', NOTES='Portão que abre e fecha e ajudantes trabalhando na base';
+const VERSION='v23', NOTES='Base no pátio: postos de arsenal, oficina e mais';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -2094,7 +2094,7 @@ function wCap(){return SV.rooms.arsenal*5}
 function xpNeed(l){return Math.round(90*Math.pow(l,1.55))}
 function addXP(v){SV.xp+=Math.round(v);while(SV.xp>=xpNeed(SV.lvl)){SV.xp-=xpNeed(SV.lvl);SV.lvl++;SV.pts=(SV.pts||0)+1;
   const un=WORDER.filter(id=>WEAP[id].lvl===SV.lvl).map(id=>WEAP[id].name);
-  banner(`NÍVEL ${SV.lvl}`,un.length?`${un.join(' e ')} liberada · +1 ponto de atributo`:'+1 ponto de atributo · use no HERÓI');SFX.levelup();
+  banner(`NÍVEL ${SV.lvl}`,un.length?`${un.join(' e ')} liberada · +1 ponto de atributo`:'+1 ponto de atributo · use no TREINO da base');SFX.levelup();
   if(P&&!P.dead){P.max=maxHP();P.hp=Math.min(P.max,P.hp+P.max*0.3)}}}
 const JOBS={torre:{name:'TORRE',room:null,desc:'atira nos zumbis do portão'},gerador:{name:'GERADOR',room:'gerador',desc:'+30% de renda'},oficina:{name:'OFICINA',room:'oficina',desc:'+6% de dano'},enferm:{name:'ENFERMARIA',room:'enferm',desc:'+0,6 vida/s em campo'},coleta:{name:'COLETA',room:null,desc:'traz dinheiro ao amanhecer'},rest:{name:'DESCANSO',room:null,desc:'sem função'}};
 function jobCap(job){if(job==='torre')return SV.def.tower?1+Math.floor(SV.def.tower/2):0;const J=JOBS[job];if(!J.room)return 99;const l=SV.rooms[J.room];return l?2+Math.floor(l/5):0}
@@ -2207,7 +2207,7 @@ function fire(){
   }
   if(P.ammo[id]===0)setTimeout(()=>{if(P&&P.ammo[id]===0)reload()},160);
 }
-function reload(){const id=P.wid;if(P.reloadT>0||P.ammo[id]>=P.stats.mag||P.dead)return;P.reloadT=P.stats.reload;reloadFoley(id,P.stats.reload*1000,P.stats.mag-P.ammo[id])}
+function reload(){const id=P.wid;if(!id)return;if(P.reloadT>0||P.ammo[id]>=P.stats.mag||P.dead)return;P.reloadT=P.stats.reload;reloadFoley(id,P.stats.reload*1000,P.stats.mag-P.ammo[id])}
 function reloadFoley(id,ms,missing){const tok=P.relTok=(P.relTok||0)+1;const at=(f,fn)=>setTimeout(()=>{if(P&&P.relTok===tok&&P.reloadT>0&&P.wid===id)fn()},ms*f);
   const dropMag=(c)=>at(0.1,()=>{if(W3.on){SFX.thud();return}PT.push({x:P.x+P.face*12,y:GROUND-62*WSC,vx:-P.face*rnd(10,40),vy:rnd(-60,-20),life:5,max:5,t:'chip',rot:0,vr:rnd(-6,6),c:c||'#1e1f21',s:5,b:0});setTimeout(SFX.thud,260)});
   if(id==='revolver'){at(0.03,SFX.cylOpen);at(0.16,()=>{SFX.casings(6);if(!W3.on)for(let i=0;i<6;i++)PT.push({x:P.x+P.face*14,y:GROUND-70*WSC,vx:rnd(-50,50),vy:rnd(-80,-10),life:1.2,max:1.2,t:'shell',rot:0,vr:rnd(-20,20),bounce:0,col:'#c9a24a'})});
@@ -2216,7 +2216,7 @@ function reloadFoley(id,ms,missing){const tok=P.relTok=(P.relTok||0)+1;const at=
   else if(id==='sniper'){at(0.05,SFX.boltUp);at(0.22,SFX.magOut);dropMag();at(0.6,SFX.magIn);at(0.86,SFX.boltDn)}
   else if(id==='lmg'){at(0.05,SFX.cover);at(0.18,SFX.magOut);dropMag('#3b3f2a');at(0.45,SFX.belt);at(0.62,SFX.magIn);at(0.76,SFX.cover);at(0.9,SFX.rack)}
   else{at(0.04,SFX.magOut);dropMag();at(0.55,SFX.magIn);at(0.82,SFX.rack)}}
-function swap(){if(P.dead)return;const own=WORDER.filter(id=>SV.owned[id]);if(own.length<2){toast('Compre mais armas no Arsenal da Safe House');return}
+function swap(){if(P.dead)return;const own=WORDER.filter(id=>SV.owned[id]);if(own.length<2){toast('Compre mais armas no Arsenal da base');return}
   const i=own.indexOf(P.wid);P.wid=own[(i+1)%own.length];P.stats=wStats(P.wid);P.reloadT=0;P.cd=0.35;SFX.pump();SV.weapon=P.wid}
 function autoTarget(){let best=null,bd=1e9;for(const z of Z){if(z.dead)continue;const d=Math.abs(z.x-P.x);if(d<bd&&d<=P.stats.range){bd=d;best=z}}return best}
 function actionTarget(){if(W3.on)return actionTarget3();
@@ -2511,7 +2511,7 @@ function updateHUD(){
   setT('zoneN',G.wave?`HORDA ${G.wave} · ${mmss(G.time)}`:`PREPARE-SE · ${mmss(G.time)}`);
   setT('waveNx',G.queue.length||(!G.cleared&&G.wave)?(G.boss?'⚠ BOSS EM CAMPO':`ZUMBIS RESTANTES: ${Z.filter(z=>z.wave&&!z.dead).length+G.queue.length}`):`PRÓXIMA HORDA EM ${Math.max(0,Math.ceil(G.wT))}s`);
   {const b=G.boss&&!G.boss.dead?G.boss:null;const on=!!b;if(HUDC.bon!==on){HUDC.bon=on;$('bossBar').hidden=!on}if(b)setW('bossFill',clamp(b.hp/b.max,0,1))}setT('cashN',fmt(SV.cash));
-  const W=WEAP[P.wid];setT('wName',P.reloadT>0?'RECARREGANDO…':`${W.name} · NV ${SV.wl[P.wid]}`);setT('ammoN',String(P.ammo[P.wid]));setT('magN','/'+P.stats.mag);
+  const W=WEAP[P.wid];if(!W){setT('wName','SEM ARMA · VÁ AO ARSENAL');setT('ammoN','–');setT('magN','')}else{setT('wName',P.reloadT>0?'RECARREGANDO…':`${W.name} · NV ${SV.wl[P.wid]}`);setT('ammoN',String(P.ammo[P.wid]));setT('magN','/'+P.stats.mag)}
   const em=P.ammo[P.wid]===0;if(HUDC.em!==em){HUDC.em=em;$('ammo').classList.toggle('empty',em)}
   const a=$('sheet').hidden?actionTarget():null,lbl=a?a.label:'';if(HUDC.act!==lbl){HUDC.act=lbl;$('bAct').hidden=!a;$('bActL').textContent=lbl}
   const fol=WS.filter(s=>s.state==='follow').length;
@@ -2540,6 +2540,13 @@ function enterHouse(fromDeath){
   save();updateHouseUI(true);
   if(!SV.weapon)setTimeout(()=>{toast('Escolha sua primeira arma no ARSENAL: pistola ou revólver');openRoom('arsenal')},500);
 }
+function goBase(fromDeath){
+  if(!(window.THREE&&init3D())){enterHouse(fromDeath);return}
+  if(G&&APP==='world'&&!fromDeath)endRun();
+  enterWorld();if(!W3.on){enterHouse(fromDeath);return}
+  if(OFFLINE>=1){toast(`O gerador produziu $ ${fmt(OFFLINE)} enquanto você estava fora`);OFFLINE=0}save();
+  if(fromDeath)banner('DE VOLTA À BASE','Cure-se na enfermaria e volte à luta');else banner(`DIA ${SV.day} · ${SV.night?'NOITE':'DIA'}`,SV.weapon?'A base é sua · ande até os postos do pátio':'Vá até o ARSENAL no pátio');
+  if(!SV.weapon)setTimeout(()=>toast('Você está sem arma: vá até o ARSENAL (contêiner verde) no pátio'),1400)}
 function leaveHouse(){if(!SV.weapon){toast('Você precisa de uma arma: compre no Arsenal');SFX.deny();openRoom('arsenal');return}closeSheet();SFX.door();enterWorld();
   banner(`DIA ${SV.day} · ${SV.night?'NOITE':'DIA'}`,SV.night?'Mais zumbis e mais dinheiro':'Explore e resgate sobreviventes')}
 function showDeath(){
@@ -2567,17 +2574,19 @@ function costBtn(label,cost,fn){const b=btn(`${label} · $ ${fmt(cost)}`,'buy',f
 let GS=null,AR={sel:null,up:false,tap:null},VS={sel:null,tap:null},RM={armed:null},HX={};
 function sheetOpen(on){$('sheet').hidden=!on;$('app').classList.toggle('sheetOn',!!on);SH_RES=on?$('sheet').getBoundingClientRect().width&&(ROT?$('sheet').getBoundingClientRect().height:$('sheet').getBoundingClientRect().width):0;if(APP==='house')shLayout();$('shHint').hidden=on||APP!=='house';$('shBot').hidden=on||APP!=='house'}
 function openRoom(k){shSel=k;GS=null;AR.up=false;RM.armed=null;if(k==='arsenal'){AR.sel=SV.weapon||AR.sel||'pistol';AR.tap=null}if(k==='vest'){VS.sel=SV.outfit;VS.tap=null}if(ROOMS[k])shMoveTo(k);SFX.click();renderSheet();sheetOpen(true);$('sIn').scrollTop=0}
-function closeSheet(){sheetOpen(false);shSel=null;GS=null}
+function closeSheet(){sheetOpen(false);shSel=null;GS=null;if(W3.on&&typeof syncPlayer3==='function')syncPlayer3()}
 function buyRoom(k){const l=SV.rooms[k],c=roomCost(k,l);if(SV.cash<c||l>=ROOMS[k].max){SFX.deny();return}
   SV.cash-=c;SV.rooms[k]=l+1;SFX.buy();toast(`${ROOMS[k].name} agora no nível ${l+1}`);save();renderSheet();updateHouseUI(true)}
 function sleep(toMorning){
+  if(W3.on&&(G.queue.length||Z.some(z=>!z.dead&&Math.hypot(z.x,z.z)<50))){SFX.deny();toast('Não dá pra dormir com zumbis por perto');return}
   closeSheet();shMoveTo('dorm');SHP.sleep=true;const ov=$('sleepOv');$('slT').textContent='';$('slS').textContent='';ov.hidden=false;
   requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('show')));
   setTimeout(()=>{
     if(toMorning){SV.day++;SV.night=false;SV.gateHP=gateMax();SV.wireHP=wireMax();let c=0;for(const v of SV.surv)if(v.job==='coleta')c+=Math.round(35*(1+0.25*(SV.day-2))*rnd(0.8,1.25));SV.cash+=c;
       $('slT').textContent=`DIA ${SV.day}`;$('slS').textContent=c?`O sol nasceu · a coleta trouxe $ ${fmt(c)}`:'O sol nasceu · menos zumbis nas ruas'}
     else{SV.night=true;$('slT').textContent='NOITE';$('slS').textContent=`Dia ${SV.day} · mais zumbis, mais dinheiro`}
-    newPhase();save();updateHouseUI(true);SFX.levelup();
+    if(W3.on){for(const z of Z)if(z.m)SC3.remove(z.m.root);Z=[];G.queue=[];G.wave=0;G.cleared=true;G.wT=rnd(20,30);W3.night=SV.night;W3.day=SV.day;newPhase3();setLook3();P.hp=P.max;P.stam=100}else newPhase();
+    save();updateHouseUI(true);SFX.levelup();
   },1300);
   setTimeout(()=>{ov.classList.remove('show');SHP.sleep=false;setTimeout(()=>{ov.hidden=true},700)},4600);
 }
@@ -2729,7 +2738,7 @@ function expandHouse(){const nt=(SV.tier||1)+1,T2=TIERS[nt];if(!T2||SV.cash<T2.c
   houseTier(nt);if(SPR)SPR.house=sprHouse(nt);SHBG=null;closeSheet();shLayout();SFX.levelup();banner(TIERS[nt].name,'Novos cômodos liberados');save();updateHouseUI(true)}
 function renderSurv(body){
   $('sKick').textContent=`${SV.surv.length} DE 12 · RESGATE MAIS NAS RUAS`;$('sTitle').textContent='SOBREVIVENTES';
-  if(!SV.surv.length){body.append(el('p','note','Ninguém por aqui ainda. Procure pessoas gritando SOCORRO nas ruas, toque em RESGATAR e traga de volta até o portão da Safe House.'));return}
+  if(!SV.surv.length){body.append(el('p','note','Ninguém por aqui ainda. Procure pessoas gritando SOCORRO nas ruas, toque em RESGATAR e traga de volta até o portão da base. Aqui você define o que cada um faz no pátio.'));return}
   const list=el('div','list');
   SV.surv.forEach(v=>{const card=el('div','card');card.append(personThumb(v.look,62,86));const info=el('div','info');info.append(el('b','',v.name));
     const j=v.job?JOBS[v.job]:null;info.append(el('span','',j?`${j.name} · ${j.desc}`:'Sem trabalho'));card.append(info);
@@ -3070,7 +3079,7 @@ function creatorDone(){
   SV.look=Object.assign({},L);
   if(!CR.edit){SV.cls=CR.cls;const cl=CLASSES.find(c=>c.id===CR.cls);for(const k in CR.alloc){SV.attr[k]=at(k)+CR.alloc[k]}SV.attr[cl.attr]=at(cl.attr)+2;SV.pts=crLeft();SV.created=true}
   SFX.buy();save();closeCreator();
-  if(CR.edit){enterHouse(false);toast('Visual atualizado')}else{enterHouse(false);banner(`BEM-VINDO, ${SV.look.name}`,'Escolha sua primeira arma no Arsenal')}
+  if(CR.edit){goBase(false);toast('Visual atualizado')}else{goBase(false);setTimeout(()=>banner(`BEM-VINDO, ${SV.look.name}`,'Vá até o ARSENAL no pátio e pegue sua arma'),900)}
 }
 /* ================= INPUT ================= */
 function hold(id,on,off){const e=$(id);
@@ -3102,8 +3111,8 @@ function goFull(){try{if(!window.matchMedia('(pointer:coarse)').matches)return;c
   const p=d.requestFullscreen?d.requestFullscreen({navigationUI:'hide'}):d.webkitRequestFullscreen?d.webkitRequestFullscreen():null;if(p&&p.then)p.then(()=>screen.orientation&&screen.orientation.lock&&screen.orientation.lock('landscape').catch(()=>{})).catch(()=>{})}catch(e){}}
 $('play').addEventListener('click',()=>{auInit();SFX.click();goFull();
   if(!SV.created){openCreator(false);return}
-  enterHouse(false)});
-$('again').addEventListener('click',()=>{SFX.click();enterHouse(true)});
+  goBase(false)});
+$('again').addEventListener('click',()=>{SFX.click();goBase(true)});
 $('bExit').addEventListener('click',leaveHouse);
 $('bExp').addEventListener('click',()=>{shSel='casa';GS=null;SFX.click();renderSheet();sheetOpen(true);$('sIn').scrollTop=0});
 $('bHero').addEventListener('click',()=>{shSel='heroi';GS=null;HS.arm=null;SFX.click();renderSheet();sheetOpen(true);$('sIn').scrollTop=0});
@@ -3232,17 +3241,18 @@ function addCol(x0,z0,x1,z1,tag){const b={x0:Math.min(x0,x1),z0:Math.min(z0,z1),
 function collide(e,r,zombie){
   const gx=Math.floor(e.x/CG),gz=Math.floor(e.z/CG);
   for(let ix=gx-1;ix<=gx+1;ix++)for(let iz=gz-1;iz<=gz+1;iz++){const l=CGRID.get(ix+','+iz);if(!l)continue;
-    for(const b of l){if(b.tag==='gate'&&(!gateUp()||GATE_O>0.55))continue;if(b.tag==='fence'&&!zombie&&false)continue;
+    for(const b of l){if(b.tag==='gate'&&(!gateUp()||GATE_O>0.55))continue;if(b.tag==='bar'&&(zombie||!gateUp()))continue;if(b.tag==='fence'&&!zombie&&false)continue;
       const cx=clamp(e.x,b.x0,b.x1),cz=clamp(e.z,b.z0,b.z1),dx=e.x-cx,dz=e.z-cz,d2=dx*dx+dz*dz;
       if(d2<r*r){if(d2>1e-6){const d=Math.sqrt(d2),k=(r-d)/d;e.x+=dx*k;e.z+=dz*k}else{const l0=e.x-b.x0,l1=b.x1-e.x,l2=e.z-b.z0,l3=b.z1-e.z,m=Math.min(l0,l1,l2,l3);
         if(m===l0)e.x=b.x0-r;else if(m===l1)e.x=b.x1+r;else if(m===l2)e.z=b.z0-r;else e.z=b.z1+r}}}}
   e.x=clamp(e.x,-MAPH,MAPH);e.z=clamp(e.z,-MAPH,MAPH)}
-function blocked(x,z,r){for(const b of (CGRID.get(Math.floor(x/CG)+','+Math.floor(z/CG))||[])){if(b.tag==='gate')continue;if(x>b.x0-r&&x<b.x1+r&&z>b.z0-r&&z<b.z1+r)return true}return false}
+function blocked(x,z,r){for(const b of (CGRID.get(Math.floor(x/CG)+','+Math.floor(z/CG))||[])){if(b.tag==='gate'||b.tag==='bar')continue;if(x>b.x0-r&&x<b.x1+r&&z>b.z0-r&&z<b.z1+r)return true}return false}
 function inBase(x,z){return Math.abs(x)<BASE_R&&Math.abs(z)<BASE_R}
 function zone3(x,z){const d=Math.max(Math.abs(x),Math.abs(z));return d<BASE_R+2?0:d<90?1:d<160?2:d<215?3:4}
 
 /* ---------- world generation ---------- */
-const LAMPPOS=[],FIREPOS=[],CHESTSPOT=[],SURVSPOT=[],BLDRECT=[];let YST={};
+const LAMPPOS=[],FIREPOS=[],CHESTSPOT=[],SURVSPOT=[],BLDRECT=[];let YST={},STN3=[];const STN_NAME={arsenal:'ARSENAL',vest:'VESTIÁRIO',oficina:'OFICINA',gerador:'GERADOR',enferm:'ENFERMARIA',surv:'SOBREVIVENTES',heroi:'TREINO',casa:'OBRAS',dorm:'DORMITÓRIO'};
+const STN_TEX={};function stnTex(k){if(STN_TEX[k])return STN_TEX[k];return STN_TEX[k]=canvasTex(256,64,(x,w,h)=>{x.fillStyle='rgba(10,14,13,.78)';rr0(x,4,6,w-8,52,12);x.fill();x.strokeStyle='rgba(227,162,59,.9)';x.lineWidth=3;rr0(x,4,6,w-8,52,12);x.stroke();x.font='800 34px "Barlow Condensed","Arial Narrow",sans-serif';x.fillStyle='#ece6d3';x.textAlign='center';x.fillText(STN_NAME[k],w/2,44)})}
 let DOOR3={x:0,z:6},HOUSE3=null,TOWER3={x:-10,z:10.5},GROUND3=null;
 function bldUV(w,h,d){const g=new THREE.BoxGeometry(w,h,d).toNonIndexed();const uv=g.attributes.uv.array;
   for(let f=0;f<6;f++){const roof=f===2||f===3,fw=f<2?d:w;for(let k=0;k<6;k++){const i=(f*6+k)*2;if(roof){uv[i]=0;uv[i+1]=0}else{uv[i]*=fw/8;uv[i+1]*=h/8}}}
@@ -3377,6 +3387,31 @@ function buildBase3D(){
     crate:[[-9.6,-7.7,Math.PI]],store:[[3.7,5.4,Math.PI]]};
   BASE3.userData.flames=[];{const fm=[new THREE.MeshBasicMaterial({color:0xff8a2a,transparent:true,opacity:0.9,blending:THREE.AdditiveBlending,depthWrite:false}),new THREE.MeshBasicMaterial({color:0xffd060,transparent:true,opacity:0.85,blending:THREE.AdditiveBlending,depthWrite:false})];
     for(let i=0;i<4;i++){const c=new THREE.Mesh(new THREE.ConeGeometry(0.2-i*0.03,0.7-i*0.1,6),fm[i%2]);c.position.set(5.6+(i-1.5)*0.09,0.42,9.2+((i%2)-0.5)*0.1);BASE3.add(c);BASE3.userData.flames.push(c)}}
+  // ---- base stations: everything you used to do inside the house now lives in the yard ----
+  {const ol='#4a5a3a',olD='#3a4830';
+    // ARSENAL: open shipping container with weapon racks
+    P0.push(Bx(4,0.1,2.2,-7,0.05,7.5,olD),Bx(4,0.1,2.2,-7,2.55,7.5,olD),Bx(0.1,2.5,2.2,-9,1.3,7.5,ol));for(const z of[6.42,8.58]){P0.push(Bx(4,2.5,0.08,-7,1.3,z,ol));for(let i=0;i<9;i++)P0.push(Bx(0.06,2.4,0.1,-8.8+i*0.45,1.3,z+(z<7?-0.04:0.04),olD))}
+    P0.push(Bx(0.08,2.5,1.1,-4.75,1.3,6.15,ol,0,-1.2,0),Bx(0.08,2.5,1.1,-4.75,1.3,8.85,ol,0,1.2,0));
+    P0.push(Bx(0.12,0.1,1.9,-8.85,1.6,7.5,'#3a2a1a'),Bx(0.12,0.1,1.9,-8.85,0.7,7.5,'#3a2a1a'));for(let i=0;i<6;i++){const z=6.8+i*0.28;P0.push(Bx(0.06,1.0,0.05,-8.8,1.2,z,'#1e2022'),Bx(0.06,0.25,0.07,-8.8,0.75,z,'#6b4a2a'))}
+    P0.push(Bx(1.2,0.5,0.6,-7.2,0.3,7.6,'#3a4a32'),Bx(1.2,0.08,0.6,-7.2,0.58,7.6,'#2a3626'),Bx(0.5,0.35,0.4,-6.2,0.22,8.1,'#5a4a2a'),Bx(0.9,0.06,0.3,-7.1,0.66,7.55,'#1e2022'));addCol(-9.05,6.35,-5.0,8.65,'base');
+    // VESTIÁRIO: lockers + clothes rack + mirror
+    for(let i=0;i<5;i++)P0.push(Bx(0.58,1.95,0.5,-5.7+i*0.6,0.98,-12.2,i%2?'#5a6a7a':'#4f5f6e'),Bx(0.4,0.04,0.02,-5.7+i*0.6,1.6,-11.94,'#2a3038'),Bx(0.04,0.14,0.03,-5.5+i*0.6,1.1,-11.94,'#c0c4c8'));
+    P0.push(Cy(0.025,0.025,1.6,-6.1,0.8,-10.6,'#9aa0a6',6),Cy(0.025,0.025,1.6,-3.3,0.8,-10.6,'#9aa0a6',6),Cy(0.02,0.02,2.8,-4.7,1.6,-10.6,'#9aa0a6',6,0,0,Math.PI/2));
+    ['#7a3a3a','#3a4a6a','#4f5638','#c8a24a','#2a5a5a','#6a4a2a'].forEach((c,i)=>P0.push(Bx(0.36,0.62,0.12,-5.8+i*0.45,1.2,-10.6,c),Bx(0.36,0.06,0.04,-5.8+i*0.45,1.5,-10.6,'#9aa0a6')));
+    P0.push(Bx(0.7,1.6,0.06,-2.5,1.0,-12.1,'#b8c8d0'),Bx(0.8,1.7,0.04,-2.5,1.0,-12.14,'#3a2a1a'));addCol(-6.05,-12.5,-2.1,-11.9,'base');
+    // QUADRO DE TAREFAS (survivors)
+    P0.push(Cy(0.06,0.06,2,7.4,1,11.7,'#5a4630',6),Cy(0.06,0.06,2,9.0,1,11.7,'#5a4630',6),Bx(1.7,1.1,0.06,8.2,1.45,11.68,'#7a5a3e'));
+    ['#ece6d3','#ffcf4a','#ece6d3','#9fd0ff','#ece6d3','#ffb0a0'].forEach((c,i)=>P0.push(Bx(0.36,0.3,0.01,7.65+(i%3)*0.55,1.7-Math.floor(i/3)*0.45,11.64,c,0,0,(i%2?0.06:-0.05))));addCol(7.3,11.6,9.1,11.8,'base');
+    // TREINO (hero attributes): punching bag + target dummy
+    P0.push(Cy(0.07,0.07,2.6,11.2,1.3,12.2,'#3a3226',6),Cy(0.07,0.07,2.6,13.4,1.3,12.2,'#3a3226',6),Bx(2.4,0.12,0.12,12.3,2.6,12.2,'#3a3226'),Cy(0.01,0.01,0.5,11.9,2.35,12.2,'#9aa0a6',4),Cy(0.24,0.24,0.95,11.9,1.6,12.2,'#8a2a20',12),Cy(0.25,0.25,0.06,11.9,2.08,12.2,'#2a2a2a',12),Cy(0.25,0.25,0.06,11.9,1.12,12.2,'#2a2a2a',12),
+      Cy(0.05,0.05,1.2,13,0.6,12.2,'#6b4a2c',6),Bx(0.45,0.55,0.25,13,1.35,12.2,'#c8a878'),Sp(0.17,13,1.82,12.2,'#c8a878'),Bx(0.5,0.5,0.4,12.2,0.25,13.2,'#4a4a4a'),Cy(0.18,0.18,0.06,12.6,0.53,13.2,'#2a2a2a',10));addCol(11.0,12.0,13.6,12.4,'base');
+    // OBRAS sign (expand the base)
+    P0.push(Cy(0.05,0.05,1.6,-4.9,0.8,4.5,'#5a4630',6),Cy(0.05,0.05,1.6,-3.9,0.8,4.5,'#5a4630',6),Bx(1.3,0.7,0.05,-4.4,1.35,4.52,'#e0b84a'));for(let i=0;i<4;i++)P0.push(Bx(0.14,0.75,0.01,-4.85+i*0.3,1.35,4.555,'#1e1e1e',0,0,0.7));
+    P0.push(Co(0.15,0.4,-3.5,0.2,5.1,'#e06a1a',0,0,0,8),Co(0.15,0.4,-5.3,0.2,5.0,'#e06a1a',0,0,0,8));
+  }
+  STN3=[{k:'arsenal',x:-4.2,z:7.5,ly:3.2,lx:-7,lz:7.5},{k:'vest',x:-4.4,z:-10.0,ly:2.6,lx:-4.4,lz:-11.8},{k:'oficina',x:-10.9,z:-2.5,ly:2.6,lx:-12,lz:-2.5},{k:'gerador',x:9.5,z:-4.5,ly:2.4,lx:9.5,lz:-6},
+    {k:'enferm',x:2.4,z:-9.0,ly:2.8,lx:2,lz:-11.2},{k:'surv',x:8.2,z:10.6,ly:2.6,lx:8.2,lz:11.7},{k:'heroi',x:12.2,z:10.8,ly:3.2,lx:12.3,lz:12.2},{k:'casa',x:-4.4,z:5.6,ly:2.3,lx:-4.4,lz:4.5}];
+  for(const st of STN3){const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:stnTex(st.k),transparent:true,depthWrite:false}));sp.scale.set(2.6,0.65,1);sp.position.set(st.lx,st.ly,st.lz);BASE3.add(sp)}
   // watch tower near the gate
   const tx=TOWER3.x,tz=TOWER3.z;for(const[ox,oz]of[[-1,-1],[1,-1],[-1,1],[1,1]])P0.push(Bx(0.18,5,0.18,tx+ox,2.5,tz+oz,'#3a3226'));
   for(let y=0.8;y<5;y+=1.4){P0.push(Bx(2.1,0.1,0.1,tx,y,tz-1,'#3a3226',0,0,0.55),Bx(2.1,0.1,0.1,tx,y,tz+1,'#3a3226',0,0,-0.55))}
@@ -3398,14 +3433,15 @@ function buildBase3D(){
 function rebuildDefs3D(){
   if(BAR3)BASE3.remove(BAR3);if(WIRE3)BASE3.remove(WIRE3);BAR3=new THREE.Group();WIRE3=new THREE.Group();BASE3.add(BAR3);BASE3.add(WIRE3);
   const l=SV.def.gate,z0=BASE_R+0.9;const pieces=[];
-  if(l>=1){for(let i=0;i<3;i++){const x=-2+i*2;pieces.push([Bx(0.18,0.18,2.6,x,0.9,z0,'#5b4632',0.7,0.6,0),Bx(0.18,0.18,2.6,x,0.9,z0,'#5b4632',-0.7,-0.6,0)])}pieces.push([Bx(GATE_W,0.22,0.22,0,0.9,z0,'#6b5038',0,0,0)])}
-  if(l>=2)for(let i=0;i<3;i++)pieces.push([Bx(1.9,2,0.06,-2+i*2,1.1,BASE_R+0.3,'#6f777b',0.08,0,0)]);
-  if(l>=3)for(let r=0;r<3;r++)for(let i=0;i<6;i++)pieces.push([Bx(0.9,0.38,0.5,-2.6+i*1.05,0.2+r*0.38,z0+0.7,r%2?'#7c7454':'#8c8462')]);
-  if(l>=4)for(let i=0;i<5;i++)pieces.push([Cy(0.06,0.06,2,-2.4+i*1.2,0.8,z0+1.4,'#4a3826',6,0.8,0,0),Co(0.1,0.3,-2.4+i*1.2,1.55,z0+2.05,'#d8cfb0',0.8,0,0)]);
-  if(l>=5)for(let i=0;i<2;i++)pieces.push([Bx(2.6,1,0.6,-1.4+i*2.8,0.5,z0+2.2,'#8d9394')]);
+  if(l>=1){for(const x of[-2.1,2.1]){pieces.push([Bx(0.18,0.18,2.6,x,0.9,z0,'#5b4632',0.7,0.6,0),Bx(0.18,0.18,2.6,x,0.9,z0,'#5b4632',-0.7,-0.6,0)])}for(const sg of[-1,1])pieces.push([Bx(1.9,0.22,0.22,sg*2.1,0.9,z0,'#6b5038',0,0,0)])}
+  if(l>=2)for(const sg of[-1,1])for(let i=0;i<2;i++)pieces.push([Bx(1.9,2,0.06,sg*(GATE_W/2+1.2+i*2),1.1,BASE_R+0.25,'#6f777b',0.06,0,0),Bx(1.9,0.08,0.08,sg*(GATE_W/2+1.2+i*2),2.05,BASE_R+0.3,'#4a5054')]);
+  if(l>=3)for(let r=0;r<3;r++)for(const x of[-2.7,-1.7,1.7,2.7])pieces.push([Bx(0.9,0.38,0.5,x+(r%2?0.12:0),0.2+r*0.38,z0+0.7,r%2?'#7c7454':'#8c8462')]);
+  if(l>=4)for(const x of[-2.8,-1.6,1.6,2.8])pieces.push([Cy(0.06,0.06,2,x,0.8,z0+1.4,'#4a3826',6,0.8,0,0),Co(0.1,0.3,x,1.55,z0+2.05,'#d8cfb0',0.8,0,0)]);
+  if(l>=5)for(const sg of[-1,1])pieces.push([Bx(1.7,1,0.6,sg*2.1,0.5,z0+2.2,'#8d9394')]);
+  removeCol(['bar']);if(l>=1)for(const sg of[-1,1])addCol(sg*1.2,BASE_R+0.45,sg*3.2,BASE_R+(l>=5?2.6:l>=3?1.2:1.1),'bar');
   BAR3.userData.pieces=pieces.map((p,i)=>{const m=meshOf(p,MATV);BAR3.add(m);return{m,t:hr(i*3.1+l)*0.9}});
   if(SV.def.wire){const lines=1+Math.floor(SV.def.wire/2);for(let li=0;li<lines;li++){const zz=BASE_R+4+li*1.6;const g=new THREE.Group();
-      for(let i=0;i<7;i++){const t=new THREE.Mesh(new THREE.TorusGeometry(0.42,0.025,4,10),new THREE.MeshLambertMaterial({color:0x9aa2a8}));t.position.set(-3+i,0.42,zz);t.rotation.y=Math.PI/2;g.add(t)}WIRE3.add(g)}}
+      for(let i=0;i<7;i++){if(i===3)continue;const t=new THREE.Mesh(new THREE.TorusGeometry(0.42,0.025,4,10),new THREE.MeshLambertMaterial({color:0x9aa2a8}));t.position.set(-3+i,0.42,zz);t.rotation.y=Math.PI/2;g.add(t)}WIRE3.add(g)}}
 }
 
 /* ---------- characters: jointed rig with two-bone IK ---------- */
@@ -3685,7 +3721,7 @@ function enterWorld3D(){
   if(!init3D())return false;W3.on=true;
   const W0=SV.weapon;G={trip:0,kills:0,shake:0,flash:0,wave:0,wT:12,time:0,queue:[],qT:0,boss:null,cleared:true,gateHit:0,spawnT:1,zone:0,over:0,farT:rnd(8,16),tw:[],w3:1};
   const ammo={};for(const id of WORDER)if(SV.owned[id])ammo[id]=wStats(id).mag;
-  P={x:DOOR3.x,z:DOOR3.z+1.5,vx:0,vz:0,face:Math.PI,hp:maxHP(),max:maxHP(),p:0,mv:0,wid:W0,ammo,stats:wStats(W0),cd:0,reloadT:0,recoil:0,hurt:0,dead:false,deadT:0,pump:0,slide:0,cyl:0,
+  P={x:DOOR3.x,z:DOOR3.z+1.5,vx:0,vz:0,face:Math.PI,hp:maxHP(),max:maxHP(),p:0,mv:0,wid:W0,ammo,stats:wStats(W0||'pistol'),cd:0,reloadT:0,recoil:0,hurt:0,dead:false,deadT:0,pump:0,slide:0,cyl:0,
     regen:0.5*SV.rooms.enferm+0.6*workers('enferm'),armor:OUTFITS[SV.outfit].armor,stam:100,run:false,aim:0,stepPh:0,unlock:null};
   if(SV.gateHP==null)SV.gateHP=gateMax();if(SV.wireHP==null)SV.wireHP=wireMax();SV.gateHP=Math.min(SV.gateHP,gateMax());
   for(const z of Z)if(z.m)SC3.remove(z.m.root);Z=[];
@@ -3699,7 +3735,7 @@ function enterWorld3D(){
   setLook3();placeSun(P.x,P.z);camFollow(P.x,P.z,0,true);
   for(const k in HUDC)delete HUDC[k];
   return true}
-function buildPlayer3(){if(PM)SC3.remove(PM.root);PM=makeHuman(heroOutfit(SV.outfit),P.wid,accOf(P.wid));SC3.add(PM.root);PM.root.position.set(P.x,0,P.z)}
+function buildPlayer3(){if(PM)SC3.remove(PM.root);PM=makeHuman(heroOutfit(SV.outfit),P.wid,P.wid?accOf(P.wid):null);SC3.add(PM.root);PM.root.position.set(P.x,0,P.z)}
 function setupGuards3D(){for(const g of GUARD3)if(g.m)BASE3.remove(g.m.root);GUARD3=[];if(!SV.def.tower)return;
   towerGuards().forEach((gd,i)=>{const m=makeHuman(Object.assign({},GUARD_LOOK,gd.look||{}),'ak',{paint:'preto'});m.root.position.set(TOWER3.x-0.7+i*0.7,5.15,TOWER3.z+0.3);m.root.rotation.y=0;BASE3.add(m.root);GUARD3.push({m,cd:rnd(0.2,0.8),rec:0,tgt:null})})}
 
@@ -3735,7 +3771,7 @@ function setupYard3(force){
     return{name:v.name,v,m,ham,box,x:sp[0],z:sp[1],face:rnd(0,TAU),p:0,sp:0,st:'idle',t:rnd(0.5,2),path:[],task:null,seed:rnd(0,50),carry:false,n:0}})}
 function houseRect(){const t=SV.tier||1,hw=t===1?8:t===2?11:14,hd=t===1?6:t===2?8:9;return[-hw/2-0.8,-2-hd/2-0.8,hw/2+0.8,-2+hd/2+0.8]}
 function yardPath(y,tx,tz){const[x0,z0,x1,z1]=houseRect();let hit=false;for(let i=1;i<14;i++){const k=i/14,x=lerp(y.x,tx,k),z=lerp(y.z,tz,k);if(x>x0&&x<x1&&z>z0&&z<z1){hit=true;break}}
-  if(!hit)return[[tx,tz]];const sx=(y.x+tx)/2<0?x0-0.8:x1+0.8;return[[sx,y.z],[sx,tz],[tx,tz]]}
+  if(!hit)return[[tx,tz]];const sx=(y.x+tx)/2<0?x0-0.8:x1+0.8,lz=z=>z>z1?z1+0.7:z<z0?z0-0.7:z,a=lz(y.z),b=lz(tz);return[[y.x,a],[sx,a],[sx,b],[tx,b],[tx,tz]]}
 function yardFree(name,st,i){return!YARD.some(o=>o.task&&o.task.st===st&&o.task.i===i&&o!==name)}
 function yardTask(y){const jobs=yardJobs(y.v);let tot=0;for(const j of jobs)tot+=j[2];let r=Math.random()*tot,j=jobs[0];for(const q of jobs){r-=q[2];if(r<=0){j=q;break}}
   const spots=YST[j[0]]||[];const idx=[...spots.keys()].sort(()=>Math.random()-0.5).find(i=>yardFree(y,j[0],i));
@@ -3776,18 +3812,35 @@ function addChest3(x,z,boss){const P0=[Bx(1,0.55,0.62,0,0.3,0,'#6b4a2c'),Bx(1.04
   const m=meshOf(P0,MATV);m.position.set(x,0,z);m.rotation.y=Math.random()*TAU;SC3.add(m);
   const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOWTEX,color:boss?0xff5a3a:0xffc94a,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));gl.scale.setScalar(3.2);gl.position.y=0.6;m.add(gl);
   const c={x,z,open:0,opened:false,m,gl,boss};CHESTS.push(c);return c}
-function rescue3(s){s.state='gone';YSPAWN[s.name]=[s.x,s.z];SV.surv.push({name:s.name,look:s.look,job:null});addXP(60);SFX.rescue();toast(`${s.name} está na Safe House · já foi ajudar no pátio`);save();
+function rescue3(s){s.state='gone';YSPAWN[s.name]=[s.x,s.z];SV.surv.push({name:s.name,look:s.look,job:null});addXP(60);SFX.rescue();toast(`${s.name} está a salvo · já foi ajudar no pátio`);save();
   if(s.m)SC3.remove(s.m.root);setupYard3()}
 
 function actionTarget3(){
   if(!P||P.dead)return null;
-  if(Math.hypot(P.x-DOOR3.x,P.z-DOOR3.z)<2.2)return{type:'door',label:'ENTRAR NA SAFE HOUSE'};
-  if(inBase(P.x,P.z)&&P.z>BASE_R-6&&Math.abs(P.x)<7)return{type:'def',label:gateUp()?'🛡 DEFESAS DA BASE':'🛡 CONSERTAR PORTÃO'};
   for(const s of WS)if(s.state==='wait'&&Math.hypot(s.x-P.x,s.z-P.z)<3)return{type:'rescue',s,label:`RESGATAR ${s.name.toUpperCase()}`};
   for(const c of CHESTS)if(!c.opened&&Math.hypot(P.x-c.x,P.z-c.z)<2)return{type:'chest',c,label:P.unlock?'DESTRANCANDO…':'🔓 DESTRANCAR BAÚ (FAZ BARULHO)'};
+  if(inBase(P.x,P.z)){
+    if(Math.hypot(P.x-DOOR3.x,P.z-DOOR3.z)<2)return{type:'stn',k:'dorm',label:'🛏 DORMITÓRIO · DESCANSAR'};
+    let best=null,bd=2.1;for(const st of STN3){const d=Math.hypot(P.x-st.x,P.z-st.z);if(d<bd){bd=d;best=st}}
+    if(best){const k=best.k,R=ROOMS[k];let label;
+      if(R){if(!rkeys().includes(k))label=`🔒 ${R.name} · EXPANDA A BASE`;else if(!SV.rooms[k])label=`🔨 CONSTRUIR ${R.name}`;else label={arsenal:'🔫 ARSENAL · ARMAS',vest:'👕 VESTIÁRIO · ROUPAS',oficina:'🔧 OFICINA',gerador:SV.gen>=1?`⚡ GERADOR · COLETAR $ ${fmt(SV.gen)}`:'⚡ GERADOR',enferm:'✚ ENFERMARIA'}[k]}
+      else label={surv:`📋 SOBREVIVENTES (${SV.surv.length}) · TAREFAS`,heroi:SV.pts?`💪 TREINO · ${SV.pts} PONTO${SV.pts>1?'S':''} LIVRE${SV.pts>1?'S':''}`:'💪 TREINO · ATRIBUTOS',casa:TIERS[(SV.tier||1)+1]?'🏗 EXPANDIR BASE':'🏗 BASE NO MÁXIMO'}[k];
+      return{type:'stn',k,label}}
+    if(P.z>BASE_R-4.5&&Math.abs(P.x)<4)return{type:'def',label:gateUp()?'🛡 DEFESAS DA BASE':'🛡 CONSERTAR PORTÃO'}}
   return null}
+function openStation3(k){IN.l=IN.r=IN.u=IN.d=IN.fire=false;JOY.x=JOY.y=0;
+  if(ROOMS[k]){if(!rkeys().includes(k)){toast(`${ROOMS[k].name} libera ao expandir a base`);k='casa'}else{if(k==='arsenal')refill3();openRoom(k);return}}
+  if(k==='heroi')HS.arm=null;shSel=k;GS=null;SFX.click();renderSheet();sheetOpen(true);$('sIn').scrollTop=0}
+function refill3(){if(!P)return;let n=0;for(const id of WORDER)if(SV.owned[id]){const m=wStats(id).mag;if((P.ammo[id]||0)<m)n++;P.ammo[id]=m}if(n)toast('Munição reabastecida no Arsenal')}
+function syncPlayer3(){if(!W3.on||!P)return;
+  if(BASE3&&BASE3.userData.tier!==(SV.tier||1)){buildBase3D();setupYard3(true);DOOR3.z=DOOR3.z}
+  if(SV.weapon&&P.wid!==SV.weapon){P.wid=SV.weapon;P.reloadT=0}
+  for(const id of WORDER)if(SV.owned[id]&&P.ammo[id]==null)P.ammo[id]=wStats(id).mag;
+  if(P.wid){P.stats=wStats(P.wid);P.ammo[P.wid]=Math.min(P.ammo[P.wid],P.stats.mag)}
+  const mh=maxHP();if(mh!==P.max){P.hp=Math.min(mh,P.hp*mh/P.max);P.max=mh}P.regen=0.5*SV.rooms.enferm+0.6*workers('enferm');P.armor=OUTFITS[SV.outfit].armor;
+  buildPlayer3();PM.of=SV.outfit;for(const k in HUDC)delete HUDC[k];setupYard3()}
 function doAction3(){const a=actionTarget3();if(!a)return;
-  if(a.type==='door')enterHouse(false);
+  if(a.type==='stn')openStation3(a.k);
   else if(a.type==='def')openDefense();
   else if(a.type==='chest'){if(!P.unlock){P.unlock={c:a.c,t:0,k:0,n:0};noise3(a.c.x,a.c.z,40);for(let i=0;i<2+Math.floor(Math.random()*3);i++)spawnNear3(a.c.x,a.c.z,26,40)}}
   else if(a.type==='rescue'){if(SV.surv.length+WS.filter(s=>s.state==='follow').length>=12){toast('A Safe House está cheia (12 sobreviventes)');return}a.s.state='follow';if(a.s.sos)a.s.sos.visible=false;SFX.rescue();toast(`${a.s.name} está te seguindo · leve até a base`)}}
@@ -3834,7 +3887,7 @@ function wave3(dt){
 function muzzle3(){if(!PM||!PM.gun)return{x:P.x,y:1.4,z:P.z};PM.root.updateMatrixWorld(true);_v.set(0,0.04,GUN_LEN[P.wid]||0.5).applyMatrix4(PM.gun.matrixWorld);return{x:_v.x,y:_v.y,z:_v.z}}
 function zHeadY(z){return(z.type==='boss'?3.3:z.type==='brute'?2.2:1.75)}
 function fire3(tg){
-  const id=P.wid,W=WEAP[id],st=P.stats;if(P.reloadT>0||P.cd>0||P.dead)return;
+  const id=P.wid,W=WEAP[id],st=P.stats;if(!id||P.reloadT>0||P.cd>0||P.dead)return;
   if(P.ammo[id]<=0){SFX.empty();P.cd=0.25;reload();return}
   P.ammo[id]--;P.cd=st.rate;P.recoil=1;G.kick=Math.min(0.5,(G.kick||0)+(id==='shotgun'||id==='sniper'?0.35:id==='revolver'?0.22:0.07));G.shake=Math.min(10,G.shake+(id==='shotgun'||id==='sniper'?5:id==='revolver'?3:1.5));
   if(st.quiet)SFX.supp();else SFX[W.snd]();if(id==='shotgun'){SFX.pump();P.pump=0.5}if(id==='sniper')SFX.bolt();
