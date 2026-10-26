@@ -94,8 +94,8 @@ button{font-family:var(--hud)}
 .btn.sm{width:56px;height:56px}
 .btn.sm svg{width:22px;height:22px}
 #bRun{border-color:#7fc4e0;color:#7fc4e0}
-.w3 #allyBar{display:block}#allyBar{position:absolute;left:max(14px,var(--sl));top:calc(198px + var(--st));z-index:6;display:none}
-.short #allyBar{top:164px}
+.w3 #allyBar{display:block}#allyBar{position:absolute;left:max(14px,var(--sl));top:calc(232px + var(--st));z-index:6;display:none}
+.short #allyBar{top:198px}
 #allyBar[hidden]{display:none!important}
 .abm{pointer-events:auto;display:flex;flex-direction:column;align-items:flex-start;gap:3px;background:rgba(8,12,11,.82);border:1.5px solid #9fe06a;border-radius:12px;padding:6px 12px;color:#ece6d3;font:800 14px/1 var(--hud);letter-spacing:.08em;cursor:pointer}
 .abm small{font-size:10px;letter-spacing:.2em;color:#9fe06a}
@@ -109,6 +109,19 @@ button{font-family:var(--hud)}
 #placeBar b{font:800 14px/1 var(--hud);letter-spacing:.14em;color:var(--amber);margin-right:4px;white-space:nowrap}
 #placeBar button{pointer-events:auto;margin:0;padding:10px 14px;font-size:14px;white-space:nowrap}
 #placeBar button:disabled{opacity:.4}
+#bCrouch{border-color:#9fe06a;color:#9fe06a}#bCrouch.tog{background:radial-gradient(circle,rgba(127,211,106,.45),rgba(8,12,11,.8))}
+.needs{display:flex;align-items:center;gap:3px;font-size:10px;line-height:1}.needs span{width:12px;text-align:center}
+.needs .bar.nd{width:40px!important;height:5px!important;flex:0 0 40px}.bar.nd i{background:#e0a23b}.bar.nd.th i{background:#4ab8ff}.bar.nd.ft i{background:#b89aff}
+.hrow{display:flex;align-items:center;gap:6px;margin-top:2px}
+.bagB{pointer-events:auto;border:1px solid var(--line);background:rgba(8,12,11,.72);color:var(--ink);font:800 11px/1 var(--hud);letter-spacing:.1em;padding:6px 9px;border-radius:12px;cursor:pointer;transition:transform .08s}.bagB:active{transform:scale(.92)}
+#moods{display:flex;gap:4px;flex-wrap:wrap;max-width:190px}
+.md{pointer-events:auto;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:14px;line-height:1;padding:0;cursor:pointer;background:rgba(8,12,11,.8);border:2px solid #d8c84a;animation:mdIn .25s ease-out}
+.md.l2{border-color:#f08a2a}.md.l3{border-color:#e0263a;animation:mdIn .25s ease-out,mdP .7s ease-in-out infinite alternate}
+@keyframes mdIn{from{transform:scale(.4);opacity:0}}@keyframes mdP{to{box-shadow:0 0 12px rgba(224,38,58,.8)}}
+.irow{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:8px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:10px;margin-top:8px}
+.irow>i{font-style:normal;font-size:24px;text-align:center}.irow .it b{display:block;font:800 14px/1.1 var(--hud);letter-spacing:.06em}.irow .it span{font-size:12px;color:var(--mute)}
+.irow .ia{display:flex;gap:6px;align-items:center}.irow .ia .buy{margin:0;padding:9px 12px;font-size:13px}
+#over.hc h1 em{color:#e0263a}
 #bRun.tog{background:radial-gradient(circle,rgba(127,196,224,.5),rgba(8,12,11,.8))}
 #bDodge{border-color:#e3a23b;color:#e3a23b}
 #bDodge{display:none}.w3 #bDodge{display:grid}
@@ -364,8 +377,8 @@ button.crIn{text-align:left;min-height:46px;cursor:text}
 #joyK.idle{transition:transform .22s cubic-bezier(.3,1.7,.5,1)}
 #joyB.on #joyK{width:62px;height:62px;margin:-31px 0 0 -31px;background:radial-gradient(circle at 40% 35%,#fff3d0,rgba(227,162,59,.85))}
 #joyK{position:absolute;left:50%;top:50%;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:radial-gradient(circle at 40% 35%,rgba(236,230,211,.9),rgba(150,150,140,.75));box-shadow:0 4px 12px rgba(0,0,0,.5)}
-#mini{position:absolute;left:max(14px,var(--sl));top:calc(78px + var(--st));width:112px;height:112px;border-radius:50%;border:2px solid rgba(236,230,211,.35);box-shadow:0 4px 16px rgba(0,0,0,.6);z-index:5;pointer-events:none}
-.short #mini{width:92px;height:92px;top:64px}
+#mini{position:absolute;left:max(14px,var(--sl));top:calc(112px + var(--st));width:112px;height:112px;border-radius:50%;border:2px solid rgba(236,230,211,.35);box-shadow:0 4px 16px rgba(0,0,0,.6);z-index:5;pointer-events:none}
+.short #mini{width:88px;height:88px;top:104px}
 .w3 #padL .row{display:none}
 #bAuto{height:26px!important;padding:0 10px!important;font-size:11px!important;letter-spacing:.12em;gap:4px;margin:6px 0 0 auto;pointer-events:auto;display:inline-flex;border-radius:13px!important;width:auto!important;box-shadow:none}
 #bAuto svg{width:12px!important;height:12px!important}
@@ -385,6 +398,8 @@ button.crIn{text-align:left;min-height:46px;cursor:text}
     <div class="bars">
       <div class="hpBox"><svg class="cross" viewBox="0 0 24 24"><path d="M9 3h6v6h6v6h-6v6H9v-6H3V9h6z" fill="#c4261e"/></svg><div class="bar"><i id="hpFill"></i></div><span id="hpTxt">100</span></div>
       <div class="bar st"><i id="stFill"></i></div>
+      <div class="needs"><span>🍖</span><div class="bar nd"><i id="hunF"></i></div><span>💧</span><div class="bar nd th"><i id="thiF"></i></div><span>😴</span><div class="bar nd ft"><i id="fatF"></i></div></div>
+      <div class="hrow"><button class="bagB" id="bBag" type="button">🎒 MOCHILA</button><div id="moods"></div></div>
     </div>
   </div>
   <div class="mid"><span class="lbl" id="dayN">DIA 1 · DIA</span><b id="zoneN">SAFE HOUSE</b><span class="wnx" id="waveNx"></span><div id="bossBar" hidden><small>ABOMINAÇÃO</small><div class="bb"><i id="bossFill"></i></div></div></div>
@@ -411,6 +426,7 @@ button.crIn{text-align:left;min-height:46px;cursor:text}
     <button class="btn sm" id="bSwap" aria-label="Trocar arma"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg><span>ARMA</span></button>
   </div>
   <div class="col">
+    <button class="btn sm" id="bCrouch" aria-label="Agachar"><svg viewBox="0 0 24 24"><circle cx="13" cy="5" r="2"/><path d="M8 21l2-6 4-1-2-5-4 2-2 4M14 14l4 2v5"/></svg><span>AGACHAR</span></button>
     <button class="btn sm" id="bReload" aria-label="Recarregar"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></svg><span>RECARGA</span></button>
     <button class="btn big" id="bFire" aria-label="Atirar"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2" fill="currentColor"/><path d="M12 1v5M12 18v5M1 12h5M18 12h5"/></svg></button>
   </div>
@@ -449,8 +465,8 @@ button.crIn{text-align:left;min-height:46px;cursor:text}
 </div>
 <div id="over" class="ov" hidden>
   <div class="card0">
-    <div class="kick" style="color:var(--blood)">SINAL PERDIDO</div>
-    <h1>VOCÊ <em>DESMAIOU</em></h1>
+    <div class="kick" id="oKick" style="color:var(--blood)">SINAL PERDIDO</div>
+    <h1 id="oH">VOCÊ <em>DESMAIOU</em></h1>
     <p id="oLost" class="sub"></p>
     <div class="stats">
       <div><small>ABATES</small><b id="oK">0</b></div><div><small>GANHO</small><b id="oS">0</b></div><div><small>HORDA · TEMPO</small><b id="oF">0</b></div>
@@ -471,7 +487,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v27', NOTES='Menos travadas, personagens melhores e botão zerar';
+const VERSION='v28', NOTES='Modo sobrevivência: fome, sede, ferimentos e mais';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -1899,7 +1915,7 @@ function roomCost(k,l){
   if(k==='dorm')return Math.round(500*Math.pow(1.7,l-1));
   return Infinity;
 }
-function genRate(l){if(!l)return 0;return Math.round(8*Math.pow(Math.max(1,l),1.35)*(1+0.3*workers('gerador')))}
+function genRate(l){if(!l)return 0;if(SV.sv&&SV.sv.fuel<=0&&typeof W3!=='undefined'&&W3.ready)return 0;return Math.round(8*Math.pow(Math.max(1,l),1.35)*(1+0.3*workers('gerador')))}
 function genCapH(){return 2+SV.rooms.dorm}
 function genCap(){return genRate(SV.rooms.gerador)*60*genCapH()}
 function roomInfo(k,l){
@@ -2229,7 +2245,7 @@ const JOBS={torre:{name:'TORRE',room:null,desc:'atira nos zumbis do portão'},ge
 function jobCap(job){if(job==='torre')return typeof towers==='function'&&W3.ready?towers().length:(SV.def.tower?1+Math.floor(SV.def.tower/2):0);if(job==='horta')return typeof farm==='function'?farm().plots.length:2;if(job==='expedicao')return allyCap();const J=JOBS[job];if(!J.room)return 99;const l=SV.rooms[J.room];return l?2+Math.floor(l/5):0}
 
 /* ================= WORLD STATE ================= */
-let T=0,APP='title',ROT=false,LASTDT=0.016,TITLE_3D=false;
+let HCDEAD=false,T=0,APP='title',ROT=false,LASTDT=0.016,TITLE_3D=false;
 let G=null,P=null,Z=[],PT=[],DEC=[],TXT=[],WS=[],CHESTS=[];
 const IN={l:false,r:false,fire:false,latch:false,run:false};
 const RAIN=[],SBL=[];
@@ -2680,6 +2696,7 @@ function goBase(fromDeath){
 function leaveHouse(){if(!SV.weapon){toast('Você precisa de uma arma: compre no Arsenal');SFX.deny();openRoom('arsenal');return}closeSheet();SFX.door();enterWorld();
   banner(`DIA ${SV.day} · ${SV.night?'NOITE':'DIA'}`,SV.night?'Mais zumbis e mais dinheiro':'Explore e resgate sobreviventes')}
 function showDeath(){
+  if(typeof survDeath==='function'&&survDeath()){HCDEAD=true;SV=defSave();return}
   const lost=Math.round(G.trip*0.25);SV.cash=Math.max(0,SV.cash-lost);
   for(const s of WS)if(s.state==='follow')s.state='wait';
   $('oLost').textContent=lost?`Alguém te arrastou de volta. Você perdeu $ ${fmt(lost)} do que carregava.`:'Alguém te arrastou de volta para a Safe House.';
@@ -2716,6 +2733,7 @@ function sleep(toMorning){
       $('slT').textContent=`DIA ${SV.day}`;$('slS').textContent=c?`O sol nasceu · a coleta trouxe $ ${fmt(c)}`:'O sol nasceu · menos zumbis nas ruas'}
     else{SV.night=true;SV.tod=19.7;$('slT').textContent='NOITE';$('slS').textContent=`Dia ${SV.day} · mais zumbis, mais dinheiro`}
     if(W3.on){for(const z of Z)if(z.m)freeZombie3(z.m,z.type);Z=[];G.queue=[];G.wave=0;G.cleared=true;G.wT=rnd(20,30);W3.night=SV.night;W3.day=SV.day;newPhase3();setLook3();P.hp=P.max;P.stam=100}else newPhase();
+    if(SV.sv){const S=sv();S.fat=100;S.hun=Math.max(0,S.hun-(toMorning?22:10));S.thi=Math.max(0,S.thi-(toMorning?28:12));S.wet=0;S.pan=0}
     save();updateHouseUI(true);SFX.levelup();
   },1300);
   setTimeout(()=>{ov.classList.remove('show');SHP.sleep=false;setTimeout(()=>{ov.hidden=true},700)},4600);
@@ -2742,10 +2760,13 @@ function hint(t){return el('p','hint',t)}
 function renderSheet(){
   const k=shSel;if(!k)return;const body=$('sBody');const keep=$('sIn').scrollTop;body.innerHTML='';
   if(k==='surv')return renderSurv(body);
-  if(k==='heroi')return renderHero(body);
+  if(k==='heroi'){renderHero(body);if(typeof renderSkills==='function')renderSkills(body);return}
   if(k==='def')return renderDefense(body);
   if(k==='casa')return renderExpand(body);
   if(k==='horta')return renderFarm(body);
+  if(k==='inv')return renderInv(body);
+  if(k==='store')return renderStore(body);
+  if(k==='agua')return renderWater(body);
   if(k==='bld')return renderBuild(body);
   if(GS)return renderGunsmith(body);
   const l=SV.rooms[k],R=ROOMS[k];
@@ -2756,7 +2777,7 @@ function renderSheet(){
     const row=el('div','act');if(!SV.night)row.append(btn('DORMIR ATÉ A NOITE','ghost',()=>sleep(false)));row.append(btn('DORMIR ATÉ AMANHÃ','buy alt',()=>sleep(true)));box.append(row);body.append(box)}
   if(k==='gerador'&&l){const box=el('div','gen');const now=el('b','',`$ ${fmt(SV.gen)}`);now.id='genNow';
     box.append(el('small','','GUARDADO NO GERADOR'),now,el('p','',`Produz $ ${fmt(genRate(l))}/min · guarda até $ ${fmt(genCap())} (${genCapH()}h)`));
-    box.append(btn('COLETAR','buy alt',()=>{if(SV.gen<1)return;const v=Math.floor(SV.gen);SV.cash+=v;SV.gen-=v;SFX.coin();toast(`+$ ${fmt(v)} coletados`);save();renderSheet();updateHouseUI(true)},SV.gen<1));body.append(box)}
+    if(typeof renderFuel==='function')renderFuel(body);box.append(btn('COLETAR','buy alt',()=>{if(SV.gen<1)return;const v=Math.floor(SV.gen);SV.cash+=v;SV.gen-=v;SFX.coin();toast(`+$ ${fmt(v)} coletados`);save();renderSheet();updateHouseUI(true)},SV.gen<1));body.append(box)}
   // room upgrade: 1st tap preview, 2nd tap buy
   const up=el('div','upg'+(RM.armed===k?' armed':''));up.append(el('small','',k==='arsenal'||k==='vest'?'MELHORAR CÔMODO':'CÔMODO'));
   up.append(el('p','now',l?roomInfo(k,l):'Ainda não construído.'));
@@ -3181,6 +3202,7 @@ function renderCreator(){
   const b=$('crBody');const keep=$('crR').scrollTop;b.innerHTML='';
   const nm=el('button','crIn'+(CR.look.name?'':' empty')+(KB.on?' focus':''),CR.look.name||'');nm.type='button';nm.id='crName';nm.dataset.ph='TOQUE PARA DIGITAR';nm.addEventListener('click',e=>{e.stopPropagation();SFX.click();kbOpen()});
   b.append(crSection('NOME',nm));
+  if(!CR.edit){const w=el('div','chs');for(const[v,l]of[[false,'NORMAL'],[true,'☠ HARDCORE · UMA VIDA SÓ']])w.append(btn(l,'chip'+(!!CR.hard===v?' on':''),()=>{CR.hard=v;SFX.click();renderCreator()}));b.append(crSection('MODO DE SOBREVIVÊNCIA',w))}
   if(!CR.edit){const w=el('div','cls');for(const c of CLASSES){const x=btn('', 'clb'+(CR.cls===c.id?' on':''),()=>{CR.cls=c.id;if(c.style)setStyle(c.style);SFX.click();renderCreator()});x.append(el('b','',c.name),el('span','',c.desc));w.append(x)}b.append(crSection('PROFISSÃO ANTES DO FIM',w))}
   {const w=el('div','chs sty');for(const S of STYLES){w.append(btn(S.n,'chip'+((CR.look.style||'surv')===S.id?' on':''),()=>{setStyle(S.id);SFX.click();renderCreator()}))}b.append(crSection('ESTILO DA ROUPA',w))}
   b.append(crSection('CORPO',chips('fem',LOOKOPT.fem)));
@@ -3215,7 +3237,7 @@ function creatorDone(){
   const L=CR.look;if(!L.name)L.name='SOBREVIVENTE';
   if(!CR.edit&&!CR.cls){CR.cls=CLASSES[0].id;toast('Profissão: '+CLASSES[0].name)}
   SV.look=Object.assign({},L);
-  if(!CR.edit){SV.cls=CR.cls;const cl=CLASSES.find(c=>c.id===CR.cls);for(const k in CR.alloc){SV.attr[k]=at(k)+CR.alloc[k]}for(const k of['for','agi','vig','pon'])SV.attr[k]=at(k)+clsBonus(cl.id,k);SV.pts=crLeft();SV.created=true}
+  if(!CR.edit){SV.cls=CR.cls;const cl=CLASSES.find(c=>c.id===CR.cls);for(const k in CR.alloc){SV.attr[k]=at(k)+CR.alloc[k]}for(const k of['for','agi','vig','pon'])SV.attr[k]=at(k)+clsBonus(cl.id,k);SV.pts=crLeft();SV.created=true;SV.hard=!!CR.hard;SV.sv=null;sv()}
   SFX.buy();save();closeCreator();
   if(CR.edit){goBase(false);toast('Visual atualizado')}else{goBase(false);setTimeout(()=>banner(`BEM-VINDO, ${SV.look.name}`,'Vá até o ARSENAL no pátio e pegue sua arma'),900)}
 }
@@ -3252,7 +3274,7 @@ $('bReset').addEventListener('click',()=>{const b=$('bReset');SFX.click();if(!b.
 $('play').addEventListener('click',()=>{auInit();SFX.click();goFull();
   if(!SV.created){openCreator(false);return}
   goBase(false)});
-$('again').addEventListener('click',()=>{SFX.click();goBase(true)});
+$('again').addEventListener('click',()=>{SFX.click();if(HCDEAD){try{localStorage.removeItem(SAVE_KEY)}catch(e){}location.reload();return}goBase(true)});
 $('bExit').addEventListener('click',leaveHouse);
 $('bExp').addEventListener('click',()=>{shSel='casa';GS=null;SFX.click();renderSheet();sheetOpen(true);$('sIn').scrollTop=0});
 $('bHero').addEventListener('click',()=>{shSel='heroi';GS=null;HS.arm=null;SFX.click();renderSheet();sheetOpen(true);$('sIn').scrollTop=0});
@@ -3393,7 +3415,7 @@ function inBase(x,z){return Math.abs(x)<BASE_R&&Math.abs(z)<BASE_R}
 function zone3(x,z){const d=Math.max(Math.abs(x),Math.abs(z));return d<BASE_R+2?0:d<90?1:d<160?2:d<215?3:4}
 
 /* ---------- world generation ---------- */
-const LAMPPOS=[],FIREPOS=[],CHESTSPOT=[],SURVSPOT=[],BLDRECT=[];let YST={},STN3=[];const STN_NAME={horta:'HORTA',arsenal:'ARSENAL',vest:'VESTIÁRIO',oficina:'OFICINA',gerador:'GERADOR',enferm:'ENFERMARIA',surv:'SOBREVIVENTES',heroi:'TREINO',casa:'OBRAS',dorm:'DORMITÓRIO'};
+const LAMPPOS=[],FIREPOS=[],CHESTSPOT=[],SURVSPOT=[],BLDRECT=[];let YST={},STN3=[];const STN_NAME={store:'DEPÓSITO',agua:'ÁGUA',horta:'HORTA',arsenal:'ARSENAL',vest:'VESTIÁRIO',oficina:'OFICINA',gerador:'GERADOR',enferm:'ENFERMARIA',surv:'SOBREVIVENTES',heroi:'TREINO',casa:'OBRAS',dorm:'DORMITÓRIO'};
 
 let DOOR3={x:0,z:6},HOUSE3=null,TOWER3={x:-10,z:10.5},GROUND3=null;
 function bldUV(w,h,d){const g=new THREE.BoxGeometry(w,h,d).toNonIndexed();const uv=g.attributes.uv.array;
@@ -3944,13 +3966,13 @@ function actionTarget3(){
   for(const a of ALLY)if(a.st==='down'&&Math.hypot(a.x-P.x,a.z-P.z)<2.2)return{type:'revive',a,label:`💉 REANIMAR ${a.name.toUpperCase()}`};
   {const b=nearBuild3();if(b)return{type:'bld',b,label:bLabel(b)}}
   if(inBase(P.x,P.z)){
-    if(P.x>4.4&&P.x<14.4&&P.z>6&&P.z<14.4){const r=farmReady();return{type:'stn',k:'horta',label:r?`🌱 HORTA · COLHER (${r} PRONTO${r>1?'S':''})`:'🌱 HORTA · PLANTAR'}}
     if(Math.hypot(P.x-DOOR3.x,P.z-DOOR3.z)<2)return{type:'stn',k:'dorm',label:'🛏 DORMITÓRIO · DESCANSAR'};
     let best=null,bd=2.1;for(const st of STN3){const d=Math.hypot(P.x-st.x,P.z-st.z);if(d<bd){bd=d;best=st}}
     if(best){const k=best.k,R=ROOMS[k];let label;
       if(R){if(!rkeys().includes(k))label=`🔒 ${R.name} · EXPANDA A BASE`;else if(!SV.rooms[k])label=`🔨 CONSTRUIR ${R.name}`;else label={arsenal:'🔫 ARSENAL · ARMAS',vest:'👕 VESTIÁRIO · ROUPAS',oficina:'🔧 OFICINA',gerador:SV.gen>=1?`⚡ GERADOR · COLETAR $ ${fmt(SV.gen)}`:'⚡ GERADOR',enferm:'✚ ENFERMARIA'}[k]}
-      else label={horta:'🌱 HORTA',surv:`📋 SOBREVIVENTES (${SV.surv.length}) · TAREFAS`,heroi:SV.pts?`💪 TREINO · ${SV.pts} PONTO${SV.pts>1?'S':''} LIVRE${SV.pts>1?'S':''}`:'💪 TREINO · ATRIBUTOS',casa:TIERS[(SV.tier||1)+1]?'🏗 EXPANDIR BASE':'🏗 BASE NO MÁXIMO'}[k];
+      else label={store:'📦 DEPÓSITO · SUPRIMENTOS',agua:`💧 CAIXA D'ÁGUA · ${Math.round(sv().water)} L`,horta:'🌱 HORTA',surv:`📋 SOBREVIVENTES (${SV.surv.length}) · TAREFAS`,heroi:SV.pts?`💪 TREINO · ${SV.pts} PONTO${SV.pts>1?'S':''} LIVRE${SV.pts>1?'S':''}`:'💪 TREINO · ATRIBUTOS',casa:TIERS[(SV.tier||1)+1]?'🏗 EXPANDIR BASE':'🏗 BASE NO MÁXIMO'}[k];
       return{type:'stn',k,label}}
+    if(P.x>4.4&&P.x<14.4&&P.z>6&&P.z<14.4){const r=farmReady();return{type:'stn',k:'horta',label:r?`🌱 HORTA · COLHER (${r} PRONTO${r>1?'S':''})`:'🌱 HORTA · PLANTAR'}}
     if(P.z>BASE_R-4.5&&Math.abs(P.x)<4)return{type:'def',label:gateUp()?'🛡 DEFESAS DA BASE':'🛡 CONSERTAR PORTÃO'}}
   return null}
 function openStation3(k){IN.l=IN.r=IN.u=IN.d=IN.fire=false;JOY.x=JOY.y=0;
@@ -3977,7 +3999,7 @@ function openChest3(c){c.opened=true;SFX.lockOpen();SFX.chest();c.gl.visible=fal
   if(pt){txt=`🔩 ${pt.pn} (${pt.n}/5)`;SFX.part();toast(pt.n>=5?`${WEAP[pt.id].name} completa! Monte no Arsenal`:`Peça encontrada: ${pt.pn} da ${WEAP[pt.id].name} (${pt.n}/5)`);if(pt.n>=5)banner('ARMA COMPLETA!',`Monte a ${WEAP[pt.id].name} no Arsenal`)}
   else if(kd==='pharmacy'||(kd==='farm'&&Math.random()<0.5)){P.hp=kd==='pharmacy'?P.max:Math.min(P.max,P.hp+P.max*0.5);txt=kd==='pharmacy'?'🩹 KIT MÉDICO · VIDA CHEIA':'🍎 COMIDA · +50% VIDA';if(kd==='pharmacy')earn(rnd(15,30)*zc)}
   else if(Math.random()<0.7||kd){const v=earn(rnd(25,55)*zc*(1+0.1*(SV.day-1))*(c.boss?6:1)*({market:2,gas:1.4,junk:1.2,farm:1.1,guns:1}[kd]||1));txt=`+$ ${fmt(v)}`}else{P.hp=Math.min(P.max,P.hp+P.max*0.4);txt='+40% VIDA'}
-  ftxt(c.x,1.6,c.z,txt,'#ffcf4a',18);c.m.children.forEach(ch=>{});c.m.scale.y=0.75}
+  ftxt(c.x,1.6,c.z,txt,'#ffcf4a',18);{const SB={pharmacy:['bandage','pain','antiv','bandage'],market:['food','water','snack'],farm:['food','veg','water'],gas:['gas','water','snack'],guns:['bandage','food'],junk:['gas','snack']}[c.kind]||['snack','water','bandage','food'];if(Math.random()<0.6){const it=pick(SB);if(invAdd(it))setTimeout(()=>ftxt(c.x,2.1,c.z,`${ITEMS[it].ic} ${ITEMS[it].n}`,'#d8f08a',15),350);else{const l=addLoot3(it==='gas'?'gas':it==='water'?'water':['bandage','pain','antiv'].includes(it)?'med':'food',c.x+1,c.z);l.item=it}}}c.m.children.forEach(ch=>{});c.m.scale.y=0.75}
 function noise3(x,z,r){for(const z0 of Z)if(!z0.dead&&Math.hypot(z0.x-x,z0.z-z)<r)z0.alert=8}
 function spawnZ3(type,x,z,zz,m){const ty=ZT[type],nt=SV.night;
   const hp=Math.round(ty.hp*[1,1,1.7,3,5.5][zz]*(1+0.06*(SV.day-1))*(nt?1.15:1)*(m||1));
@@ -4023,14 +4045,14 @@ function fire3(tg){
   const dx=Math.sin(P.face),dz=Math.cos(P.face),mz=muzzle3(),R=range3();
   MUZL.position.set(mz.x,mz.y,mz.z);MUZL.intensity=st.quiet?12:45;MFLASH.position.set(mz.x+dx*0.15,mz.y,mz.z+dz*0.15);MFLASH.scale.setScalar(st.quiet?0.5:id==='shotgun'||id==='sniper'?1.6:1.05);
   noise3(P.x,P.z,st.quiet?14:32);
-  const head0=st.head+(SV.night?st.nightHead:0)+SV.rooms.oficina*0.004;
+  const head0=(st.head+(SV.night?st.nightHead:0)+SV.rooms.oficina*0.004)*survAim(),sdm=survDmg();
   const cand=Z.filter(z=>!z.dead).map(z=>{const ox=z.x-P.x,oz=z.z-P.z,along=ox*dx+oz*dz,perp=Math.abs(ox*dz-oz*dx);return{z,along,perp}}).filter(q=>q.along>-0.3&&q.along<R).sort((a,b)=>a.along-b.along);
   if(id==='shotgun'){let hits=0;for(const q of cand){if(hits>=3)break;if(q.perp>Math.max(0.9,q.along*0.22))continue;const fall=clamp(1-q.along/R,0.2,1),share=[1,0.55,0.3][hits];const head=q.along<6&&Math.random()<head0;
-      hurtZ3(q.z,st.dmg*W.pellets*fall*share,head,dx,dz);hits++}
+      hurtZ3(q.z,st.dmg*sdm*W.pellets*fall*share,head,dx,dz);skXP('aim',head?1.5:0.6);hits++}
     for(let i=0;i<5;i++){const a=rnd(-0.12,0.12),ca=Math.cos(a),sa=Math.sin(a),ex=dx*ca-dz*sa,ez=dx*sa+dz*ca;tracer3(mz.x,mz.y,mz.z,mz.x+ex*R*0.7,mz.y-0.3,mz.z+ez*R*0.7,0.05)}}
   else{const pierce=W.pierce||1;let n=0,ex=mz.x+dx*R,ey=mz.y-0.2,ez=mz.z+dz*R;
     for(const q of cand){if(n>=pierce)break;const rad=(q.z.type==='boss'?1.3:q.z.type==='brute'?0.75:0.5);if(q.perp>rad)continue;const head=Math.random()<head0;
-      hurtZ3(q.z,st.dmg*rnd(0.92,1.08)*(n?0.8:1),head,dx,dz);ex=q.z.x;ez=q.z.z;ey=head?zHeadY(q.z):1.1*ZT[q.z.type].s;n++}
+      hurtZ3(q.z,st.dmg*sdm*rnd(0.92,1.08)*(n?0.8:1),head,dx,dz);skXP('aim',head?1.5:0.6);ex=q.z.x;ez=q.z.z;ey=head?zHeadY(q.z):1.1*ZT[q.z.type].s;n++}
     tracer3(mz.x,mz.y,mz.z,ex,ey,ez,id==='sniper'?0.12:0.06)}
   if(P.ammo[id]===0)setTimeout(()=>{if(P&&P.ammo[id]===0)reload()},160)}
 function hurtZ3(z,dmg,head,dx,dz){
@@ -4052,7 +4074,7 @@ function killZ3(z,head,dx,dz){
 function bossDown3(z){G.boss=null;G.shake=16;banner('BOSS DERROTADO!','A Abominação caiu');braam(55,2.4,0.4);blood3(z.x,2.5,z.z,QH?80:30,0,0,2);
   addChest3(z.x+2,z.z+2,true);for(let i=0;i<2;i++){const d=dropPart();if(d)toast(`🔩 ${d.pn} · ${WEAP[d.id].name} (${d.n}/5)`)}SV.bossKills=(SV.bossKills||0)+1}
 function hurtP3(d,kx,kz){
-  if(P.dead||APP!=='world'||P.dodge>0.1)return;P.vx+=kx||0;P.vz+=kz||0;d*=(1-P.armor);P.hp-=d;P.hurt=1;G.shake=Math.min(12,G.shake+6);SFX.hurt();
+  if(P.dead||APP!=='world'||P.dodge>0.1)return;P.vx+=kx||0;P.vz+=kz||0;d*=(1-P.armor);P.hp-=d;survHurt(d);P.hurt=1;G.shake=Math.min(12,G.shake+6);SFX.hurt();
   if(!G.sblT||T-G.sblT>0.6){G.sblT=T;for(let i=0;i<(QH?2:1);i++)SBL.push({x:Math.random()<0.5?rnd(0,0.22):rnd(0.78,1),y:rnd(0,1),r:rnd(12,34),life:2.2,d:rnd(20,60)})}if(SBL.length>7)SBL.splice(0,SBL.length-7);
   blood3(P.x,1.3,P.z,QH?8:3,kx?Math.sign(kx):0,kz?Math.sign(kz):0,0.6);
   try{navigator.vibrate&&navigator.vibrate(50)}catch(e){}
@@ -4068,7 +4090,7 @@ function update3D(dt){
   G.sigT=(G.sigT||0)-dt;if(G.sigT<=0){G.sigT=0.5;const sig=SV.def.gate+'|'+SV.def.wire+'|'+SV.def.tower+'|'+SV.surv.filter(v=>v.job==='torre').length;if(G.defSig!==sig){G.defSig=sig;rebuildDefs3D();setupGuards3D()}setupYard3()}
   G.shake=Math.max(0,G.shake-dt*30);G.gateHit=Math.max(0,G.gateHit-dt);tickGen(dt);
   if(!$('sheet').hidden){updateHUD();return}
-  sky3(dt);dust3(dt);if(!P.dead)playerLoot3();for(const l of LOOT3)l.gl.material.opacity=0.5+Math.sin(T*4+l.x)*0.3;yard3(dt);farm3(dt);poi3(dt);if(PLACE)place3();if(!P.dead)allies3(dt);if(G.ping){G.ping.t-=dt;if(G.ping.t<=0)G.ping=null}
+  sky3(dt);dust3(dt);surv3(dt);if(!P.dead)playerLoot3();for(const l of LOOT3)l.gl.material.opacity=0.5+Math.sin(T*4+l.x)*0.3;yard3(dt);farm3(dt);poi3(dt);if(PLACE)place3();if(!P.dead)allies3(dt);if(G.ping){G.ping.t-=dt;if(G.ping.t<=0)G.ping=null}
   if(!P.dead){
     // movement relative to the isometric camera (dead zone + response curve, momentum, turn-around grip)
     {const kk=1-Math.exp(-dt*(Math.hypot(JOY.x,JOY.y)>Math.hypot(JOY.sx||0,JOY.sy||0)?26:18));JOY.sx=lerp(JOY.sx||0,JOY.x,kk);JOY.sy=lerp(JOY.sy||0,JOY.y,kk)}
@@ -4081,7 +4103,7 @@ function update3D(dt){
     P.tg=tg;const td=tg?Math.hypot(tg.x-P.x,tg.z-P.z):1e9;
     JOY.full=jl>0.93?(JOY.full||0)+dt:0;if(!tg&&JOY.full>0.45)JOY.run=true;else if(jl<0.6||tg)JOY.run=false;
     if(IN.run&&(P.stam<=2||mag<0.15)&&!IN.runHold){IN.run=false;$('bRun').classList.remove('tog')}
-    const running=(IN.run||JOY.run)&&mag>0.2&&P.stam>2,agi=1+0.03*at('agi');let maxV=(running?6.6:3.6)*agi*mag;
+    const running=(IN.run||JOY.run)&&mag>0.2&&P.stam>2&&!P.crouch,agi=1+0.03*at('agi');let maxV=(running?6.6*(1+0.03*skl('run')):P.crouch?1.9:3.6)*agi*mag*survSpeed();
     const aiming=tg&&!running&&(IN.fire||SV.auto||td<R*0.8);
     if(aiming&&mag>0.1){const fx=Math.sin(P.face),fz=Math.cos(P.face),ml=Math.hypot(mx,mz)||1,cs=(mx*fx+mz*fz)/ml;maxV*=cs<0?0.78:cs<0.5?0.9:1}
     const ml=Math.max(1e-3,Math.hypot(mx,mz)),tvx=mag>0.02?mx/ml*maxV:0,tvz=mag>0.02?mz/ml*maxV:0;
@@ -4091,9 +4113,9 @@ function update3D(dt){
     P.x+=P.vx*dt;P.z+=P.vz*dt;collide(P,0.35,false);
     const sp=Math.hypot(P.vx,P.vz);P.p+=sp*dt*Math.PI/(2*strideOf(sp>4.5)*(P.dodge>0?1.5:1));P.mv=sp;
     const phs=Math.floor(P.p/Math.PI);if(phs!==P.stepPh){P.stepPh=phs;if(sp>0.8)SFX.step(sp>5,1)}
-    P.run=running&&sp>4.5&&!(P.dodge>0);P.stam=clamp(P.stam+(running?-22:16*(1+0.05*at('agi')))*dt,0,100);
+    P.run=running&&sp>4.5&&!(P.dodge>0);P.stam=clamp(P.stam+(running?-22*(1-0.05*skl('run')):16*(1+0.05*at('agi'))*survStam())*dt,0,100);
     P.cd-=dt;P.recoil=Math.max(0,P.recoil-dt*(P.wid==='sniper'?3:P.wid==='shotgun'?4:P.wid==='revolver'?6:12));P.pump=Math.max(0,P.pump-dt);P.hurt=Math.max(0,P.hurt-dt*2);
-    if(P.regen&&P.hp<P.max)P.hp=Math.min(P.max,P.hp+P.regen*dt);
+    if(P.regen&&P.hp<P.max&&survRegenOK())P.hp=Math.min(P.max,P.hp+P.regen*dt);
     if(P.reloadT>0){P.reloadT-=dt;if(P.reloadT<=0){P.reloadT=0;P.ammo[P.wid]=P.stats.mag}}
     const want=IN.fire||(SV.auto&&tg&&!P.run);
     let face=P.face;if(tg&&(want||td<R*0.8)&&!P.run)face=Math.atan2(tg.x-P.x,tg.z-P.z);else if(sp>0.3)face=Math.atan2(P.vx,P.vz);
@@ -4124,7 +4146,7 @@ function update3D(dt){
     if(z.dead){z.deadT+=dt;if(z.m)z.m.gy=gy(z.x,z.z),animZombie(z.m,z,dt),z.m.root.position.set(z.x,z.m.root.position.y,z.z);continue}
     const ty=ZT[z.type],sc=ty.s;if(z.stun>0){z.stun-=dt;z.state='walk';z.m.gy=gy(z.x,z.z);animZombie(z.m,z,dt);z.m.root.position.set(z.x,z.m.root.position.y,z.z);continue}
     let tg=tgts[0],td=Math.hypot(P.x-z.x,P.z-z.z);for(const t of tgts){const d=Math.hypot(t.x-z.x,t.z-z.z);if(d<td-1){td=d;tg=t}}
-    const det=(SV.night?22:15)*(z.alert>0?2.5:1);z.alert=Math.max(0,(z.alert||0)-dt);
+    const det=(SV.night?22:15)*(z.alert>0?2.5:survDet(z));z.alert=Math.max(0,(z.alert||0)-dt);
     let gx=null,gz=null,chase=z.wave||td<det||z.type==='boss';
     if(P.dead)chase=false;
     if(pIn&&gateUp()&&!inBase(z.x,z.z)){gx=clamp(z.x,-GATE_W/2+0.6,GATE_W/2-0.6);gz=BASE_R+0.9;if(SV.def.gate)gz+=2.4}
@@ -4145,7 +4167,7 @@ function update3D(dt){
     else{z.state='attack';z.attT-=dt;if(z.attT<=0&&!P.dead){z.attT=ty.rate*rnd(0.85,1.15);z.att=1;const t=tg;if(Math.random()<0.5&&AU.c)sN(0.15,z.type==='brute'?300:500,150,0.15,'bandpass',2);
       setTimeout(()=>{if(z.dead||APP!=='world')return;const d=Math.hypot(t.o.x-z.x,t.o.z-z.z);const dmg=ty.dmg*[1,1,1.4,2.2,3.5][z.zz]*(1+0.04*(SV.day-1))*(z.type==='boss'&&z.hp<z.max*0.5?1.3:1);
         if(z.type==='boss'){G.shake=14;SFX.stomp(1);braam(36.7,1,0.35);blood3(z.x+Math.sin(z.face)*2,0.3,z.z+Math.cos(z.face)*2,0,0,0);if(d<reach+1.4&&t.p)hurtP3(dmg,Math.sin(z.face)*9,Math.cos(z.face)*9);return}
-        if(d>reach+0.5)return;if(t.ally){hurtAlly3(t.o,dmg);return}if(t.p)hurtP3(dmg,Math.sin(z.face)*(z.type==='brute'?6:3),Math.cos(z.face)*(z.type==='brute'?6:3));else if(t.o.state==='follow'){t.o.hp-=dmg;t.o.flash=1;SFX.hurt();if(t.o.hp<=0){t.o.state='dead';t.o.deadT=0;toast(`${t.o.name} não resistiu`)}}},z.type==='boss'?360:170)}}
+        if(d>reach+0.5)return;if(t.ally){hurtAlly3(t.o,dmg);return}if(t.p)LASTZT=z.type,hurtP3(dmg,Math.sin(z.face)*(z.type==='brute'?6:3),Math.cos(z.face)*(z.type==='brute'?6:3));else if(t.o.state==='follow'){t.o.hp-=dmg;t.o.flash=1;SFX.hurt();if(t.o.hp<=0){t.o.state='dead';t.o.deadT=0;toast(`${t.o.name} não resistiu`)}}},z.type==='boss'?360:170)}}
     collide(z,0.32*Math.min(sc,1.6),true);
     z.groan-=dt;if(z.groan<=0){z.groan=rnd(7,15);if(td<12&&chase&&T-(G.zvL||0)>1.2){G.zvL=T;SFX.zv(z.type,clamp(1-td/18,0,1)*0.55)}}
     if(!z.seen&&td<(SV.night?18:24)&&chase&&!P.dead){z.seen=1;if(T-(G.zsL||0)>0.22){G.zsL=T;zSpot(z.type,clamp(1-td/34,0.25,1))}}
@@ -4169,7 +4191,7 @@ function update3D(dt){
   // player model
   PM.ph=P.p;PM.gy=gy(P.x,P.z);PM.root.position.set(P.x,PM.gy,P.z);PM.root.rotation.y=P.face;
   if(PM.wid!==P.wid||PM.of!==SV.outfit){buildPlayer3();PM.of=SV.outfit}
-  animHuman(PM,{spd:P.mv,run:P.run,aim:P.aim,t:T,recoil:P.recoil,dead:P.dead,deadT:P.deadT,rel:P.reloadT>0?1-P.reloadT/P.stats.reload:-1,dir:P.mdir||0,bank:P.bank||0,dodge:P.dodge>0?Math.sin(clamp(1-P.dodge/0.42,0,1)*Math.PI):0,acc:clamp((P.acc||0)/10,-1,1)});
+  animHuman(PM,{spd:P.mv,run:P.run,aim:P.aim,t:T,recoil:P.recoil,dead:P.dead,deadT:P.deadT,rel:P.reloadT>0?1-P.reloadT/P.stats.reload:-1,dir:P.mdir||0,bank:P.bank||0,crouch:P.crouch?0.3:0,lean:P.crouch?0.28:0,dodge:P.dodge>0?Math.sin(clamp(1-P.dodge/0.42,0,1)*Math.PI):0,acc:clamp((P.acc||0)/10,-1,1)});
   for(const c of CHESTS){if(!c.opened){c.gl.material.opacity=0.55+Math.sin(T*4)*0.3;c.m.position.y=gy(c.x,c.z)+Math.abs(Math.sin(T*3))*0.05}}
   // gate / barricade state
   gate3(dt);if(BAR3&&BAR3.userData.pieces){const k=gateUp()?SV.gateHP/gateMax():0;for(const p of BAR3.userData.pieces)p.m.visible=k>p.t}
@@ -4340,7 +4362,7 @@ function buildYard3(P0,H){
   // stations: where you stand to use them + label position
   STN3=[{k:'arsenal',x:-3.7,z:8.7,lx:-6.6,ly:3.1,lz:8.7},{k:'vest',x:-11.3,z:8.7,lx:-13.0,ly:2.5,lz:8.7},{k:'oficina',x:-12.3,z:1.2,lx:-13.4,ly:2.6,lz:1.2},
     {k:'gerador',x:11.4,z:1.5,lx:12.8,ly:2.2,lz:1.5},{k:'enferm',x:10.8,z:-5.0,lx:12.6,ly:2.7,lz:-5.0},{k:'heroi',x:11.0,z:-11.5,lx:13.0,ly:3.1,lz:-11.5},
-    {k:'surv',x:2.3,z:7.1,lx:3.3,ly:2.5,lz:7.1},{k:'horta',x:4.0,z:10.3,lx:9.3,ly:1.9,lz:6.0},{k:'casa',x:-3.6,z:4.8,lx:-3.6,ly:2.1,lz:3.4}];
+    {k:'surv',x:2.3,z:7.1,lx:3.3,ly:2.5,lz:7.1},{k:'store',x:2.5,z:4.4,lx:3.7,ly:1.9,lz:3.2},{k:'agua',x:12.8,z:7.4,lx:13.9,ly:2.5,lz:6.1},{k:'horta',x:4.0,z:10.3,lx:9.3,ly:1.9,lz:6.0},{k:'casa',x:-3.6,z:4.8,lx:-3.6,ly:2.1,lz:3.4}];
   for(const st of STN3)BASE3.add(labelSprite(STN_NAME[st.k],st.lx,st.ly,st.lz));
   BASE3.add(labelSprite('DORMITÓRIO',0,2.95,H.dz+0.25));
   // campfire flames
@@ -4370,13 +4392,13 @@ const SOIL={adubo:{n:'ADUBO ORGÂNICO',max:5,cost:l=>Math.round(250*Math.pow(2,l
   agua:{n:'IRRIGAÇÃO',max:5,cost:l=>Math.round(300*Math.pow(2.1,l)),desc:l=>`cresce ${10*l}% mais rápido`},
   estufa:{n:'ESTUFA',max:3,cost:l=>[2500,7000,16000][l]||Infinity,desc:l=>l?`+${15*l}% velocidade · +${10*l}% colheita · libera culturas nobres`:'libera morango e abóbora'}};
 function farm(){if(!SV.farm)SV.farm={lvl:1,soil:{adubo:0,agua:0,estufa:0},plots:[]};const F=SV.farm;const n=FARM_LV.plots[F.lvl-1];while(F.plots.length<n)F.plots.push({c:null,at:0});return F}
-function farmSpeed(){const F=farm();return(1+0.1*F.soil.agua)*(1+0.15*F.soil.estufa)*(1+0.08*workers('horta'))}
+function farmSpeed(){const F=farm();return(SV.sv&&SV.sv.water<=0?0.6:1)*(1+0.1*F.soil.agua)*(1+0.15*F.soil.estufa)*(1+0.08*workers('horta'))}
 function cropTime(c){return CROPS[c].t/farmSpeed()}
 function cropProg(p){if(!p.c)return 0;return clamp((Date.now()-p.at)/1000/cropTime(p.c),0,1)}
 function cropValue(c){const F=farm();return Math.round(CROPS[c].v*(1+0.15*F.soil.adubo)*(1+0.1*F.soil.estufa)*(1+0.05*(SV.day-1)))}
 function plant(i,c){const F=farm(),p=F.plots[i],C=CROPS[c];if(!p||p.c)return false;if(F.lvl<C.lvl||(C.estufa&&F.soil.estufa<C.estufa)){SFX.deny();return false}
   if(SV.cash<C.seed){SFX.deny();toast('Dinheiro insuficiente para as sementes');return false}SV.cash-=C.seed;p.c=c;p.at=Date.now();p.last=c;return true}
-function harvest(i,silent){const F=farm(),p=F.plots[i];if(!p||!p.c||cropProg(p)<1)return 0;const c=p.c,v=cropValue(c);SV.cash+=v;addXP(v/4);p.c=null;p.at=0;
+function harvest(i,silent){const F=farm(),p=F.plots[i];if(!p||!p.c||cropProg(p)<1)return 0;const c=p.c,v=Math.round(cropValue(c)*(1+0.05*skl('farm')));SV.cash+=v;addXP(v/4);skXP('farm',6);{const S=sv();S.store.veg=(S.store.veg||0)+1;S.water=Math.max(0,S.water-3)}p.c=null;p.at=0;
   if(CROPS[c].heal&&P&&!P.dead){P.hp=P.max;if(!silent)toast('🌿 Ervas medicinais: vida restaurada')}if(G)G.trip=(G.trip||0)+0;return v}
 function farmReady(){return farm().plots.filter(p=>p.c&&cropProg(p)>=1).length}
 // --- visuals: beds + crops, rebuilt when the farm state changes
@@ -4507,7 +4529,7 @@ function place3(){if(!PLACE||!GHOST)return;const D=BDEF[PLACE.t],dist=PLACE.t===
   const x=Math.round((P.x+Math.sin(P.face)*dist)*2)/2,z=Math.round((P.z+Math.cos(P.face)*dist)*2)/2;PLACE.x=x;PLACE.z=z;PLACE.ok=placeValid(PLACE.t,x,z,PLACE.r)&&SV.cash>=D.cost;
   GHOST.position.set(x,gy(x,z)-0.24,z);GHOST.rotation.y=PLACE.r?-Math.PI/2:0;GHOST.material.color.setHex(PLACE.ok?0x7fd36a:0xe0563f);GHOST.material.opacity=0.35+Math.sin(T*6)*0.1;$('pbGo').disabled=!PLACE.ok}
 function placeConfirm(){if(!PLACE)return;place3();const D=BDEF[PLACE.t];if(!PLACE.ok){SFX.deny();toast(SV.cash<D.cost?'Dinheiro insuficiente':'Não dá para construir aqui');return}
-  SV.cash-=D.cost;const b={id:SV.bid++,t:PLACE.t,x:PLACE.x,z:PLACE.z,r:PLACE.r,lvl:1,gw:1,aim:1,rof:1,hp:0};b.hp=bMax(b);builds().push(b);SFX.buy();SFX.gate(0.6);G.shake=2;
+  SV.cash-=D.cost;skXP('build',10);const b={id:SV.bid++,t:PLACE.t,x:PLACE.x,z:PLACE.z,r:PLACE.r,lvl:1,gw:1,aim:1,rof:1,hp:0};b.hp=bMax(b);builds().push(b);SFX.buy();SFX.gate(0.6);G.shake=2;
   toast(`${D.n} construída`);buildBuilds3();setupYard3();save();if(PLACE.t==='tower'||builds().filter(q=>q.t===PLACE.t).length>=D.max()||SV.cash<D.cost)endPlace()}
 // --- sheets
 function renderBuildMenu(body){body.append(el('h4','sec','CONSTRUIR DEFESAS'));body.append(hint('Escolha, depois ande até o lugar e toque em CONSTRUIR · funciona dentro e fora do cercado'));
@@ -4670,28 +4692,30 @@ function poi3(dt){G.poiT=(G.poiT||0)-dt;if(G.poiT>0)return;G.poiT=0.5;const p=po
 const BAGCAP=[4,6,9,13,18,24],BAGCOST=[0,600,1600,4000,9000,18000];
 function bagCap(){return BAGCAP[(SV.bagLvl||1)-1]}
 const LOOT3=[];
-const LOOTDEF={scrap:{n:'SUCATA',w:1,c:'#8a9296'},food:{n:'COMIDA',w:1,c:'#d8a23a'},med:{n:'REMÉDIO',w:1,c:'#e8e4dc'},ammo:{n:'MUNIÇÃO',w:1,c:'#4a5a3a'},cash:{n:'DINHEIRO',w:1,c:'#5fa83a'},part:{n:'PEÇA',w:2,c:'#e07a1a'}};
+const LOOTDEF={water:{n:'ÁGUA',w:1,c:'#3a8aff'},gas:{n:'GASOLINA',w:3,c:'#c81f17'},scrap:{n:'SUCATA',w:1,c:'#8a9296'},food:{n:'COMIDA',w:1,c:'#d8a23a'},med:{n:'REMÉDIO',w:1,c:'#e8e4dc'},ammo:{n:'MUNIÇÃO',w:1,c:'#4a5a3a'},cash:{n:'DINHEIRO',w:1,c:'#5fa83a'},part:{n:'PEÇA',w:2,c:'#e07a1a'}};
 const LOOTG={};function lootMesh(k){if(LOOTG[k])return new THREE.Mesh(LOOTG[k],MATV);const m=lootMesh0(k);LOOTG[k]=m.geometry;return m}
 function lootMesh0(k){const P0=[];if(k==='scrap')P0.push(Bx(0.4,0.12,0.3,0,0.06,0,'#7a8288',0,0.4,0),Cy(0.05,0.05,0.5,0.1,0.15,0,'#5a6268',6,0,0,1.2),Bx(0.2,0.08,0.2,-0.15,0.16,0.1,'#9aa2a8',0.3,0.8,0));
   else if(k==='food')P0.push(Cy(0.08,0.08,0.16,0,0.08,0,'#c83a2a',10),Cy(0.08,0.08,0.16,0.18,0.08,0.05,'#d8a23a',10),Bx(0.25,0.18,0.15,-0.12,0.09,0.12,'#a87a3a'));
   else if(k==='med')P0.push(Bx(0.36,0.24,0.24,0,0.12,0,'#e8e4dc'),Bx(0.04,0.14,0.14,0.18,0.12,0,'#c81f17'),Bx(0.04,0.05,0.14,0.18,0.12,0,'#e8e4dc'));
   else if(k==='ammo')P0.push(Bx(0.42,0.22,0.24,0,0.11,0,'#4a5a3a'),Bx(0.44,0.04,0.26,0,0.23,0,'#3a4830'),Bx(0.1,0.06,0.02,0,0.12,0.13,'#c9a24a'));
   else if(k==='cash')P0.push(Bx(0.3,0.08,0.16,0,0.04,0,'#5fa83a'),Bx(0.3,0.08,0.16,0.04,0.12,0.02,'#6fb84a',0,0.2,0),Bx(0.06,0.17,0.17,0,0.08,0,'#e8e4dc'));
+  else if(k==='water')P0.push(Cy(0.07,0.07,0.28,0,0.14,0,'#6ab0ff',10),Cy(0.03,0.03,0.05,0,0.31,0,'#2a5aa8',8),Cy(0.07,0.07,0.28,0.17,0.14,0.04,'#6ab0ff',10));
+  else if(k==='gas')P0.push(Bx(0.3,0.38,0.16,0,0.19,0,'#c81f17'),Cy(0.035,0.035,0.1,0.1,0.42,0,'#1a1a1a',8,0,0,-0.6),Bx(0.16,0.04,0.04,-0.04,0.4,0,'#1a1a1a'));
   else P0.push({g:new THREE.TorusGeometry(0.14,0.05,6,10),c:'#e07a1a',m:mtx(0,0.06,0,Math.PI/2,0,0)},Cy(0.03,0.03,0.4,0.15,0.04,0,'#9aa2a8',6,0,0,Math.PI/2));
   return meshOf(P0,MATV,false)}
 function addLoot3(k,x,z){const m=lootMesh(k);m.position.set(x,gy(x,z),z);m.rotation.y=Math.random()*TAU;SC3.add(m);const gl=new THREE.Sprite(new THREE.SpriteMaterial({map:GLOWTEX,color:k==='part'?0xff9a3a:k==='med'?0xff6a6a:0xd8f08a,blending:THREE.AdditiveBlending,transparent:true,depthWrite:false}));gl.scale.setScalar(1.3);gl.position.y=0.3;m.add(gl);
   const l={k,x,z,m,gl,claim:null};LOOT3.push(l);return l}
 function spawnLoot3(){for(const l of LOOT3)SC3.remove(l.m);LOOT3.length=0;const r=Math.random;
   const pick=(w)=>{let t=0;for(const q of w)t+=q[1];let k=r()*t;for(const q of w){k-=q[1];if(k<=0)return q[0]}return w[0][0]};
-  const W={farm:[['food',4],['scrap',1],['cash',1]],market:[['food',3],['cash',3],['scrap',1]],pharmacy:[['med',5],['cash',1]],gas:[['scrap',3],['cash',2],['ammo',1]],guns:[['ammo',4],['part',2]],junk:[['scrap',5],['part',1.5]]};
+  const W={farm:[['food',4],['water',2],['scrap',1]],market:[['food',3],['water',3],['cash',2]],pharmacy:[['med',5],['water',1]],gas:[['gas',3],['scrap',2],['water',1]],guns:[['ammo',4],['part',2],['med',1]],junk:[['scrap',4],['gas',1.5],['part',1.5]]};
   for(const q of POI3){if(Math.hypot(q.x,q.z)<30)continue;for(let i=0;i<2+Math.floor(r()*2);i++){for(let k=0;k<8;k++){const x=q.x+rnd(-13,13),z=q.z+rnd(-13,13);if(!blocked(x,z,0.5)){addLoot3(pick(W[q.t]),x,z);break}}}}
-  for(let i=0;i<28;i++){const a=r()*TAU,d=rnd(26,190),x=Math.cos(a)*d,z=Math.sin(a)*d;if(Math.abs(x)>MAPH-4||Math.abs(z)>MAPH-4||blocked(x,z,0.5))continue;addLoot3(pick([['scrap',4],['food',2],['cash',2],['ammo',1.5],['med',1],['part',0.4]]),x,z)}}
+  for(let i=0;i<28;i++){const a=r()*TAU,d=rnd(26,190),x=Math.cos(a)*d,z=Math.sin(a)*d;if(Math.abs(x)>MAPH-4||Math.abs(z)>MAPH-4||blocked(x,z,0.5))continue;addLoot3(pick([['scrap',3],['food',2.5],['water',2.5],['cash',1.5],['ammo',1.2],['med',1.2],['gas',0.5],['part',0.4]]),x,z)}}
 function lootVal(k){const zc=[1,1,1.6,2.6,4.2][zone3(P.x,P.z)]||1;return Math.round(({scrap:22,cash:40,food:12,med:12,ammo:10,part:0}[k]||10)*zc*(1+0.08*(SV.day-1))*rnd(0.8,1.25))}
 function removeLoot3(l){SC3.remove(l.m);const i=LOOT3.indexOf(l);if(i>=0)LOOT3.splice(i,1)}
-function playerLoot3(){for(let i=LOOT3.length-1;i>=0;i--){const l=LOOT3[i];if(Math.abs(l.x-P.x)>1.1||Math.abs(l.z-P.z)>1.1)continue;let txt;
+function playerLoot3(){for(let i=LOOT3.length-1;i>=0;i--){const l=LOOT3[i];if(l.dropped&&!l.away){if(Math.hypot(l.x-P.x,l.z-P.z)>2.2)l.away=1;continue}if(Math.abs(l.x-P.x)>1.1||Math.abs(l.z-P.z)>1.1)continue;let txt;
     if(l.k==='scrap'||l.k==='cash'){const v=earn(lootVal(l.k));txt=`+$ ${fmt(v)}`;SFX.coin()}
-    else if(l.k==='food'){P.hp=Math.min(P.max,P.hp+P.max*0.25);txt='🍎 +25% VIDA';SFX.coin()}
-    else if(l.k==='med'){P.hp=Math.min(P.max,P.hp+P.max*0.6);txt='🩹 +60% VIDA';SFX.coin()}
+    else if(l.k==='food'||l.k==='med'||l.k==='water'||l.k==='gas'){const it=l.item||(l.k==='food'?(Math.random()<0.6?'food':'snack'):l.k==='med'?(Math.random()<0.6?'bandage':Math.random()<0.8?'pain':'antiv'):l.k);
+      if(!invAdd(it)){if(!l.fullT||T-l.fullT>4){l.fullT=T;toast(`🎒 Mochila cheia · ${ITEMS[it].n} pesa ${ITEMS[it].w} kg`)}continue}txt=`${ITEMS[it].ic} ${ITEMS[it].n}`;sN(0.15,1800,900,0.08,'bandpass',2)}
     else if(l.k==='ammo'){if(P.wid)P.ammo[P.wid]=P.stats.mag;txt='MUNIÇÃO';SFX.magIn()}
     else{const d=dropPart();txt=d?`🔩 ${d.pn} (${d.n}/5)`:'+$ 80';if(!d)earn(80);SFX.part&&SFX.part()}
     ftxt(l.x,1.4,l.z,txt,'#d8f08a',15);removeLoot3(l)}}
@@ -4701,9 +4725,11 @@ function allyOpenChest(a,c){c.opened=true;c.claim=null;if(c.gl)c.gl.visible=fals
   const v=Math.round(rnd(30,60)*zc*(1+0.1*(SV.day-1))*({market:2,gas:1.4,junk:1.2,farm:1.1}[c.kind]||1));a.bag.push({k:'cash',v,w:2});a.load+=2;
   if(a.load<bagCap()&&Math.random()<({guns:1,junk:0.6,gas:0.45}[c.kind]||0.3)){a.bag.push({k:'part',v:0,w:Math.min(2,bagCap()-a.load)});a.load=Math.min(bagCap(),a.load+2)}
   const vol=clamp(1-Math.hypot(a.x-P.x,a.z-P.z)/45,0,1);if(vol>0)SFX.lockOpen();ftxt(a.x,2.3,a.z,`🎒 BAÚ · $ ${fmt(v)}`,'#ffcf4a',15);updAllyBar()}
-function allyUnload(a){let cash=0,parts=0,food=0,med=0,ammo=0;for(const b of a.bag){if(b.k==='part'){const d=dropPart();if(d)parts++;else cash+=80}else if(b.k==='food'){food++;cash+=Math.round(b.v*1.5)}else if(b.k==='med'){med++;cash+=Math.round(b.v*1.5)}else if(b.k==='ammo'){ammo++;cash+=b.v}else cash+=b.v}
-  a.bag.length=0;a.load=0;a.fullMsg=0;if(cash)earn(cash);if(med&&P)P.hp=P.max;if(ammo&&P)for(const id of WORDER)if(SV.owned[id])P.ammo[id]=wStats(id).mag;
-  SFX.coin();banner(`${a.name.toUpperCase()} DESCARREGOU`,[cash?`$ ${fmt(cash)}`:'',parts?`${parts} peça${parts>1?'s':''}`:'',food?`${food} comida${food>1?'s':''}`:'',med?'remédios: sua vida encheu':'',ammo?'munição cheia':''].filter(Boolean).join(' · '));updAllyBar();save()}
+function allyUnload(a){let cash=0,parts=0,food=0,med=0,ammo=0;const ST=sv().store,put=k=>ST[k]=(ST[k]||0)+1;
+  for(const b of a.bag){if(b.k==='part'){const d=dropPart();if(d)parts++;else cash+=80}else if(b.k==='food'){food++;put(Math.random()<0.6?'food':'snack')}else if(b.k==='med'){med++;put(Math.random()<0.6?'bandage':Math.random()<0.8?'pain':'antiv')}
+    else if(b.k==='water'){food++;put('water')}else if(b.k==='gas'){put('gas')}else if(b.k==='ammo'){ammo++;cash+=b.v}else cash+=b.v}
+  a.bag.length=0;a.load=0;a.fullMsg=0;if(cash)earn(cash);if(ammo&&P)for(const id of WORDER)if(SV.owned[id])P.ammo[id]=wStats(id).mag;
+  SFX.coin();banner(`${a.name.toUpperCase()} DESCARREGOU`,[cash?`$ ${fmt(cash)}`:'',parts?`${parts} peça${parts>1?'s':''}`:'',food?`${food} de comida/água no depósito`:'',med?`${med} remédio${med>1?'s':''} no depósito`:'',ammo?'munição cheia':''].filter(Boolean).join(' · '));updAllyBar();save()}
 function renderBagUp(body){const l=SV.bagLvl||1,up=el('div','upg');up.append(el('small','',`MOCHILA DA EXPEDIÇÃO · NÍVEL ${l} DE ${BAGCAP.length}`));
   up.append(el('p','now',`Cada aliado carrega ${BAGCAP[l-1]} de peso · quanto mais cheia, mais devagar ele anda · descarrega sozinho ao entrar na base`));
   if(l<BAGCAP.length){const c=BAGCOST[l];up.append(el('p','next',`▲ ${BAGCAP[l]} de peso`));up.append(costBtn('MELHORAR MOCHILA',c,()=>{if(SV.cash<c){SFX.deny();return}SV.cash-=c;SV.bagLvl=l+1;SFX.buy();toast(`Mochila nível ${l+1}`);save();renderSheet();updAllyBar()}))}else up.append(el('p','max','Nível máximo'));body.append(up)}
@@ -4924,6 +4950,136 @@ function kbKey(ch){const L=CR.look;let v=L.name||'';if(ch==='⌫')v=v.slice(0,-1
 function kbOpen(){KB.on=true;$('kb').hidden=false;kbBuild();$('crName')&&$('crName').classList.add('focus')}
 function kbClose(){KB.on=false;$('kb').hidden=true;$('crName')&&$('crName').classList.remove('focus')}
 addEventListener('keydown',e=>{if(!KB.on)return;const k=e.key;if(k==='Backspace'){kbKey('⌫');e.preventDefault()}else if(k==='Enter'||k==='Escape'){kbClose();e.preventDefault()}else if(k.length===1&&/[\p{L}\d \-.']/u.test(k)){kbKey(k.toUpperCase());e.preventDefault()}},true);
+
+/* =====================================================================
+   SURVIVAL (inspired by Project Zomboid):
+   needs + moodles, wounds/bleeding/infection, weighted inventory,
+   stealth & noise, use-based skills, base fuel/water, helicopter event,
+   hardcore (one life)
+   ===================================================================== */
+const ITEMS={
+  food:{n:'COMIDA ENLATADA',ic:'🥫',w:0.6,use:'COMER',d:'+35 de fome'},
+  snack:{n:'BARRA DE CEREAL',ic:'🍫',w:0.2,use:'COMER',d:'+14 de fome'},
+  veg:{n:'LEGUMES DA HORTA',ic:'🥕',w:0.4,use:'COMER',d:'+22 de fome · +5 de sede'},
+  water:{n:'GARRAFA D\'ÁGUA',ic:'💧',w:1.0,use:'BEBER',d:'+45 de sede'},
+  bandage:{n:'CURATIVO',ic:'🩹',w:0.1,use:'APLICAR',d:'Para o sangramento · +8% de vida'},
+  pain:{n:'ANALGÉSICO',ic:'💊',w:0.1,use:'TOMAR',d:'Tira a dor e o pânico · +20% de vida aos poucos'},
+  antiv:{n:'ANTIVIRAL EXPERIMENTAL',ic:'💉',w:0.1,use:'APLICAR',d:'Cura a infecção se ainda estiver no começo'},
+  gas:{n:'GALÃO DE GASOLINA',ic:'⛽',w:4.0,use:null,d:'Abastece o gerador da base (+8 horas)'}};
+const ITEM_ORDER=['water','food','snack','veg','bandage','pain','antiv','gas'];
+const SKILLS={aim:{n:'PONTARIA',d:'+1,5% tiro na cabeça e +2% de dano por nível',how:'acertando zumbis'},run:{n:'CORRIDA',d:'+3% velocidade e -5% de cansaço ao correr',how:'correndo'},
+  sneak:{n:'FURTIVIDADE',d:'zumbis demoram 7% mais para te notar',how:'andando agachado perto de zumbis'},aid:{n:'PRIMEIROS SOCORROS',d:'curativos curam mais · menos chance de sangrar',how:'fazendo curativos'},
+  farm:{n:'AGRICULTURA',d:'+5% na colheita',how:'colhendo na horta'},build:{n:'CARPINTARIA',d:'-4% no custo das defesas',how:'construindo e consertando'}};
+const MOOD={hun:['🍖','FOME'],thi:['💧','SEDE'],fat:['😴','CANSAÇO'],wet:['🌧','MOLHADO'],cold:['🥶','FRIO'],pan:['😱','PÂNICO'],bleed:['🩸','SANGRANDO'],inf:['🤒','INFECTADO'],pain:['🤕','DOR'],heavy:['🎒','SOBRECARGA']};
+function sv(){const S=SV.sv||(SV.sv={});const d={hun:100,thi:100,fat:100,wet:0,pan:0,bleed:0,inf:0,pain:0,inv:{water:2,food:2,bandage:2},sk:{},heliT:rnd(20,40),fuel:24,water:60,store:{},deaths:0,days0:SV.day||1};
+  for(const k in d)if(S[k]===undefined)S[k]=d[k];for(const k in SKILLS)if(!S.sk[k])S.sk[k]={l:0,x:0};return S}
+function skl(k){return sv().sk[k].l}
+function skXP(k,v){const s=sv().sk[k];s.x+=v;const need=40*Math.pow(s.l+1,1.5);if(s.x>=need&&s.l<10){s.x-=need;s.l++;toast(`📈 ${SKILLS[k].n} subiu para o nível ${s.l}`);SFX.levelup&&SFX.levelup()}}
+// ---- inventory with weight
+function invW(){const I=sv().inv;let w=0;for(const k in I)w+=(ITEMS[k]?ITEMS[k].w:0)*I[k];return w}
+function invCap(){return 12+3*at('for')+(OUTFITS[SV.outfit]&&OUTFITS[SV.outfit].pack!==false?4:0)+(SV.outfit||0)*1.5}
+function invAdd(k,n){n=n||1;const I=sv().inv;const it=ITEMS[k];if(invW()+it.w*n>invCap()+0.001)return false;I[k]=(I[k]||0)+n;return true}
+function invUse(k){const S=sv(),I=S.inv;if(!I[k])return;let ok=true;
+  if(k==='food')S.hun=Math.min(100,S.hun+35);else if(k==='snack')S.hun=Math.min(100,S.hun+14);else if(k==='veg'){S.hun=Math.min(100,S.hun+22);S.thi=Math.min(100,S.thi+5)}
+  else if(k==='water')S.thi=Math.min(100,S.thi+45);
+  else if(k==='bandage'){if(!S.bleed&&P&&P.hp>=P.max){toast('Você não está ferido');ok=false}else{S.bleed=0;if(P)P.hp=Math.min(P.max,P.hp+P.max*(0.08+0.012*skl('aid')));skXP('aid',12);sN(0.3,2400,1200,0.08,'bandpass',2)}}
+  else if(k==='pain'){S.pain=0;S.pan=0;S.painHeal=(S.painHeal||0)+0.2}
+  else if(k==='antiv'){if(S.inf<=0){toast('Você não está infectado');ok=false}else if(S.inf<0.6){S.inf=0;banner('INFECÇÃO CURADA','O antiviral funcionou')}else{toast('Tarde demais: a infecção já avançou');S.inf=Math.max(0.6,S.inf-0.08)}}
+  else ok=false;
+  if(ok){I[k]--;if(!I[k])delete I[k];if(k==='food'||k==='snack'||k==='veg')sN(0.25,900,400,0.08,'lowpass',2);if(k==='water')sN(0.4,700,300,0.08,'lowpass',3);save()}}
+function invDrop(k){const I=sv().inv;if(!I[k])return;I[k]--;if(!I[k])delete I[k];if(W3.on&&P){const l=addLoot3(k==='gas'?'gas':k==='water'?'water':k==='bandage'||k==='pain'||k==='antiv'?'med':'food',P.x+rnd(-0.8,0.8),P.z+rnd(-0.8,0.8));l.item=k;l.dropped=1}}
+// ---- moodles: [key, level 1..3]
+function moods(){const S=sv(),out=[];const lv=(v,a,b,c)=>v<=c?3:v<=b?2:v<=a?1:0;
+  let l;if((l=lv(S.hun,40,20,5)))out.push(['hun',l]);if((l=lv(S.thi,40,20,5)))out.push(['thi',l]);if((l=lv(S.fat,30,15,5)))out.push(['fat',l]);
+  if(S.wet>20)out.push(['wet',S.wet>75?3:S.wet>45?2:1]);if(S.cold>0.2)out.push(['cold',S.cold>0.7?3:S.cold>0.45?2:1]);if(S.pan>0.25)out.push(['pan',S.pan>0.75?3:S.pan>0.5?2:1]);
+  if(S.bleed)out.push(['bleed',Math.min(3,S.bleed)]);if(S.inf>0)out.push(['inf',S.inf>0.6?3:S.inf>0.3?2:1]);if(S.pain>0.2)out.push(['pain',S.pain>0.6?2:1]);
+  const ov=invW()/invCap();if(ov>1)out.push(['heavy',ov>1.4?3:ov>1.2?2:1]);return out}
+const MOOD_TXT={hun:['Com fome · a vida não se regenera','Faminto · fôlego volta mais devagar','Morrendo de fome · perdendo vida'],thi:['Com sede','Desidratado · fôlego menor','Desidratação grave · perdendo vida'],
+  fat:['Cansado · mira um pouco pior','Muito cansado · mais lento','Exausto · vá dormir no dormitório'],wet:['Um pouco molhado','Molhado','Encharcado · fique perto da fogueira ou dentro da base'],
+  cold:['Com frio','Gelado · fôlego volta devagar','Hipotermia · perdendo vida'],pan:['Nervoso','Em pânico · mira tremendo','Pânico total'],bleed:['Sangrando · use um CURATIVO','Sangrando muito','Hemorragia'],
+  inf:['Mordido · febre leve · use ANTIVIRAL logo','Infecção avançando · náusea','Infecção grave · resta pouco tempo'],pain:['Dor · use analgésico','Muita dor'],heavy:['Pesado · mais lento','Sobrecarregado','Carga absurda · muito lento']};
+// ---- effects consumed by the main loop
+function survSpeed(){const S=sv();let k=1;if(S.fat<15)k*=0.88;if(S.hun<5||S.thi<5)k*=0.9;const ov=invW()/invCap();if(ov>1)k*=Math.max(0.55,1-0.45*(ov-1));if(S.inf>0.6)k*=0.9;return k}
+function survStam(){const S=sv();let k=1;if(S.hun<20)k*=0.6;if(S.thi<20)k*=0.6;if(S.cold>0.45)k*=0.7;if(S.fat<15)k*=0.75;return k}
+function survRegenOK(){const S=sv();return S.hun>40&&S.thi>40&&!S.bleed}
+function survAim(){const S=sv();let k=1+0.015*skl('aim')/0.18;if(S.fat<30)k*=0.88;if(S.pan>0.5)k*=0.75;if(S.inf>0.3)k*=0.9;return k}
+function survDmg(){return 1+0.02*skl('aim')}
+// zombie notice distance multiplier (stealth)
+function survDet(z){let k=1;if(P.crouch)k*=0.5;k*=1-0.07*skl('sneak');const a=Math.atan2(P.x-z.x,P.z-z.z);const df=Math.abs(((a-z.face+Math.PI)%TAU+TAU)%TAU-Math.PI);if(df>1.9&&!(z.alert>0))k*=0.45;
+  if(SKY.dark>0.6)k*=FLASHL.intensity>0?0.95:0.75;if(WX.rain>0.5)k*=0.85;return Math.max(0.15,k)}
+// wounds
+let LASTZT=null;
+function survHurt(d){const S=sv(),t=LASTZT||'walker';LASTZT=null;if(!t)return;const r=Math.random();const bite={walker:0.035,runner:0.05,brute:0.04,boss:0}[t]||0.03;
+  if(r<bite){if(S.inf<=0){S.inf=0.001;banner('VOCÊ FOI MORDIDO!','Use um ANTIVIRAL antes que a infecção avance');SFX.thunder()}}
+  else if(r<bite+0.32*(1-0.04*skl('aid'))){if(S.bleed<3){S.bleed++;toast('🩸 Arranhão: você está sangrando · use um curativo')}}
+  S.pain=Math.min(1,S.pain+d/(P.max||100)*1.5);S.pan=Math.min(1,S.pan+0.12)}
+// ---- main tick
+function surv3(dt){if(!P||P.dead)return;const S=sv(),gh=dt/HOUR_S,run=P.run,mv=P.mv||0;
+  S.hun=Math.max(0,S.hun-gh*(4+(run?2.5:0)));S.thi=Math.max(0,S.thi-gh*(6+(run?5:0)+(SKY.dark<0.3&&WX.k==='clear'?1.5:0)));S.fat=Math.max(0,S.fat-gh*(4.2+(run?3:0)));
+  const inB=inBase(P.x,P.z),nearFire=Math.hypot(P.x+3.4,P.z-12)<4;
+  if(WX.rain>0.15&&!(inB&&Math.hypot(P.x-DOOR3.x,P.z-DOOR3.z)<2))S.wet=Math.min(100,S.wet+WX.rain*dt*1.6);else S.wet=Math.max(0,S.wet-dt*(nearFire?6:inB?1.2:0.5));
+  S.cold=clamp((S.wet/100)*(0.4+0.6*SKY.dark)*(0.6+0.4*WX.wind)-(nearFire?0.6:0),0,1);
+  let nz=0;for(const z of Z){if(!z.dead&&Math.abs(z.x-P.x)<8&&Math.abs(z.z-P.z)<8)nz++}
+  const tgt=clamp(nz/10+(P.hp<P.max*0.3?0.35:0)-0.05*skl('sneak'),0,1);S.pan=S.pan<tgt?Math.min(tgt,S.pan+dt*0.3):Math.max(tgt,S.pan-dt*0.05);
+  S.pain=Math.max(0,S.pain-dt*0.006);if(S.painHeal>0){const h=Math.min(S.painHeal,dt*0.02);S.painHeal-=h;P.hp=Math.min(P.max,P.hp+P.max*h)}
+  if(S.bleed)P.hp-=dt*0.55*S.bleed;
+  if(S.hun<=0||S.thi<=0)P.hp-=dt*0.35;if(S.cold>0.85)P.hp-=dt*0.25;
+  if(S.inf>0){const was=S.inf;S.inf=Math.min(1,S.inf+gh/48);if(was<0.3&&S.inf>=0.3)toast('🤒 A febre piorou');if(was<0.6&&S.inf>=0.6)banner('INFECÇÃO AVANÇADA','O antiviral não funciona mais');if(S.inf>=1){P.hp=0;S.cause='infecção'}}
+  if(P.hp<=0&&!P.dead){P.hp=0;P.dead=true;P.deadT=0;G.over=1.8;S.cause=S.cause||(S.bleed?'hemorragia':S.hun<=0?'fome':S.thi<=0?'sede':S.cold>0.85?'hipotermia':'zumbis')}
+  // noise from footsteps (stealth)
+  G.stepN=(G.stepN||0)-dt;if(G.stepN<=0&&mv>0.6){G.stepN=0.6;if(!P.crouch)noise3(P.x,P.z,run?11:4.5);else if(Z.some(z=>!z.dead&&Math.hypot(z.x-P.x,z.z-P.z)<14))skXP('sneak',0.6)}
+  if(run&&mv>4)skXP('run',dt*0.25);
+  // base resources: generator fuel, rain water
+  if(SV.rooms.gerador>0)S.fuel=Math.max(0,S.fuel-gh*(1+0.08*SV.rooms.gerador));
+  if(WX.rain>0.1)S.water=Math.min(100,S.water+WX.rain*gh*6);
+  // helicopter event (attracts a horde)
+  S.heliT-=gh;if(S.heliT<=0&&SKY.day>0.6){S.heliT=rnd(26,44);heli3()}
+  if(G.heli){G.heli.t-=dt;const h=G.heli;if(AU.c&&h.t>0&&(h.snd=(h.snd||0)-dt)<=0){h.snd=0.14;const v=clamp(Math.sin((1-h.t/h.d)*Math.PI),0.05,1);sN(0.12,120,60,0.22*v,'lowpass',4);sT(70,55,0.1,0.12*v,'sawtooth')}if(h.t<=0)G.heli=null}
+  // moodle HUD
+  G.moodT=(G.moodT||0)-dt;if(G.moodT<=0){G.moodT=0.4;drawMoods()}}
+function heli3(){if(!W3.on||!P)return;G.heli={t:16,d:16};banner('🚁 HELICÓPTERO!','O barulho está atraindo uma horda até você');const n=Math.min(40,16+SV.day*2);
+  for(let i=0;i<n;i++){const o=spawnNear3(P.x,P.z,30,46);if(o){o.alert=99;o.heli=1}}noise3(P.x,P.z,90)}
+// ---- HUD: needs bars + moodles
+function drawMoods(){const S=sv();setW('hunF',S.hun/100);setW('thiF',S.thi/100);setW('fatF',S.fat/100);
+  const m=moods(),sig=m.map(q=>q.join('')).join(',');if(HUDC.mood===sig)return;HUDC.mood=sig;const box=$('moods');box.innerHTML='';
+  for(const[k,l]of m){const b=el('button','md l'+l,MOOD[k][0]);b.type='button';b.title=MOOD[k][1];b.addEventListener('click',e=>{e.stopPropagation();toast(`${MOOD[k][1]}: ${MOOD_TXT[k][l-1]}`)});box.append(b)}}
+// ---- sheets
+function itemRow(k,n,acts){const r=el('div','irow');r.append(el('i','',ITEMS[k].ic));const t=el('div','it');t.append(el('b','',`${ITEMS[k].n} ×${n}`),el('span','',`${ITEMS[k].d} · ${ITEMS[k].w} kg`));r.append(t);const a=el('div','ia');for(const x of acts)a.append(x);r.append(a);return r}
+function renderInv(body){const S=sv();$('sKick').textContent=`MOCHILA · ${invW().toFixed(1).replace('.',',')} DE ${invCap().toFixed(0)} KG`;$('sTitle').textContent='SOBREVIVÊNCIA';
+  const st=el('div','gen');st.append(el('small','',`DIA ${SV.day} · VIVO HÁ ${Math.max(1,SV.day-(S.days0||1)+1)} DIA${SV.day-(S.days0||1)?'S':''}${SV.hard?' · HARDCORE':''}`));
+  const kv=el('div','kv');for(const[n,v]of[['FOME',S.hun],['SEDE',S.thi],['ENERGIA',S.fat],['MOLHADO',S.wet],['PÂNICO',S.pan*100],['INFECÇÃO',S.inf*100]]){const d=el('div','');d.append(document.createTextNode(n),el('b','',Math.round(v)+'%'));kv.append(d)}st.append(kv);
+  const ms=moods();if(ms.length)st.append(el('p','',ms.map(([k,l])=>`${MOOD[k][0]} ${MOOD_TXT[k][l-1]}`).join(' · ')));body.append(st);
+  const ow=invW()/invCap();const bar=el('i','fbar');const f=el('i','');f.style.width=Math.min(100,ow*100)+'%';if(ow>1)f.style.background='#e0563f';bar.append(f);body.append(bar);
+  const I=S.inv;let any=false;for(const k of ITEM_ORDER){if(!I[k])continue;any=true;const acts=[];if(ITEMS[k].use)acts.push(btn(ITEMS[k].use,'buy alt',()=>{invUse(k);renderSheet()}));acts.push(btn('LARGAR','ghost sm',()=>{invDrop(k);SFX.click();renderSheet()}));body.append(itemRow(k,I[k],acts))}
+  if(!any)body.append(el('p','note','Mochila vazia. Procure comida, água e remédios nas fazendas, mercados e farmácias.'));
+  body.append(el('p','note','Dica: agache para passar despercebido · fique seco perto da fogueira · durma no dormitório para recuperar a energia.'))}
+function renderStore(body){const S=sv();$('sKick').textContent='DEPÓSITO DA BASE';$('sTitle').textContent='SUPRIMENTOS';
+  body.append(hint(`Sua mochila: ${invW().toFixed(1).replace('.',',')} de ${invCap().toFixed(0)} kg · o que os aliados trazem também fica aqui`));
+  let any=false;for(const k of ITEM_ORDER){const a=S.store[k]||0,b=S.inv[k]||0;if(!a&&!b)continue;any=true;const acts=[];
+    if(a)acts.push(btn('PEGAR','buy alt',()=>{if(invAdd(k,1)){S.store[k]--;SFX.click()}else{SFX.deny();toast('Mochila cheia')}save();renderSheet()}));
+    if(b)acts.push(btn('GUARDAR','ghost sm',()=>{S.inv[k]--;if(!S.inv[k])delete S.inv[k];S.store[k]=(S.store[k]||0)+1;SFX.click();save();renderSheet()}));
+    body.append(itemRow(k,`${a} no depósito · ${b} com você`,acts))}
+  if(!any)body.append(el('p','note','Depósito vazio. Coloque aliados no modo COLETAR para trazer suprimentos.'))}
+function renderWater(body){const S=sv();$('sKick').textContent='CAIXA D\'ÁGUA';$('sTitle').textContent='ÁGUA';const box=el('div','gen');box.append(el('small','','RESERVATÓRIO'));box.append(el('b','',Math.round(S.water)+' litros'));
+  box.append(el('p','','Enche sozinho quando chove. A horta cresce mais devagar se acabar.'));const row=el('div','act');
+  row.append(btn('BEBER',S.water>=5?'buy alt':'ghost',()=>{if(S.water<5){SFX.deny();return}S.water-=5;S.thi=Math.min(100,S.thi+50);sN(0.4,700,300,0.08,'lowpass',3);save();renderSheet()},S.water<5));
+  row.append(btn('ENCHER GARRAFA',S.water>=10?'ghost':'ghost',()=>{if(S.water<10){SFX.deny();return}if(invAdd('water')){S.water-=10;SFX.click()}else toast('Mochila cheia');save();renderSheet()},S.water<10));box.append(row);body.append(box)}
+function renderFuel(body){const S=sv(),g=S.inv.gas||0,st=S.store.gas||0;const box=el('div','gen');box.append(el('small','','COMBUSTÍVEL'));const b=el('b','',`${Math.floor(S.fuel)} horas`);if(S.fuel<6)b.style.color='#e0563f';box.append(b);
+  box.append(el('p','',S.fuel>0?'O gerador gasta gasolina. Sem combustível ele para de render.':'⚠ Sem gasolina: o gerador parou. Ache galões nos postos de gasolina.'));
+  box.append(btn(`⛽ ABASTECER (${g+st} ${g+st===1?'galão':'galões'})`,g+st?'buy alt':'ghost',()=>{if(S.inv.gas){S.inv.gas--;if(!S.inv.gas)delete S.inv.gas}else if(S.store.gas)S.store.gas--;else return;S.fuel=Math.min(96,S.fuel+8);sN(1.2,600,200,0.1,'lowpass',2);save();renderSheet()},!(g+st)));body.append(box)}
+function renderSkills(body){body.append(el('h4','sec','HABILIDADES · SOBEM COM O USO'));for(const k in SKILLS){const s=sv().sk[k],K=SKILLS[k],up=el('div','upg');up.append(el('small','',`${K.n} · NÍVEL ${s.l} DE 10`));
+  up.append(el('p','now',`${K.d} · treine ${K.how}`));const bar=el('i','fbar');const f=el('i','');f.style.width=Math.min(100,s.x/(40*Math.pow(s.l+1,1.5))*100)+'%';bar.append(f);up.append(bar);body.append(up)}}
+// ---- death (hardcore = one life)
+function survDeath(){const S=sv();const days=Math.max(1,SV.day-(S.days0||1)+1);S.deaths=(S.deaths||0)+1;
+  if(SV.hard){$('over').classList.add('hc');$('oKick').textContent='HARDCORE · FIM DE JOGO';$('oH').innerHTML='ASSIM VOCÊ <em>MORREU</em>';$('oLost').textContent=`${(SV.look&&SV.look.name)||'Você'} sobreviveu ${days} dia${days>1?'s':''} · causa: ${S.cause||'zumbis'}. No modo hardcore não há segunda chance.`;
+    $('oK').textContent=G.kills;$('oS').textContent='$ '+fmt(G.trip);$('oF').textContent=`${G.wave} · ${mmss(G.time)}`;$('again').textContent='COMEÇAR DE NOVO';SV.hcDead=true;try{localStorage.removeItem(SAVE_KEY)}catch(e){}$('over').hidden=false;$('bAct').hidden=true;return true}
+  $('over').classList.remove('hc');$('oKick').textContent='SINAL PERDIDO';$('oH').innerHTML=S.cause==='infecção'?'A INFECÇÃO <em>VENCEU</em>':'VOCÊ <em>DESMAIOU</em>';$('again').textContent='VOLTAR PARA A BASE';
+  // normal mode: lose the backpack, wounds reset
+  const lost=Object.keys(S.inv).length;S.inv={};S.bleed=0;S.inf=0;S.pan=0;S.pain=0;S.hun=Math.max(S.hun,50);S.thi=Math.max(S.thi,50);S.wet=0;S.cause=null;
+  setTimeout(()=>{if(lost)toast('🎒 Você perdeu tudo que estava na mochila')},400);return false}
+// ---- button wiring
+hold('bCrouch',()=>{P&&(P.crouch=!P.crouch);$('bCrouch').classList.toggle('tog',!!(P&&P.crouch));if(P&&P.crouch){IN.run=false;$('bRun').classList.remove('tog')}},()=>{});
+hold('bBag',()=>{if(!W3.on||!P)return;shSel='inv';GS=null;renderSheet();sheetOpen(true);$('sIn').scrollTop=0},()=>{});
 
 start();
 
