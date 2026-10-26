@@ -359,7 +359,6 @@ button{font-family:var(--hud)}
 <div class="splash" id="splash" role="img" aria-label="Desenvolvedor" hidden>
   <div class="sp-in"><svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 410 180"><path fill="#333333" d="M114.34 159.10L62.00 0.00L122.00 0.00L181.22 180.00L143.22 180.00Q121.22 180.00 114.34 159.10Z"/><path fill="#333333" d="M204.34 159.10L152.00 0.00L212.00 0.00L271.22 180.00L233.22 180.00Q211.22 180.00 204.34 159.10Z"/><path fill="#333333" d="M294.34 159.10L242.00 0.00L302.00 0.00L361.22 180.00L323.22 180.00Q301.22 180.00 294.34 159.10Z"/><path fill="#E4003A" d="M346.74 60.00L327.00 0.00L367.00 0.00Q387.00 0.00 393.25 19.00L406.74 60.00L346.74 60.00Z"/><path fill="#E4003A" d="M6.94 159.10L30.00 89.00L90.00 89.00L60.06 180.00L22.06 180.00Q0.06 180.00 6.94 159.10Z"/></svg><span>DESENVOLVEDOR</span><em class="tap">TOQUE PARA COMEÇAR</em></div>
 </div>
-</div>
 <button id="clipSkip" type="button" hidden>PULAR ▸</button>
 <div id="create" class="ov cr" hidden>
   <div class="crL"><canvas id="crCv"></canvas><div class="crBar"><button class="ghost" id="crRnd" type="button">🎲 ALEATÓRIO</button><button class="go" id="crGo" type="button">COMEÇAR</button></div></div>
@@ -396,7 +395,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v15', NOTES='Som de cadeado nos baús';
+const VERSION='v16', NOTES='Correção do menu na horizontal';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
