@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v34', NOTES='Corrigido: o personagem pulava janelas sozinho e travava perto das casas (a janela só é pulada quando você empurra direto nela ou toca em PULAR A JANELA); não se corta mais no vidro; movimento mais realista: arranca aos poucos, corrida ganha velocidade com o tempo, freia com naturalidade, faz curva aberta em velocidade e firma o pé antes de virar pra trás, e escorrega um pouco no chão molhado; chuva bem menos frequente (o jogo começa com tempo bom); mapa agora mostra o chão de verdade (asfalto, calçada, grama, terra, plantação, água, telhados e árvores) e abre aproximado em você; seta pequena aponta onde está o sobrevivente preso';
+const VERSION='v35', NOTES='Zumbis caem de forma realista: o corpo tomba com peso de verdade (começa devagar, acelera e bate no chão com um pequeno quique e som de baque), os joelhos cedem, o tronco dobra, a cabeça chicoteia, os braços ficam moles e se espalham no chão; vários jeitos de cair: para trás com o tiro de frente, de cara no chão tropeçando, de joelhos primeiro e depois tombando (tiro na cabeça) ou girando antes de desabar; corpos caídos ficam deitados no chão de verdade';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -4119,7 +4119,7 @@ function update3D(dt){
   for(const z of Z){
     z.flash=Math.max(0,z.flash-dt*7);z.att=Math.max(0,z.att-dt*2.6);
     {const sx=z.vx*dt,sz=z.vz*dt,l=Math.hypot(sx,sz),k=l>0.14?0.14/l:1;z.x+=sx*k;z.z+=sz*k}const fr=Math.exp(-dt*(z.dead?5:9));z.vx*=fr;z.vz*=fr;
-    if(z.dead){z.deadT+=dt;if(z.air){z.vy-=14*dt;z.y+=z.vy*dt;z.spin+=(z.spinV||0)*dt;if(z.y<=0){z.y=0;z.air=0;z.vy=0}}if(z.m)z.m.gy=gy(z.x,z.z),animZombie(z.m,z,dt),z.m.root.position.set(z.x,z.m.root.position.y,z.z);continue}
+    if(z.dead){z.deadT+=dt;if(z.air){z.vy-=14*dt;z.y+=z.vy*dt;z.spin+=(z.spinV||0)*dt;if(z.y<=0){z.y=0;z.air=0;z.vy=0}}if(z.m)z.m.gy=gy(z.x,z.z),z.m.root.position.set(z.x,z.m.root.position.y,z.z),animZombie(z.m,z,dt);continue}
     if(z.down>0||z.air){zDownTick(z,dt);continue}
     const ty=ZT[z.type],sc=ty.s;if(z.stun>0){z.stun-=dt;z.state='walk';z.m.gy=gy(z.x,z.z);animZombie(z.m,z,dt);z.m.root.position.set(z.x,z.m.root.position.y,z.z);continue}
     let tg=tgts[0],td=Math.hypot(P.x-z.x,P.z-z.z);for(const t of tgts){const d=Math.hypot(t.x-z.x,t.z-z.z);if(d<td-1){td=d;tg=t}}
@@ -7051,6 +7051,65 @@ function survArrow3(){if(!P||P.dead||P.cellar||MAPV.on)return;const L=[];for(con
 {const r34=render3D;render3D=function(){r34();try{survArrow3()}catch(e){}}}
 {const mo=mapOpen;mapOpen=function(){mo.apply(this,arguments);if(MAPV.on&&P){const pp=P.cellar&&SV.base?BO:P;MAPV.z=2.4;MAPV.ox=pp.x;MAPV.oz=pp.z;mapDraw()}}}
 window.__v34={ev:s=>eval(s)};
+
+/* =====================================================================
+   v35 ZOMBIE DEATHS: no more stiff plank tipping over. Each death is a
+   small simulation — the body topples like a real mass (slow start, it
+   speeds up and slams into the ground, a little bounce), the knees give
+   out, the torso folds and lags behind, the head whips, the arms go limp
+   and trail, then sprawl on the ground. Several ways to go down: falls
+   back from a hit in front, stumbles onto the face, drops to the knees
+   (headshots) then tips over, or spins around before collapsing.
+   ===================================================================== */
+const _dE=new THREE.Euler(0,0,0,'YXZ'),_dV=new THREE.Vector3();
+function deathInit(z,head){const r=Math.random,F=z.fallF||-1;let v;
+  if(z.down>0||z.air||z.state==='down')v='flat';else if(head&&r()<0.55)v='kneel';else if((P&&P.wid==='shotgun'&&r()<0.5)||r()<0.14)v='twist';else v=F>0?'fwd':'back';
+  const run=z.type==='runner'?1:0,dir=v==='kneel'?(r()<0.75?1:F):F;
+  const om0=v==='back'?rnd(1.1,1.9)+(P&&P.wid==='shotgun'?0.9:0):v==='fwd'?rnd(0.5,1.0)+run*1.1:v==='twist'?rnd(0.5,0.9):0;
+  z.dd={v,F:dir,th:v==='flat'?1.45:0,om:om0,c:0,drop:0,vy:0,land:-1,yaw:0,yawT:v==='twist'?(r()<0.5?-1:1)*rnd(0.9,1.7):rnd(-0.25,0.25),side:(z.fallS||0)+(v==='twist'?(r()<0.5?-1:1)*0.5:rnd(-0.2,0.2)),
+    ra:r(),rb:r(),rc:r(),hs:(r()<0.5?-1:1)*rnd(0.4,1),leg:r()<0.5?-1:1,max:v==='kneel'?1.47:rnd(1.46,1.53),snd:false};if(v==='flat')z.dd.land=0}
+{const k0=killZ3;killZ3=function(z,head,dx,dz){const wasDown=z.down>0||z.air;k0(z,head,dx,dz);if(z.dead){deathInit(z,head);if(wasDown)z.dd.v='flat',z.dd.th=1.45,z.dd.land=0,z.dd.om=0}}}
+function deathTick(z,D,dt){const g=9.8;
+  if(D.v==='kneel'&&D.drop<0.42){D.vy+=g*dt*(D.drop<0.05?0.6:1);D.drop+=D.vy*dt;D.c=Math.min(1,D.c+dt*4);if(D.drop>=0.42){D.drop=0.42;D.vy=0;D.om=rnd(0.25,0.5);kneeThud(z)}return}
+  // knees buckle while the body starts to go
+  const cT=D.land>=0?0.22:(D.v==='fwd'?0.5:D.v==='back'?0.6:0.7);D.c+=(cT-D.c)*Math.min(1,dt*(D.land>=0?3:6));
+  if(D.v==='twist'||Math.abs(D.yawT)>0)D.yaw+=(D.yawT-D.yaw)*Math.min(1,dt*(D.v==='twist'?4.5:2));
+  if(D.land<0||D.th<D.max||D.om!==0){const Le=D.v==='kneel'?0.62:0.95-D.c*0.25;D.om+=1.5*g/Le*Math.sin(D.th+0.03)*dt;D.th+=D.om*dt;
+    if(D.th>=D.max&&D.om>=0){D.th=D.max;if(D.om>1.4&&!D.bn){D.bn=1;bodyThud(z,D.om);D.om=-D.om*0.2;if(D.land<0)D.land=0}else{D.om=0;if(D.land<0){D.land=0;bodyThud(z,1)}}}}
+  if(D.land>=0)D.land+=dt}
+function kneeThud(z){if(AU.c&&P&&Math.hypot(z.x-P.x,z.z-P.z)<25){thump(AU.c.currentTime,80,40,0.08,0.18)}}
+function bodyThud(z,om){if(z.dd.snd)return;z.dd.snd=true;if(AU.c&&P){const d=Math.hypot(z.x-P.x,z.z-P.z);if(d<30){const v=clamp(1-d/30,0.15,1)*clamp(om/4,0.4,1);const t=AU.c.currentTime;thump(t,95,38,0.16,0.42*v);anz(t,0.12,700,200,0.18*v,'lowpass',1.2)}}}
+function deathPose(m,z,dt){let D=z.dd;if(!D){deathInit(z,false);D=z.dd}m._dp=1;
+  if(m._sh===undefined)m._sh=m.root.children.find(c=>c.geometry&&c.geometry.type==='CircleGeometry')||null;
+  // settled corpses: keep the pose, only follow position/fade
+  if(D.rest&&!z.air){m.root.position.x=z.x+D.rest[0];m.root.position.z=z.z+D.rest[1];m.root.position.y=(m.gy||0)+D.rest[2]-(z.fadeT||0)*0.3;return}
+  deathTick(z,D,dt);
+  const F=D.F,L=D.land<0?0:clamp(D.land/0.35,0,1),sL=L*L*(3-2*L),om=D.om,c=D.c,sw=m.G.sw,sd=m.ph||0;
+  // whole body: topple about the feet (or the knees), lie a hand's width above the ground
+  const th=D.th,air=z.y||0;let rx=F*th+(z.air?z.spin||0:0),rz=D.side*Math.min(1,th/1.4)*0.55;
+  _dE.set(rx,0,rz,'YXZ');const kneel=D.v==='kneel',px=0,py=kneel?0.07:0,pz=kneel?0.14*F:0;_dV.set(px,py,pz).applyEuler(_dE);const ox=px-_dV.x,oy=py-_dV.y,oz=pz-_dV.z;
+  const yaw=(z.face||0)+D.yaw,cy=Math.cos(yaw),sy=Math.sin(yaw);m.root.rotation.set(rx,yaw,rz);
+  const rox=ox*cy+oz*sy,roz=-ox*sy+oz*cy,roy=oy+0.13*Math.sin(Math.min(1.5,th))*(kneel?0.55:1);m.root.position.x=z.x+rox;m.root.position.z=z.z+roz;m.root.position.y=(m.gy||0)+roy-(z.fadeT||0)*0.3+air;
+  if(m._sh)m._sh.visible=th<0.3&&!air;if(D.land>0.7&&D.om===0&&!z.air)D.rest=[rox,roz,roy];
+  // hips drop as the knees give
+  m.pelvis.position.set(0,RIG.hip-0.03-D.drop-c*0.16*(kneel?0.3:1),0);m.pelvis.rotation.set(F*c*0.22*(1-sL*0.6),0,D.side*0.12*c);
+  // legs: planted while falling, folded under when kneeling, relaxed and a bit bent on the ground
+  for(const[s,x]of[['L',-0.105],['R',0.105]]){const py0=m.pelvis.position.y,mine=(s==='L'?-1:1)===D.leg;
+    let fx=x*1.05,fy=-py0+RIG.ankle,fz=0;
+    if(kneel){const kd=D.drop/0.42;fy=-py0+0.08+kd*0.02;fz=-0.42*kd}
+    let pole=1;if(L>0){const back=F<0,bend=back?(mine?0.16+0.2*D.ra:0.04):(mine?0.05:0.0),ly=-0.84+bend,lz=F*0.07;fx=lerp(fx,x*(1.15+D.rb*0.5+(back?0:0.25*(mine?1:0))),sL);fy=lerp(fy,ly,sL);fz=lerp(fz,lz,sL)}
+    _hS.set(x*0.95,-0.02,0);_hT.set(fx,fy,fz);_hP.set(0,0.1,1);ik3(m['th'+s],m['sh'+s],_hS,_hT,RIG.thigh,RIG.shin,_hP);const f=m['ft'+s];f.position.copy(_hT);f.rotation.set(kneel&&L<1?1.1*(1-sL)+(F>0?1.3*sL:0):F>0?1.3*sL:-0.25*sL,F<0?(x<0?-0.5:0.5)*sL:0,0)}
+  // torso folds, lags behind the fall, then lies flat
+  const lag=-om*0.075,jerk=(D.v==='back'||D.v==='twist'?-0.3:0.25)*Math.exp(-(z.deadT||0)*9)*(1-Math.exp(-(z.deadT||0)*40));
+  const fold=F>0||kneel?0.48*c:-0.12*c;m.chest.rotation.set(lerp(fold+lag+jerk,F*0.04,sL),D.yaw*0.25*(1-sL)+(D.rc-0.5)*0.2*sL,D.side*0.18*c);
+  // head whips, then rolls to one side
+  m.head.rotation.set(lerp(-om*0.11+(F>0?0.25:-0.25)*c,F>0?-0.15:0.2,sL),D.hs*0.95*sL,D.hs*0.25*sL);if(z.headless)m.head.scale.setScalar(0.001);
+  // arms: limp, trailing the fall, then sprawled on the ground
+  for(const[s,x]of[['L',-1],['R',1]]){const rA=s==='L'?D.ra:D.rb;const tr=clamp(Math.abs(om)*0.06,0,0.2)*(L>0?0:1);
+    let hx=x*(sw+0.02+0.06*c),hy=RIG.shY-0.56+tr*0.9+(kneel?0.05:0),hz=0.05-F*tr+(F>0?0.08*c:0);
+    const back=F<0,sx=x*(sw+(back?0.2+0.3*rA:0.1+0.2*rA)),syy=RIG.shY+(back?-0.25+0.55*rA:-0.42+0.7*rA*(s==='L'?D.rc:1-D.rc)),sz=F*0.1;
+    _hT.set(lerp(hx,sx,sL),lerp(hy,syy,sL),lerp(hz,sz,sL));_hP.set(x*(0.6+0.4*sL),-0.3*sL,-F*(0.6-0.4*sL));_gv.set(x*sw,RIG.shY-0.02,0);ik3(m['ua'+s],m['fa'+s],_gv,_hT,RIG.ua,RIG.fa+0.04,_hP)}}
+{const az=animZombie;animZombie=function(m,z,dt){if(z.dead&&!m.boss&&m.pelvis&&m.thL){deathPose(m,z,dt||0.016);return}if(m._dp){m._dp=0;m.pelvis.rotation.x=0;m.pelvis.position.x=m.pelvis.position.z=0;if(m._sh)m._sh.visible=true;m.head.scale.setScalar(1)}az(m,z,dt)}}
 
 start();
 
