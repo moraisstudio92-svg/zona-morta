@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v56', NOTES='Melhorias disponíveis';
+const VERSION='v57', NOTES='Melhorias disponíveis';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -4669,7 +4669,7 @@ function buildPOI(t,cx,cz,c,r){const p=c.p,B=c.b,L=(lx,lz)=>[cx+lx,cz+lz];
   else if(t==='pharmacy'){bld(12,4.5,10,-6,-7,'#d8d8d0');box(1.6,0.5,0.14,-8.5,3.7,-1.88,'#2fa84a');box(0.5,1.6,0.14,-8.5,3.7,-1.88,'#2fa84a');
     box(2.3,2.4,5,6,1.44,4,'#e8e8e4');box(2.32,0.3,5.02,6,1.6,4,'#c81f17');box(2.2,0.9,1.4,6,2.9,6.3,'#e8e8e4');for(const[wx,wz]of[[5.1,2.4],[6.9,2.4],[5.1,5.6],[6.9,5.6]])cyl(0.4,0.4,0.25,wx,0.64,wz,'#141414',10,0,0,Math.PI/2);box(0.6,0.15,0.4,6,3.4,4,'#3a8aff');col(4.8,1.4,7.2,6.6,'car');
     box(0.7,0.15,2,3.2,0.74,7.5,'#e8e4dc');for(let i=0;i<5;i++)box(0.5,0.4,0.5,-10+r()*8,0.44,1+r()*4,'#e8e4dc',0,r(),0);chest(-6,-0.8);chest(6,7.4);sign(-6,-3,6.4)}
-  else if(t==='gas'){box(16,0.4,10,0,4.9,4,'#d8d4c8');box(16.2,0.5,10.2,0,4.5,4,'#c81f17');for(const[x,z]of[[-6,0.5],[6,0.5],[-6,7.5],[6,7.5]]){cyl(0.25,0.25,4.4,x,2.44,z,'#c8c4b8',8);col(x-0.3,z-0.3,x+0.3,z+0.3,'car')}
+  else if(t==='gas'){{const m=meshOf([Bx(16,0.4,10,cx,4.9,cz+4,'#d8d4c8'),Bx(16.2,0.5,10.2,cx,4.5,cz+4,'#c81f17')],MATV);SC3.add(m);CANOPY.push({m,x0:cx-8.1,x1:cx+8.1,z0:cz-1.1,z1:cz+9.1})}for(const[x,z]of[[-6,0.5],[6,0.5],[-6,7.5],[6,7.5]]){cyl(0.25,0.25,4.4,x,2.44,z,'#c8c4b8',8);col(x-0.3,z-0.3,x+0.3,z+0.3,'car')}
     for(let i=0;i<3;i++){const lx=-4+i*4;box(0.8,1.6,0.6,lx,1.04,4,'#e8e4dc');box(0.82,0.3,0.62,lx,1.6,4,'#c81f17');box(0.4,0.3,0.05,lx,1.2,3.68,'#1a2a30');cyl(0.03,0.03,0.9,lx+0.45,0.9,3.9,'#1a1a1a',4,0.3,0,0);col(lx-0.4,3.7,lx+0.4,4.3,'car')}
     bld(10,4,7,-8,-10,'#c8c0b0');cyl(0.3,0.3,9,12,4.74,-10,'#3a3a3a',8);for(const tz of[-7.6,-11.2]){cyl(1.1,1.1,5,5.5,1.45,tz,'#ecebe6',16,0,0,Math.PI/2);for(const tx of[3.6,7.4])cyl(1.13,1.13,0.22,tx,1.45,tz,'#c81f17',16,0,0,Math.PI/2);for(const tx of[3.8,7.2])box(0.4,0.5,1.6,tx,0.5,tz,'#8a8478');cyl(0.12,0.12,0.3,5.5,2.65,tz,'#3a3a3a',8)}col(2.9,-12.4,8.1,-6.4,'car');box(3.4,2.2,0.4,12,9.6,-10,'#c81f17');col(11.6,-10.4,12.4,-9.6,'bld');
     carParts(p,cx+2,cz+12,0.4,'#2a2624',true);col(0,10.6,4,13.4,'car');if(r()<0.6)FIREPOS.push([cx+2,cz+12]);for(let i=0;i<4;i++)cyl(0.32,0.32,0.95,8+i*0.7,0.72,-4+(i%2)*0.6,i%2?'#3d5468':'#7a3a28',10);
@@ -4716,7 +4716,7 @@ function spawnLoot3(){for(const l of LOOT3)SC3.remove(l.m);LOOT3.length=0;const 
   for(let i=0;i<28;i++){const a=r()*TAU,d=rnd(26,190),x=Math.cos(a)*d,z=Math.sin(a)*d;if(Math.abs(x)>MAPH-4||Math.abs(z)>MAPH-4||blocked(x,z,0.5))continue;addLoot3(pick([['scrap',3],['food',2.5],['water',2.5],['cash',1.5],['ammo',1.2],['med',1.2],['gas',0.5],['part',0.4]]),x,z)}}
 function lootVal(k){const zc=[1,1,1.6,2.6,4.2][zone3(P.x,P.z)]||1;return Math.round(({scrap:22,cash:40,food:12,med:12,ammo:10,part:0}[k]||10)*zc*(1+0.08*(SV.day-1))*rnd(0.8,1.25))}
 function removeLoot3(l){SC3.remove(l.m);const i=LOOT3.indexOf(l);if(i>=0)LOOT3.splice(i,1)}
-function playerLoot3(){for(let i=LOOT3.length-1;i>=0;i--){const l=LOOT3[i];if(l.dropped&&!l.away){if(Math.hypot(l.x-P.x,l.z-P.z)>2.2)l.away=1;continue}if(Math.abs(l.x-P.x)>1.1||Math.abs(l.z-P.z)>1.1)continue;let txt;
+function playerLoot3(){for(let i=LOOT3.length-1;i>=0;i--){const l=LOOT3[i];if(l.item&&ITEMS[l.item]&&l.k!=='food'&&l.k!=='med'&&l.k!=='water'&&l.k!=='gas')continue;if(l.dropped&&!l.away){if(Math.hypot(l.x-P.x,l.z-P.z)>2.2)l.away=1;continue}if(Math.abs(l.x-P.x)>1.1||Math.abs(l.z-P.z)>1.1)continue;let txt;
     if(l.k==='scrap'||l.k==='cash'){const v=earn(lootVal(l.k));txt=`+$ ${fmt(v)}`;SFX.coin()}
     else if(l.k==='food'||l.k==='med'||l.k==='water'||l.k==='gas'){const it=l.item||(l.k==='food'?(Math.random()<0.6?'food':'snack'):l.k==='med'?(Math.random()<0.6?'bandage':Math.random()<0.8?'pain':'antiv'):l.k);
       if(!invAdd(it)){if(!l.fullT||T-l.fullT>4){l.fullT=T;toast(`🎒 Mochila cheia · ${ITEMS[it].n} pesa ${ITEMS[it].w} kg`)}continue}txt=`${ITEMS[it].ic} ${ITEMS[it].n}`;sN(0.15,1800,900,0.08,'bandpass',2)}
@@ -6020,7 +6020,7 @@ function dis3(dt){const d=P.dis;if(!d)return;const f=d.f,D=DIS[f.t];if(P.mv>1.2|
   d.t+=dt;d.k=(d.k||0)-dt;if(d.k<=0){d.k=rnd(0.35,0.6);P.swing=1;P.swingD=0.4;if(AU.c){const t=AU.c.currentTime,v=0.8;if(D.sk==='build'){thump(t,140,60,0.06,0.3*v);anz(t,0.25,rnd(500,700),rnd(300,500),0.06*v,'bandpass',6)}else{metal(t,rnd(900,1800),0.12*v,0.12,[1,2.4,4.3]);anz(t+0.02,0.1,rnd(2200,3600),1500,0.06*v,'bandpass',3)}}
     d.n++;if(d.n%3===0){noise3(P.x,P.z,P.crouch?5:9);noiseRing(P.x,P.z,P.crouch?5:9,0xffa040)}}
   if(d.t<d.dur)return;P.dis=null;hideFurn(f);const S=sv(),bonus=(S.inv.tools?1:0)+(celLv()>=1?1:0)+(Math.random()<0.1*skl(D.sk)?1:0),got=[];
-  for(const k in D.m){let n=D.m[k]+(k==='plank'||k==='scrap'?bonus:0);let given=0;for(let i=0;i<n;i++){if(invAdd(k))given++;else{const l=addLoot3(k==='scrap'?'scrap':'part',P.x+rnd(-0.8,0.8),P.z+rnd(-0.8,0.8));l.item=k;l.dropped=1}}got.push(`${ITEMS[k].ic}×${n}`)}
+  for(const k in D.m){let n=D.m[k]+(k==='plank'||k==='scrap'?bonus:0);let given=0;for(let i=0;i<n;i++){if(invForce(k))given++;else{const l=addLoot3(k==='scrap'?'scrap':'part',P.x+rnd(-0.8,0.8),P.z+rnd(-0.8,0.8));l.item=k;l.dropped=1}}got.push(`${ITEMS[k].ic}×${n}`)}
   if(D.gas&&Math.random()<D.gas){if(invAdd('gas'))got.push('⛽×1')}
   skXP(D.sk,14+D.t*1.5);toast(`🔧 ${D.n} desmontado · ${got.join(' ')}`);G.shake=Math.max(G.shake,1.5);if(AU.c){const t=AU.c.currentTime;D.sk==='build'?thump(t,90,40,0.15,0.4):metal(t,600,0.2,0.25,[1,2.3,4.1])}save()}
 // action button
@@ -8312,7 +8312,7 @@ dis3=function(dt){const d=P.dis;if(!d)return;const f=d.f,D=DIS[f.t],parts=disPar
   if(d.t<d.dur)return;
   // one part off
   const T=disTaken(f),qi=d.q.shift();T.push(qi);const S=sv(),got=[],bonus=(S.inv.tools?1:0)+(celLv()>=1?1:0);
-  for(const k in (p.m||{})){const n=p.m[k]+((k==='plank'||k==='scrap')&&Math.random()<0.5?bonus:0)+(Math.random()<0.05*skl(D.sk)?1:0);for(let i=0;i<n;i++){if(!invAdd(k)){const l=addLoot3(k==='scrap'?'scrap':'part',P.x+rnd(-0.8,0.8),P.z+rnd(-0.8,0.8));l.item=k;l.dropped=1}}got.push(`${ITEMS[k].ic}×${n}`)}
+  for(const k in (p.m||{})){const n=p.m[k]+((k==='plank'||k==='scrap')&&Math.random()<0.5?bonus:0)+(Math.random()<0.05*skl(D.sk)?1:0);for(let i=0;i<n;i++){if(!invForce(k)){const l=addLoot3(k==='scrap'?'scrap':'part',P.x+rnd(-0.8,0.8),P.z+rnd(-0.8,0.8));l.item=k;l.dropped=1}}got.push(`${ITEMS[k].ic}×${n}`)}
   if(p.gas){if(Math.random()<p.gas&&invAdd('gas'))got.push('⛽×1');else got.push('tanque seco')}
   skXP(D.sk,6+p.t*1.6);const all=disLeft(f).length===0;
   if(all){hideFurn(f);toast(`🔧 ${D.n} desmontado · ${got.join(' ')}`);G.shake=Math.max(G.shake,1.5)}else toast(`🔧 ${p.n} · ${got.join(' ')}`);
@@ -8751,7 +8751,7 @@ function nearTree(){let best=null,bd=1.5;for(let i=0;i<NAT.tree.length;i++){cons
 {const da0=doAction3;doAction3=function(){const a=actionTarget3();if(a&&a.type==='tree'){if(Z.some(z=>!z.dead&&z.see&&Math.hypot(z.x-P.x,z.z-P.z)<8)){SFX.deny();toast('Zumbis te vendo · agora não');return}const ax=SV.owned.machado||P.wid==='machado';P.chop={i:a.i,t:0,dur:ax?5:9,k:0};say3(ax?'Bora cortar essa':'Sem machado vai demorar...',1.5);return}return da0()}}
 function chop3(dt){const c=P.chop;if(!c)return;const t=NAT.tree[c.i];if(!t||t.cut||P.mv>1||P.dead){P.chop=null;return}P.face=lerpA(P.face,Math.atan2(t.x-P.x,t.z-P.z),Math.min(1,dt*8));c.t+=dt;c.k-=dt;
   if(c.k<=0){c.k=0.6;if(AU.c){const tt=AU.c.currentTime+0.12;thump(tt,120,55,0.12,0.5);anz(tt,0.05,2200,900,0.35,'bandpass',1.5);anz(tt+0.01,0.18,500,260,0.2,'bandpass',4)}noise3(P.x,P.z,8);G.shake=Math.max(G.shake,0.6)}
-  if(c.t<c.dur)return;P.chop=null;hideTree(c.i);SV.cut=SV.cut||[];SV.cut.push(c.i);SV.expl=(SV.expl||0)+1;const n=t.k==='dead'?2:t.k==='banana'||t.k==='palm'?1:3+Math.floor(Math.random()*2);let got=0;for(let i=0;i<n;i++){if(invAdd('plank'))got++;else{const l=addLoot3('part',P.x+rnd(-1,1),P.z+rnd(-1,1));l.item='plank';l.dropped=1}}
+  if(c.t<c.dur)return;P.chop=null;hideTree(c.i);SV.cut=SV.cut||[];SV.cut.push(c.i);SV.expl=(SV.expl||0)+1;const n=t.k==='dead'?2:t.k==='banana'||t.k==='palm'?1:3+Math.floor(Math.random()*2);let got=0;for(let i=0;i<n;i++){invForce('plank');got++}
   treeFall(t);skXP('build',8);toast(`🪓 Árvore cortada · 🪵×${n}`);save()}
 function treeFall(t){if(!AU.c)return;const s=AU.c.currentTime;for(let i=0;i<6;i++)anz(s+i*0.09,0.12,rnd(300,700),200,0.15,'bandpass',3);thump(s+0.9,70,30,0.5,0.7);sN(0.8,300,80,0.35,'lowpass',1,0.9)}
 {const sk0=skills3;skills3=function(dt){sk0(dt);try{chop3(dt)}catch(e){}}}
@@ -9374,12 +9374,11 @@ function xrPatch(m){if(!m||XRDONE.has(m))return m;XRDONE.add(m);const ob=m.onBef
   m.customProgramCacheKey=()=>k0+'|xr1';m.needsUpdate=true;return m}
 // trees: the old see-through strip is replaced by the circle
 ghostLeaf=function(m){return xrPatch(m)};
-function xrScene(){for(const m of[MATV,MATB,MATG])xrPatch(m);if(typeof MATTREE!=='undefined'&&MATTREE)xrPatch(MATTREE);
-  if(SC3)SC3.traverse(o=>{if(!o.material||o.isSkinnedMesh||o.isSprite||o.isPoints||o.isLine)return;const ms=Array.isArray(o.material)?o.material:[o.material];for(const m of ms){if(m.isMeshLambertMaterial&&!m.transparent&&o!==GROUND3&&!(typeof FLOOR3!=='undefined'&&FLOOR3.includes(o)))xrPatch(m)}})}
-{const bw0=buildWorld3D;buildWorld3D=function(){try{for(const m of[MATV,MATB,MATG])xrPatch(m)}catch(e){}const r=bw0.apply(this,arguments);try{xrScene()}catch(e){console.error(e)}return r}}
+function xrScene(){if(typeof MATTREE!=='undefined'&&MATTREE)xrPatch(MATTREE)}
+{const bw0=buildWorld3D;buildWorld3D=function(){const r=bw0.apply(this,arguments);try{xrScene()}catch(e){console.error(e)}return r}}
 const _xrV=HAS3?new THREE.Vector3():null;
 function xrTick(){if(!CAM3||!P||!W3.on){XRU.uXp.value.z=0;return}const tx=P.drive?P.drive.x:P.x,tz=P.drive?P.drive.z:P.z,ty=(PM&&PM.gy!=null?PM.gy:gy(tx,tz))+1.0;
-  _xrV.set(tx,ty,tz);const d=CAM3.position.distanceTo(_xrV);_xrV.project(CAM3);XRU.uXp.value.set(_xrV.x,_xrV.y,P.cellar?0:d);XRU.uXc.value.copy(CAM3.position);XRU.uXa.value=(W||innerWidth)/(H||innerHeight);XRU.uXr.value=P.drive?0.34:0.27}
+  _xrV.set(tx,ty,tz);const d=CAM3.position.distanceTo(_xrV);_xrV.project(CAM3);XRU.uXp.value.set(_xrV.x,_xrV.y,P.cellar?0:d);XRU.uXc.value.copy(CAM3.position);XRU.uXa.value=(W||innerWidth)/(H||innerHeight);XRU.uXr.value=P.drive?0.5:0.42}
 {const u0=update3D;update3D=function(dt){const r=u0(dt);try{xrTick()}catch(e){}return r}}
 // ---------------------------------------------------------------- prettier houses
 HCOL.length=0;HCOL.push('#efe3c8','#d7e6d0','#f2d8c2','#d4e1ee','#f3e5a6','#ead3dc','#f5f1e8','#cde0d6','#f0cea6','#dcd4ec','#e9dcc0');
@@ -9563,6 +9562,23 @@ const SAFETIP='Dica: a melhor safe fica longe da cidade · menos zumbis por pert
 {const ch0=claimHouse;claimHouse=function(b){if(safeCount()>=safeMax()){SFX.deny();toast('Você já tem uma safe');return}return ch0.apply(this,arguments)}}
 // the tip shows up whenever you are inside a house that could become a safe
 {let last=0;const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(W3.on&&P&&G&&G.inB&&safeCount()<safeMax()&&!SV.base&&T-last>90){const b=G.inB;if(b.rooms&&b.rooms.length&&!safeOf(b)){last=T;toast('💡 '+SAFETIP)}}}catch(e){}return r}}
+
+/* =====================================================================
+   v57 · see-through circle only on trees (and wider) · walking next to a
+   house hides its roof and opens it up (the same view as inside); under
+   the gas station canopy the canopy disappears · chopping trees gives
+   only planks and they always go straight into your bag.
+   ===================================================================== */
+const CANOPY=[];
+function invForce(k,n){n=n||1;const I=sv().inv;I[k]=(I[k]||0)+n;return true}
+// buildings: the one you are in, the ones right next to you and the ones between you and the camera
+bldFade=function(dt){BFT-=dt;if(BFT>0)return;BFT=0.12;for(const b of CLAIMS)if(!b.seen&&Math.abs((b.x0+b.x1)/2-P.x)<28&&Math.abs((b.z0+b.z1)/2-P.z)<28){b.seen=1;if(!SV.base)toast('🏠 Casa abandonada por perto · pode virar sua safe house')}
+  const want=new Set(),inb=bldAt(P.x,P.z);if(inb)want.add(inb);
+  for(let gx=Math.floor((P.x-3)/CG);gx<=Math.floor((P.x+3)/CG);gx++)for(let gz=Math.floor((P.z-3)/CG);gz<=Math.floor((P.z+3)/CG);gz++)for(const b of(BGRID.get(ck(gx,gz))||[])){if(b.H>5)continue;const dx=Math.max(b.x0-P.x,0,P.x-b.x1),dz=Math.max(b.z0-P.z,0,P.z-b.z1);if(Math.hypot(dx,dz)<2.4)want.add(b)}
+  const cx=CAM3.position.x-CAMT.x,cz=CAM3.position.z-CAMT.z,cl=Math.hypot(cx,cz)||1;for(const k of[1.2,2.6,4,5.5,7,9,11.5,14]){const b=bldAt(P.x+cx/cl*k,P.z+cz/cl*k);if(b&&(k<7.5||b.H>4))want.add(b)}
+  for(const b of BFADE)if(!want.has(b)){b.shell.material=MATV;b.roof.visible=true}for(const b of want)if(!BFADE.has(b)){b.shell.material=GHOSTM;b.roof.visible=false}BFADE=want;
+  const nm=inb?(inb.name||(()=>{const R=inb.rooms.find(R=>P.x>R.x0-0.2&&P.x<R.x1+0.2&&P.z>R.z0-0.2&&P.z<R.z1+0.2);return R?ROOMNAME[R.t]||'':''})()):'';G.place=nm;G.inB=inb;
+  for(const c of CANOPY){const under=P.x>c.x0-1&&P.x<c.x1+1&&P.z>c.z0-1&&P.z<c.z1+1;if(c.m.visible===under)c.m.visible=!under}};
 
 start();
 
