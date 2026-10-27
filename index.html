@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v44', NOTES='Porta abre e fecha pelo botão; dormir em qualquer lugar; água não pesa; barras de humor, tédio, fome, sono e sede (botão ao lado da engrenagem); cama e sofá: dormir, relaxar e ler; ajoelha para revistar e desmontar com ferramenta na mão; botão de ação entre esquiva e agachar; itens do chão pegos ao passar; desmontar depois de revistar; pedaço de pau com as duas mãos; sem zoom de pinça';
+const VERSION='v45', NOTES='Modo construção estilo Age of Empires: botão 🔨 ao lado da engrenagem pausa o jogo, você posiciona barricadas, cercas, muros, arame, torre, móveis e coisas úteis (paredes: toque no início e no fim) e o personagem vai lá e constrói martelando, a obra sobe aos poucos; só gasta tábua e sucata; libera mais coisas conforme explora; cortar árvores para pegar tábuas';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -8582,6 +8582,184 @@ function needsSetup(){if($('bNeeds'))return;const r=document.querySelector('#hud
 let NHT=0;function needsHUD(force){if(!W3.on||!P)return;needsSetup();const n=performance.now();if(!force&&n-NHT<400)return;NHT=n;const S=needs(),v={mood:S.mood,fun:S.fun,hun:S.hun,fat:S.fat,thi:S.thi};
   const nb=$('bNeeds');if(nb){const m=S.mood;nb.firstChild.textContent=m>80?'😄':m>60?'🙂':m>40?'😐':m>20?'🙁':'😫';const bar=nb.querySelector('i');bar.style.background=needCol(Math.min(...Object.values(v)));}
   const p=$('needsP');if(!p||p.hidden)return;for(const k in v){const e=$('nb_'+k);if(e){e.style.width=clamp(v[k],0,100).toFixed(0)+'%';e.style.background=needCol(v[k])}}}
+
+/* =====================================================================
+   v45 BUILD MODE (Age of Empires style): the 🔨 button next to the
+   settings pauses the game and shows your safe house from above. Pick
+   barricades, fences, walls, furniture or useful things, put them on the
+   ground (walls: tap the start and the end of the line) and press
+   CONTINUE. Your survivor then walks to each spot and hammers away while
+   the structure rises little by little. Only wood (🪵) and metal (🔩).
+   More things unlock as you explore the world. Trees can be chopped.
+   ===================================================================== */
+const BITEM={
+  barric:{n:'BARRICADA',ic:'🪵',cat:'def',mat:{plank:2},u:0,w:2,d:0.6,line:1,hp:450,t:7,desc:'Tábuas pregadas: segura os zumbis por um tempo'},
+  cerca:{n:'CERCA DE MADEIRA',ic:'🚧',cat:'def',mat:{plank:2},u:0,w:3,d:0.3,line:1,hp:300,t:6,desc:'Cerca de ripas · zumbis pulam devagar'},
+  muro:{n:'MURO DE TIJOLO',ic:'🧱',cat:'def',mat:{plank:1,scrap:3},u:12,w:3,d:0.4,line:1,hp:1800,t:12,desc:'Muro alto e forte'},
+  chapa:{n:'MURO DE CHAPA',ic:'🛡',cat:'def',mat:{scrap:4},u:22,w:3,d:0.3,line:1,hp:2600,t:12,desc:'Chapas de metal soldadas · o mais forte'},
+  arame:{n:'ARAME FARPADO',ic:'➰',cat:'def',mat:{scrap:2},u:8,w:4,d:1.4,line:1,hp:300,t:5,desc:'Deixa os zumbis lentos e machuca',wire:1},
+  vigia:{n:'TORRE DE VIGIA',ic:'🗼',cat:'def',mat:{plank:8,scrap:2},u:25,w:2.6,d:2.6,hp:900,t:20,desc:'Plataforma alta para ver longe',tower:1},
+  cama:{n:'CAMA',ic:'🛏',cat:'mov',mat:{plank:4},u:0,w:1.1,d:2.0,hp:200,t:8,desc:'Dormir bem, relaxar e ler',rest:'bed'},
+  sofa:{n:'SOFÁ',ic:'🛋',cat:'mov',mat:{plank:3,scrap:1},u:2,w:2.0,d:0.85,hp:200,t:8,desc:'Relaxar e cochilar',rest:'sofa'},
+  mesa2:{n:'MESA',ic:'🍽',cat:'mov',mat:{plank:3},u:0,w:1.4,d:0.9,hp:150,t:6,desc:'Mesa com duas cadeiras'},
+  estante:{n:'ESTANTE',ic:'📚',cat:'mov',mat:{plank:3},u:4,w:1.4,d:0.4,hp:150,t:6,desc:'Abre o depósito da casa',store:1},
+  armario:{n:'ARMÁRIO',ic:'🗄',cat:'mov',mat:{plank:2,scrap:2},u:8,w:1.2,d:0.6,hp:200,t:8,desc:'Abre o depósito da casa',store:1},
+  bancada:{n:'BANCADA DE TRABALHO',ic:'🔧',cat:'mov',mat:{plank:3,scrap:2},u:10,w:1.8,d:0.7,hp:250,t:10,desc:'Melhorias da casa',bench:1},
+  beliche:{n:'BELICHE',ic:'🛏',cat:'mov',mat:{plank:5,scrap:1},u:18,w:1.0,d:2.0,hp:250,t:10,desc:'Cama para dois',rest:'bed'},
+  fogao:{n:'FOGÃO A LENHA',ic:'🍳',cat:'mov',mat:{scrap:3},u:14,w:1.0,d:0.7,hp:250,t:9,desc:'Cozinhar: comida + tábua'}};
+// the old useful things (fogueira, poço, banco...) become wood/metal only
+for(const k in DECO){const D=DECO[k],m={};for(const[i,n]of Object.entries(D.mat||{})){const kk=i==='plank'?'plank':'scrap';m[kk]=(m[kk]||0)+n}if(!Object.keys(m).length)m.plank=1;
+  BITEM['d_'+k]={n:D.n,ic:D.ic,cat:'uti',mat:m,u:{fogueira:0,lampiao:0,banco:0,varal:1,vasos:0,barraca:2,churras:6,mesa:3,poco:10,balanco:6,casinha:4,cordao:5,poste:12,refletor:20,solar:28,antena:35}[k]||5,w:D.w,d:D.d,hp:150,t:6,desc:D.desc,deco:k}}
+for(const k in BITEM){const I=BITEM[k];if(!I.deco)BDEF[k]=Object.assign({n:I.n,cost:0,w:I.w,d:I.d,max:()=>99,desc:I.desc},BDEF[k]||{})}
+const BCAT=[['def','DEFESAS'],['mov','MÓVEIS'],['uti','ÚTEIS']];
+function explPts(){return SV.expl||0}
+{const s0=search3;search3=function(dt){const was=P.search;s0(dt);if(was&&!P.search&&was.c&&was.c.searched&&!was.c._xp){was.c._xp=1;SV.expl=(SV.expl||0)+1}}}
+// geometry of the new things
+{const bp0=bParts;bParts=function(b,P0,ghost){const I=BITEM[b.t];if(!I||I.deco||I.wire)return bp0(b,P0,ghost);const y0=gy(b.x,b.z),x=b.x,z=b.z,r=b.r,L=(lx,lz)=>r?[x+lz,z+lx]:[x+lx,z+lz];
+  const box=(w,h,d,lx,ly,lz,c,rx,ry,rz)=>{const p=L(lx,lz);P0.push(Bx(r?d:w,h,r?w:d,p[0],y0+ly,p[1],c,r?(rz||0):(rx||0),ry||0,r?-(rx||0):(rz||0)))};
+  const cyl=(rt,rb,h,lx,ly,lz,c,seg)=>{const p=L(lx,lz);P0.push(Cy(rt,rb,h,p[0],y0+ly,p[1],c,seg||7))};
+  switch(b.t){
+  case'barric':for(let i=0;i<5;i++)box(2.0,0.2,0.05,0,0.25+i*0.26,0.06*(i%2?1:-1),i%2?'#7a5634':'#8a6440',0,0,(i%2?0.05:-0.06));for(const a of[-0.8,0.8])box(0.12,1.5,0.12,a,0.75,0,'#5a3e24');box(2.1,0.12,0.06,0,0.75,0.1,'#6a4a2c',0,0,0.5);break;
+  case'cerca':for(let i=0;i<10;i++)box(0.14,1.25+((i*7)%3)*0.04,0.03,-1.35+i*0.3,0.63,0,'#a07a4a');for(const y of[0.35,0.95])box(3,0.08,0.05,0,y,-0.04,'#7a5634');for(const a of[-1.45,1.45])box(0.1,1.3,0.1,a,0.65,-0.06,'#5a3e24');break;
+  case'muro':for(let row=0;row<8;row++)for(let i=0;i<6;i++){const off=row%2?0.25:0;const lx=-1.25+i*0.5+off;if(lx>1.3)continue;box(0.48,0.22,0.38,lx,0.12+row*0.24,0,row%3===0?'#a85a3a':row%3===1?'#9a5034':'#b0654a')}box(3.04,0.08,0.44,0,2.0,0,'#8a8478');break;
+  case'chapa':box(3,2.3,0.06,0,1.15,0,'#6f777b');for(let i=0;i<4;i++)box(0.12,2.4,0.16,-1.45+i*0.97,1.2,0,'#4a5054');box(3,0.1,0.16,0,2.32,0,'#4a5054');for(let i=0;i<6;i++)box(0.5,0.06,0.07,-1.25+i*0.5,0.4+(i%3)*0.7,0.04,'#5a6064');break;
+  case'vigia':for(const[ox,oz]of[[-1.1,-1.1],[1.1,-1.1],[-1.1,1.1],[1.1,1.1]])cyl(0.11,0.13,4.5,ox,2.25,oz,'#4a3a2a',6);box(2.7,0.16,2.7,0,3.4,0,'#5a4632');for(const s of[-1,1]){box(2.7,0.08,0.08,0,4.4,s*1.32,'#5e4a34');box(0.08,0.08,2.7,s*1.32,4.4,0,'#5e4a34')}for(let i=0;i<7;i++)box(0.5,0.05,0.07,0,0.35+i*0.48,1.42,'#5e4a34');break;
+  case'cama':box(1.0,0.32,1.95,0,0.2,0,'#6a4a2c');box(0.95,0.16,1.85,0,0.44,0.02,'#e8e4dc');box(0.9,0.08,1.25,0,0.53,0.3,'#3a5a8a');box(0.55,0.1,0.32,0,0.56,-0.72,'#f4f0e8');box(1.04,0.75,0.08,0,0.38,-0.98,'#5a3e24');break;
+  case'beliche':for(const[ox,oz]of[[-0.47,-0.95],[0.47,-0.95],[-0.47,0.95],[0.47,0.95]])box(0.07,1.7,0.07,ox,0.85,oz,'#5a3e24');for(const y of[0.32,1.25]){box(0.95,0.1,1.9,0,y,0,'#6a4a2c');box(0.9,0.12,1.8,0,y+0.11,0,'#e8e4dc');box(0.85,0.06,1.2,0,y+0.19,0.3,y>1?'#8a2a2a':'#3a5a8a')}break;
+  case'sofa':box(1.95,0.4,0.8,0,0.2,0,'#5a4a6a');box(1.95,0.5,0.2,0,0.6,-0.32,'#4e405e');for(const a of[-0.9,0.9])box(0.18,0.3,0.8,a,0.5,0,'#4e405e');for(const a of[-0.45,0.45])box(0.85,0.12,0.6,a,0.46,0.06,'#6a5a7a');break;
+  case'mesa2':box(1.3,0.06,0.85,0,0.75,0,'#8a6a4a');for(const[a,c]of[[-0.58,-0.36],[0.58,-0.36],[-0.58,0.36],[0.58,0.36]])box(0.06,0.75,0.06,a,0.37,c,'#5a3e24');for(const s of[-1,1]){box(0.42,0.05,0.42,0,0.45,s*0.7,'#7a5634');box(0.42,0.45,0.05,0,0.7,s*0.9,'#7a5634')}break;
+  case'estante':box(1.35,1.8,0.36,0,0.9,0,'#6a4a2c');for(let i=0;i<4;i++){box(1.25,0.03,0.32,0,0.35+i*0.42,0.01,'#5a3e24');for(let j=0;j<6;j++)box(0.07,0.26,0.22,-0.5+j*0.19,0.5+i*0.42,0.03,['#8a2a2a','#2a4a8a','#3a6a3a','#c8a040','#5a3a6a'][(i+j)%5])}break;
+  case'armario':box(1.15,1.9,0.55,0,0.95,0,'#7a5634');box(0.02,1.8,0.02,0,0.95,0.28,'#3a2a1a');for(const a of[-0.08,0.08])box(0.03,0.15,0.03,a,1.0,0.29,'#c8b070');break;
+  case'bancada':box(1.8,0.08,0.7,0,0.88,0,'#8a6440');for(const[a,c]of[[-0.82,-0.3],[0.82,-0.3],[-0.82,0.3],[0.82,0.3]])box(0.08,0.86,0.08,a,0.43,c,'#4a4e52');box(1.7,0.04,0.6,0,0.3,0,'#6a4a2c');box(0.4,0.22,0.22,-0.5,1.0,0,'#c82a20');box(1.8,0.9,0.05,0,1.3,-0.33,'#5a4630');box(0.3,0.05,0.06,0.4,0.95,0.1,'#9aa2a8');break;
+  case'fogao':box(0.95,0.8,0.65,0,0.4,0,'#2a2c2e');box(0.9,0.05,0.6,0,0.82,0,'#3a3c3e');cyl(0.07,0.07,1.6,0.3,1.6,-0.22,'#2a2c2e',8);box(0.4,0.28,0.04,0,0.35,0.33,'#ff8030');break}}}
+{const bm0=bMax;bMax=function(b){const I=BITEM[b.t];if(I&&!I.deco&&!I.wire&&b.t!=='wall'&&b.t!=='wire'&&b.t!=='tower')return I.hp;return bm0(b)}}
+{const bl0=bLabel;bLabel=function(b){const I=BITEM[b.t];if(I&&!I.deco&&!I.wire){const tail=I.rest?' · DORMIR · RELAXAR':I.store?' · DEPÓSITO':I.bench?' · MELHORIAS':b.t==='fogao'?' · COZINHAR':` · ${Math.round(Math.max(0,b.hp)/bMax(b)*100)}%`;return`${I.ic} ${I.n}${tail}`}return bl0(b)}}
+{const rb0=renderBuild;renderBuild=function(body){const b=builds().find(q=>q.id===BSEL);const I=b&&BITEM[b.t];if(!I||I.deco||I.wire)return rb0(body);$('sKick').textContent='CONSTRUÇÃO';$('sTitle').textContent=I.n;
+  const row=(ic,t,d,bt)=>{const r=el('div','irow');r.append(el('i','',ic));const tt=el('div','it');tt.append(el('b','',t),el('span','',d));r.append(tt);const ac=el('div','ia');ac.append(bt);r.append(ac);body.append(r)};
+  if(I.rest){row('😴','DORMIR','Recupera o sono',btn('DORMIR','buy alt',()=>sleepHere(I.rest)));row('🛋','RELAXAR','Tira o tédio, melhora o humor e cura um pouco',btn('RELAXAR','buy alt',()=>startRelax('rest',null)));
+    const bk=Object.keys(sv().inv).filter(k=>ITEMS[k]&&ITEMS[k].book&&sv().inv[k]>0);for(const k of bk)row('📘',ITEMS[k].n,'Treina a habilidade',btn('LER','buy alt',()=>{closeSheet();startRead(k)}));if(!bk.length)row('📰','LER UMA REVISTA','Passa o tempo',btn('LER','buy alt',()=>startRelax('mag',null)))}
+  if(I.store)row('📦','DEPÓSITO','Guardar e pegar suprimentos',btn('ABRIR','buy alt',()=>{shSel='store';GS=null;renderSheet()}));
+  if(I.bench)row('🔧','MELHORIAS','Melhorias da casa',btn('ABRIR','buy alt',()=>{shSel='celbench';GS=null;renderSheet()}));
+  if(b.t==='fogao')row('🍖','COZINHAR','1 enlatado + 1 tábua = comida quente',btn('COZINHAR','buy alt',()=>{if(!hasMat({food:1,plank:1})){SFX.deny();toast('Precisa de 1 enlatado e 1 tábua');return}useMat({food:1,plank:1});const S=sv();S.hun=Math.min(100,S.hun+70);S.mood=Math.min(100,(S.mood||70)+10);toast('🍖 Comida quente!');save();renderSheet()}));
+  const mx=bMax(b);if(b.hp<mx)row('🔨','CONSERTAR',`${Math.round(b.hp/mx*100)}% · 1 🪵`,btn('CONSERTAR','ghost',()=>{if(!hasMat({plank:1})){SFX.deny();toast('Precisa de 1 tábua');return}useMat({plank:1});b.hp=mx;SFX.gate(0.4);save();renderSheet()}));
+  row('↩','DESMONTAR','Devolve metade do material',btn('DESMONTAR','ghost',()=>{const i=builds().indexOf(b);if(i>=0)builds().splice(i,1);const S=sv();for(const k in I.mat){const n=Math.floor(I.mat[k]/2);if(n)S.store[k]=(S.store[k]||0)+n}toast('Desmontado · metade do material foi para o depósito');buildBuilds3();save();closeSheet()}))}}
+// ---------- construction sites ----------
+function sites(){return SV.sites||(SV.sites=[])}
+let SITE3=null;function buildSites3(){if(!SC3)return;if(SITE3)SC3.remove(SITE3);SITE3=new THREE.Group();SC3.add(SITE3);
+  for(const s of sites()){const P0=[];const b=Object.assign({},s,{t:s.t});const I=BITEM[s.t];if(I&&I.deco)b.t=I.deco;bParts(b,P0);if(!P0.length)continue;const g=mergeParts(P0);
+    const solid=new THREE.Mesh(g,MATV);solid.castShadow=QH;const y0=gy(s.x,s.z);solid.position.y=y0*(1-0)-y0;solid.scale.y=Math.max(0.03,s.prog);solid.position.y=y0-y0*solid.scale.y;
+    const blue=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x8fd0ff,transparent:true,opacity:0.16,depthWrite:false}));SITE3.add(solid,blue);s._m=solid;
+    const rc=siteRect(s),p0=[];for(const[x,zz]of[[rc[0],rc[1]],[rc[2],rc[1]],[rc[0],rc[3]],[rc[2],rc[3]]])p0.push(Cy(0.03,0.03,0.6,x,y0+0.3,zz,'#d8b040',4));SITE3.add(meshOf(p0,MATV,false))}}
+function siteRect(s){const I=BITEM[s.t],w=s.r?I.d:I.w,d=s.r?I.w:I.d;return[s.x-w/2,s.z-d/2,s.x+w/2,s.z+d/2]}
+function finishSite(s){const i=sites().indexOf(s);if(i>=0)sites().splice(i,1);const I=BITEM[s.t];const b={id:SV.bid++,t:I.deco||s.t,x:s.x,z:s.z,r:s.r,lvl:1,gw:1,aim:1,rof:1,hp:0};if(I.wire)b.t='wire';if(I.tower){b.t='tower'}b.hp=bMax(b);builds().push(b);
+  skXP('build',6+I.t*0.6);buildBuilds3();buildSites3();try{setupYard3&&setupYard3()}catch(e){}toast(`${I.ic} ${I.n} pronta`);G.shake=Math.max(G.shake,1.2);SV.expl=(SV.expl||0)+0.5;save()}
+{const bb0=buildBuilds3;buildBuilds3=function(){const r=bb0.apply(this,arguments);try{buildSites3()}catch(e){console.error(e)}return r}}
+// ---------- the build mode ----------
+const BM={on:false,cat:'def',sel:null,x:0,z:0,r:0,a:null,cx:0,cz:0,ghost:null,undo:[]};
+function bmAvail(k){return explPts()>=BITEM[k].u}
+function bmStart(){if(!W3.on||!P||P.dead||P.drive)return;if(!SV.base){SFX.deny();toast('🏠 Primeiro arrume uma safe house: entre numa casa abandonada e use o botão de ação');return}
+  if(Math.hypot(P.x-BO.x,P.z-BO.z)>55){SFX.deny();toast('🔨 Volte para perto da sua safe house para construir');return}
+  BM.on=true;BM.cx=P.x;BM.cz=P.z;BM.x=P.x+Math.sin(P.face)*3;BM.z=P.z+Math.cos(P.face)*3;BM.a=null;BM.undo=[];IN.fire=false;JOY.x=JOY.y=0;bmUI(true);bmSel(BM.sel&&bmAvail(BM.sel)?BM.sel:'barric');SFX.click&&SFX.click()}
+function bmEnd(){BM.on=false;BM.a=null;if(BM.ghost){SC3.remove(BM.ghost);BM.ghost=null}if(BM.line){SC3.remove(BM.line);BM.line=null}bmUI(false);if(sites().length){BJ.on=true;toast(`🔨 ${sites().length} obra${sites().length>1?'s':''} · o personagem vai construir (mexa o joystick para parar)`)}}
+function bmSel(k){BM.sel=k;BM.a=null;if(BM.ghost){SC3.remove(BM.ghost);BM.ghost=null}const I=BITEM[k],P0=[];const b={t:I.deco||k,x:0,z:0,r:0,lvl:1};if(I.wire)b.t='wire';if(I.tower)b.t='vigia';bParts(b,P0);
+  BM.ghost=new THREE.Mesh(mergeParts(P0),new THREE.MeshBasicMaterial({color:0x7fd36a,transparent:true,opacity:0.5,depthWrite:false}));SC3.add(BM.ghost);bmRender()}
+function bmValid(k,x,z,r){const I=BITEM[k],w=r?I.d:I.w,d=r?I.w:I.d,rc=[x-w/2,z-d/2,x+w/2,z+d/2];if(Math.hypot(x-BO.x,z-BO.z)>45)return false;
+  const ib=bldAt(x,z);if(ib&&(ib!==baseBld()||I.cat==='def'))return false;if(!ib&&I.cat==='mov'&&!inBase(x,z))return false;
+  for(let gx=Math.floor(rc[0]/CG)-1;gx<=Math.floor(rc[2]/CG)+1;gx++)for(let gz=Math.floor(rc[1]/CG)-1;gz<=Math.floor(rc[3]/CG)+1;gz++)for(const b of(CGRID.get(ck(gx,gz))||[])){if(b.tag==='gate'||b.tag==='bar')continue;if(rc[0]<b.x1-0.02&&rc[2]>b.x0+0.02&&rc[1]<b.z1-0.02&&rc[3]>b.z0+0.02)return false}
+  for(const b of builds()){const o=bRect(b);if(rc[0]<o[2]-0.02&&rc[2]>o[0]+0.02&&rc[1]<o[3]-0.02&&rc[3]>o[1]+0.02)return false}
+  for(const s of sites()){const o=siteRect(s);if(rc[0]<o[2]-0.02&&rc[2]>o[0]+0.02&&rc[1]<o[3]-0.02&&rc[3]>o[1]+0.02)return false}return true}
+// segments of a wall line from A to B
+function bmSegs(k,ax,az,bx,bz){const I=BITEM[k],dx=bx-ax,dz=bz-az,L=Math.hypot(dx,dz);const alongX=Math.abs(dx)>=Math.abs(dz);const n=Math.max(1,Math.round((alongX?Math.abs(dx):Math.abs(dz))/I.w));const out=[];
+  for(let i=0;i<n;i++){const t=(i+0.5)/n;out.push(alongX?{x:ax+Math.sign(dx||1)*I.w*(i+0.5),z:az,r:0}:{x:ax,z:az+Math.sign(dz||1)*I.w*(i+0.5),r:1})}return out}
+function bmPlace(){const k=BM.sel,I=BITEM[k];if(!k)return;if(!bmAvail(k)){SFX.deny();toast(`🔒 Explore mais para liberar (${Math.floor(explPts())}/${I.u})`);return}
+  if(I.line&&!BM.a){BM.a={x:BM.x,z:BM.z};SFX.click();toast('Agora mova até o FIM do muro e toque em COLOCAR');bmRender();return}
+  const list=I.line?bmSegs(k,BM.a.x,BM.a.z,BM.x,BM.z):[{x:BM.x,z:BM.z,r:BM.r}];let n=0;const added=[];
+  for(const q of list){if(!bmValid(k,q.x,q.z,q.r))continue;if(!hasMat(I.mat)){SFX.deny();toast(`Faltam materiais: ${matTxt(I.mat)} · desmonte coisas e corte árvores`);break}useMat(I.mat);const s={t:k,x:q.x,z:q.z,r:q.r,prog:0,id:'s'+(SV.sid=(SV.sid||0)+1)};sites().push(s);added.push(s);n++}
+  if(n){BM.undo.push(added);SFX.gate&&SFX.gate(0.3);buildSites3()}else if(!added.length&&list.length)toast('Não dá para construir aí');BM.a=null;bmRender();save()}
+function bmUndo(){const l=BM.undo.pop();if(!l){BM.a=null;bmRender();return}for(const s of l){const i=sites().indexOf(s);if(i>=0&&s.prog<0.01){sites().splice(i,1);const S=sv();for(const k in BITEM[s.t].mat)S.store[k]=(S.store[k]||0)+BITEM[s.t].mat[k]}}buildSites3();bmRender();save()}
+function bmUI(on){let el0=$('bmUI');if(!el0){const st=document.createElement('style');st.textContent=`#bmUI{position:absolute;inset:0;z-index:35;pointer-events:none;font-family:"Barlow Condensed","Arial Narrow",sans-serif}
+  #bmTouch{position:absolute;inset:0;pointer-events:auto;touch-action:none}#bmTop{position:absolute;top:8px;left:50%;transform:translateX(-50%);background:rgba(8,12,11,.82);border:1.5px solid #e3a23b;border-radius:12px;padding:6px 14px;color:#f0e6cc;text-align:center;pointer-events:auto}
+  #bmTop b{display:block;font-size:15px;letter-spacing:.08em;color:#e3a23b}#bmTop small{font-size:12px;opacity:.9}
+  #bmBar{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(transparent,rgba(8,12,11,.92) 18%);padding:16px 10px 8px;pointer-events:auto;display:flex;flex-direction:column;gap:6px}
+  #bmTabs{display:flex;gap:6px}#bmTabs button{font:800 12px inherit;letter-spacing:.06em;padding:5px 12px;border-radius:8px;border:1px solid #6a6a60;background:rgba(255,255,255,.06);color:#d8d0bc}#bmTabs button.on{border-color:#e3a23b;color:#e3a23b;background:rgba(227,162,59,.15)}
+  #bmItems{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}#bmItems button{flex:0 0 auto;width:86px;padding:5px 4px;border-radius:10px;border:1.5px solid #4a4a44;background:rgba(20,22,20,.9);color:#e8e2d0;font:700 10px/1.15 inherit;text-align:center}
+  #bmItems button i{display:block;font-style:normal;font-size:22px}#bmItems button.on{border-color:#7fd36a;box-shadow:0 0 10px rgba(127,211,106,.4)}#bmItems button.lk{opacity:.45}#bmItems button em{display:block;font-style:normal;color:#e3c27a;font-size:10px}
+  #bmAct{display:flex;gap:6px;justify-content:center}#bmAct button{font:800 13px inherit;letter-spacing:.05em;padding:8px 14px;border-radius:10px;border:1.5px solid #6a6a60;background:rgba(255,255,255,.08);color:#f0e8d4}#bmAct #bmPut{border-color:#7fd36a;background:rgba(127,211,106,.25)}#bmAct #bmGo{border-color:#e3a23b;background:rgba(227,162,59,.25)}
+  .bmOn #hud,.bmOn #padL,.bmOn #padR,.bmOn #bAct{visibility:hidden}`;document.head.append(st);
+    el0=document.createElement('div');el0.id='bmUI';el0.innerHTML='<div id="bmTouch"></div><div id="bmTop"><b>MODO CONSTRUÇÃO · JOGO PAUSADO</b><small id="bmInfo"></small></div><div id="bmBar"><div id="bmTabs"></div><div id="bmItems"></div><div id="bmAct"><button id="bmRot">↻ GIRAR</button><button id="bmUndo">↶ DESFAZER</button><button id="bmPut">✔ COLOCAR</button><button id="bmGo">▶ CONTINUAR</button></div></div>';
+    $('app').append(el0);const tap=(id,fn)=>{const e=$(id);e.addEventListener('pointerup',ev=>{ev.stopPropagation();ev.preventDefault();fn()});e.addEventListener('click',ev=>ev.stopPropagation())};
+    tap('bmRot',()=>{BM.r=BM.r?0:1;SFX.click&&SFX.click()});tap('bmUndo',bmUndo);tap('bmPut',bmPlace);tap('bmGo',bmEnd);
+    const T0=$('bmTouch');let drag=null;const ray=new THREE.Raycaster(),v2=new THREE.Vector2(),pl=new THREE.Plane(new THREE.Vector3(0,1,0),-0.26),hit=new THREE.Vector3();
+    const at=e=>{const rc=$('gl').getBoundingClientRect();v2.set((e.clientX-rc.left)/rc.width*2-1,-(e.clientY-rc.top)/rc.height*2+1);ray.setFromCamera(v2,CAM3);return ray.ray.intersectPlane(pl,hit)?[hit.x,hit.z]:null};
+    T0.addEventListener('pointerdown',e=>{drag={id:e.pointerId,x:e.clientX,y:e.clientY,moved:0};T0.setPointerCapture(e.pointerId);const p=at(e);if(p){BM.x=p[0];BM.z=p[1]}});
+    T0.addEventListener('pointermove',e=>{if(!drag||drag.id!==e.pointerId)return;drag.moved+=Math.abs(e.clientX-drag.x)+Math.abs(e.clientY-drag.y);drag.x=e.clientX;drag.y=e.clientY;const p=at(e);if(p){BM.x=p[0];BM.z=p[1]}});
+    T0.addEventListener('pointerup',e=>{drag=null});T0.addEventListener('pointercancel',()=>{drag=null})}
+  el0.hidden=!on;$('app').classList.toggle('bmOn',on);if(on)bmRender()}
+function bmRender(){if(!$('bmUI'))return;const S=sv(),hv=k=>(S.inv[k]||0)+(S.store[k]||0);$('bmInfo').textContent=`🪵 ${hv('plank')} tábuas · 🔩 ${hv('scrap')} sucata · exploração ${Math.floor(explPts())}`+(BM.a?' · toque em COLOCAR no FIM do muro':BITEM[BM.sel]&&BITEM[BM.sel].line?' · paredes: COLOCAR no início e no fim':' · arraste para posicionar');
+  $('bmTabs').innerHTML='';for(const[c,n]of BCAT){const b=document.createElement('button');b.textContent=n;if(c===BM.cat)b.className='on';b.addEventListener('pointerup',e=>{e.stopPropagation();BM.cat=c;const f=Object.keys(BITEM).find(k=>BITEM[k].cat===c&&bmAvail(k))||Object.keys(BITEM).find(k=>BITEM[k].cat===c);bmSel(f)});$('bmTabs').append(b)}
+  $('bmItems').innerHTML='';for(const k in BITEM){const I=BITEM[k];if(I.cat!==BM.cat)continue;const b=document.createElement('button'),av=bmAvail(k);b.className=(k===BM.sel?'on ':'')+(av?'':'lk');
+    b.innerHTML=`<i>${av?I.ic:'🔒'}</i>${I.n}<em>${av?Object.entries(I.mat).map(([m,n])=>(m==='plank'?'🪵':'🔩')+n).join(' '):'explore '+I.u}</em>`;b.addEventListener('pointerup',e=>{e.stopPropagation();if(!av){SFX.deny();toast(`🔒 Explore mais para liberar · revistar, desmontar e cortar árvores (${Math.floor(explPts())}/${I.u})`);return}bmSel(k)});$('bmItems').append(b)}}
+function bmFrame(){if(!BM.on)return;const k=BM.sel,I=BITEM[k];BM.x=Math.round(BM.x*2)/2;BM.z=Math.round(BM.z*2)/2;
+  // the camera follows the cursor from above
+  const kx=BM.x-BM.cx,kz=BM.z-BM.cz;if(Math.hypot(kx,kz)>7){BM.cx+=kx*0.04;BM.cz+=kz*0.04}
+  CAM3.position.set(BM.cx+Math.sin(CY)*13,24,BM.cz+Math.cos(CY)*13);CAM3.lookAt(BM.cx,0,BM.cz);
+  if(BM.ghost&&I){const ok=bmAvail(k)&&hasMat(I.mat)&&bmValid(k,BM.x,BM.z,BM.r);BM.ghost.position.set(BM.x,0,BM.z);BM.ghost.rotation.y=0;BM.ghost.material.color.setHex(ok?0x7fd36a:0xe0563f);BM.ghost.material.opacity=0.4+Math.sin(performance.now()/160)*0.12;
+    // geometry was built at r=0 along x; rotate it for r=1
+    BM.ghost.rotation.y=BM.r?Math.PI/2:0;
+    if(I.line&&BM.a){const segs=bmSegs(k,BM.a.x,BM.a.z,BM.x,BM.z);if(BM.line)SC3.remove(BM.line);const P0=[];for(const q of segs){const b={t:I.deco||k,x:q.x,z:q.z,r:q.r,lvl:1};if(I.wire)b.t='wire';bParts(b,P0)}BM.line=new THREE.Mesh(mergeParts(P0),new THREE.MeshBasicMaterial({color:0x7fd36a,transparent:true,opacity:0.35,depthWrite:false}));SC3.add(BM.line);BM.ghost.visible=false}
+    else{BM.ghost.visible=true;if(BM.line){SC3.remove(BM.line);BM.line=null}}}}
+{const u3=update3D;update3D=function(dt){if(BM.on){updateHUD();bmFrame();return}return u3(dt)}}
+// ---------- the survivor builds the sites ----------
+const BJ={on:false,s:null,warn:0};
+function bjob3(dt){if(!P||P.dead||P.drive){P.bwork=null;return}const L=sites();if(!L.length){if(BJ.on){BJ.on=false;toast('🏗 Tudo construído!')}P.bwork=null;return}
+  const user=JOY.id!=null||IN.l||IN.r||IN.u||IN.d;if(user&&BJ.auto){BJ.on=false;BJ.auto=false;JOY.x=JOY.y=0;P.bwork=null;toast('Construção pausada · toque em 🔨 CONSTRUIR para continuar')}
+  let s=null,bd=1e9;for(const q of L){const d=Math.hypot(q.x-P.x,q.z-P.z);if(d<bd){bd=d;s=q}}const rc=siteRect(s),dd=Math.hypot(Math.max(rc[0]-P.x,0,P.x-rc[2]),Math.max(rc[1]-P.z,0,P.z-rc[3]));
+  const danger=Z.some(z=>!z.dead&&(z.see||z.aggro>0)&&Math.hypot(z.x-P.x,z.z-P.z)<9);
+  if(s!==BJ.cur){BJ.cur=s;BJ.tt=0}if((dd<0.9||(BJ.tt>6&&dd<3.2))&&(BJ.on||P.bwork)&&!danger&&!user){if(BJ.auto){JOY.x=JOY.y=0;BJ.auto=false}P.bwork={s,k:s.prog};P.face=lerpA(P.face,Math.atan2(s.x-P.x,s.z-P.z),Math.min(1,dt*8));
+    const I=BITEM[s.t];s.prog=Math.min(1,s.prog+dt/(I.t*(1-0.04*skl('build'))*(sv().inv.tools?0.75:1)));if(s._m){const y0=gy(s.x,s.z);s._m.scale.y=Math.max(0.03,s.prog);s._m.position.y=y0-y0*s._m.scale.y}
+    BJ.k=(BJ.k||0)-dt;if(BJ.k<=0){BJ.k=rnd(0.42,0.55);if(AU.c)(I.cat==='def'&&I.mat.scrap>I.mat.plank?TOOLSND.hammerM:TOOLSND.hammerW)(AU.c.currentTime,0.8);noise3(P.x,P.z,6)}
+    if(s.prog>=1){P.bwork=null;finishSite(s)}return}
+  P.bwork=null;if(danger&&BJ.on){if(T-BJ.warn>4){BJ.warn=T;toast('⚠ Zumbis por perto · a obra espera')}if(BJ.auto){JOY.x=JOY.y=0;BJ.auto=false}return}
+  // walk there by itself (like a villager)
+  if(BJ.on&&!user){BJ.tt=(BJ.tt||0)+dt;let tx=s.x,tz=s.z;const sb=bldAt(s.x,s.z),pb=bldAt(P.x,P.z);
+    if(sb!==pb){const B=sb||pb;let d=null,dm=1e9;for(const q of B.doors){const m=Math.hypot(q.x-P.x,q.z-P.z)+Math.hypot(q.x-s.x,q.z-s.z);if(m<dm){dm=m;d=q}}
+      if(d){const oX=d.x+d.nx*1.3,oZ=d.z+d.nz*1.3,iX=d.x-d.nx*1.2,iZ=d.z-d.nz*1.2;if(d.locked)d.locked=false;
+        if(!pb){if(BJ.wp!=='in'&&Math.hypot(P.x-oX,P.z-oZ)<0.7)BJ.wp='in';if(BJ.wp==='in'){tx=iX;tz=iZ}else{tx=oX;tz=oZ}}
+        else{if(BJ.wp!=='out'&&Math.hypot(P.x-iX,P.z-iZ)<0.7)BJ.wp='out';if(BJ.wp==='out'){tx=oX;tz=oZ}else{tx=iX;tz=iZ}}}}else BJ.wp=null;
+    // inside the same building but another room: go through the doorway between them
+    if(sb&&sb===pb&&sb.rooms&&sb.rooms.length>1){const ri=(x,z)=>sb.rooms.findIndex(R=>x>R.x0-0.05&&x<R.x1+0.05&&z>R.z0-0.05&&z<R.z1+0.05),rs=ri(s.x,s.z),rp=ri(P.x,P.z);
+      if(rs!==rp&&rp>=0&&rs>=0){if(!BJ.rq){let best=null,bm=1e9;for(const q of sb.portals){if(q.t!=='in')continue;const m=Math.hypot(q.x-P.x,q.z-P.z)+Math.hypot(q.x-s.x,q.z-s.z);if(m<bm){bm=m;best=q}}if(best){BJ.rq=best;BJ.rsd=Math.sign((P.x-best.x)*best.nx+(P.z-best.z)*best.nz)||1;BJ.rst=0}}
+        const q=BJ.rq;if(q){const ax=q.x+q.nx*BJ.rsd*0.8,az=q.z+q.nz*BJ.rsd*0.8;if(!BJ.rst&&Math.hypot(P.x-ax,P.z-az)<0.5)BJ.rst=1;if(BJ.rst){tx=q.x-q.nx*BJ.rsd*0.9;tz=q.z-q.nz*BJ.rsd*0.9}else{tx=ax;tz=az}}}
+      else BJ.rq=null}
+    // unstick: if we barely moved, side-step for a moment
+    BJ.st=(BJ.st||0)+dt;if(BJ.st>1.4){BJ.st=0;if(BJ.lx!=null&&Math.hypot(P.x-BJ.lx,P.z-BJ.lz)<0.25){BJ.side=0.7;BJ.stk=(BJ.stk||0)+1}else BJ.stk=0;BJ.lx=P.x;BJ.lz=P.z}
+    let dx=tx-P.x,dz=tz-P.z;const l=Math.hypot(dx,dz)||1;dx/=l;dz/=l;if(BJ.side>0){BJ.side-=dt;const px=-dz,pz=dx;dx=px*0.9+dx*0.2;dz=pz*0.9+dz*0.2}
+    const sn=Math.sin(CY),cs=Math.cos(CY);JOY.x=(dx*cs-dz*sn)*0.75;JOY.y=(-dx*sn-dz*cs)*0.75;BJ.auto=true}}
+{const sk0=skills3;skills3=function(dt){sk0(dt);try{bjob3(dt)}catch(e){console.error(e)}}}
+// the action button offers to resume the work
+{const at0=actionTarget3;actionTarget3=function(){const a=at0();if(!P||P.dead||P.drive||BM.on)return a;if(P.bwork)return{type:'busy',label:'🔨 CONSTRUINDO…'};
+  if(!BJ.on&&sites().length&&SV.base&&Math.hypot(P.x-BO.x,P.z-BO.z)<55&&(!a||a.type==='hub'||a.type==='stn'))return{type:'bjob',label:`🔨 CONSTRUIR · ${sites().length} OBRA${sites().length>1?'S':''}`};return a}}
+{const da0=doAction3;doAction3=function(){const a=actionTarget3();if(a&&a.type==='bjob'){BJ.on=true;return}return da0()}}
+// ---------- chopping trees ----------
+// remember which instance draws each tree (natInst is called per archetype; we re-scan the scene once)
+let TREEIDX=null;function treeIndex(){if(TREEIDX)return TREEIDX;TREEIDX=new Map();const key=(x,z)=>Math.round(x*10)+','+Math.round(z*10);const L=NAT.tree;const pos=new Map();L.forEach((t,i)=>pos.set(key(t.x,t.z),i));
+  SC3.traverse(o=>{if(!o.isInstancedMesh||(o.material!==MATV&&o.material!==MATLEAF))return;const m=new THREE.Matrix4(),p=new THREE.Vector3();for(let i=0;i<o.count;i++){o.getMatrixAt(i,m);p.setFromMatrixPosition(m);const ti=pos.get(key(p.x,p.z));if(ti==null)continue;let l=TREEIDX.get(ti);if(!l)TREEIDX.set(ti,l=[]);l.push([o,i])}});return TREEIDX}
+let STUMPG=null;function hideTree(i){const t=NAT.tree[i];if(!t||t.cut)return;t.cut=1;if(t.k!=='banana'){if(!STUMPG)STUMPG=mergeParts([Cy(0.2,0.26,0.32,0,0.16,0,'#5a4430',8),Cy(0.19,0.19,0.01,0,0.325,0,'#c8a878',8)]);const m=new THREE.Mesh(STUMPG,MATV);m.position.set(t.x,gy(t.x,t.z),t.z);m.scale.setScalar(t.s||1);m.castShadow=QH;SC3.add(m)}const l=treeIndex().get(i)||[];const z=new THREE.Matrix4().makeScale(0,0,0);for(const[o,j]of l){o.setMatrixAt(j,z);o.instanceMatrix.needsUpdate=true}
+  for(const b of (CGRID.get(ck(Math.floor(t.x/CG),Math.floor(t.z/CG)))||[]).slice()){const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2;if(Math.abs(cx-t.x)<0.12&&Math.abs(cz-t.z)<0.12&&b.x1-b.x0<1.2)removeColRef(b)}}
+function nearTree(){let best=null,bd=1.5;for(let i=0;i<NAT.tree.length;i++){const t=NAT.tree[i];if(t.cut)continue;const dx=t.x-P.x,dz=t.z-P.z;if(Math.abs(dx)>2||Math.abs(dz)>2)continue;const d=Math.hypot(dx,dz);if(d<bd){bd=d;best=i}}return best}
+{const at0=actionTarget3;actionTarget3=function(){const a=at0();if(!P||P.dead||P.drive||BM.on)return a;if(P.chop)return{type:'busy',label:'🪓 CORTANDO…'};if(a)return a;const i=nearTree();if(i!=null){const t=NAT.tree[i];return{type:'tree',i,label:t.k==='dead'?'🪓 CORTAR TRONCO SECO · LENHA':'🪓 CORTAR ÁRVORE · TÁBUAS'}}return a}}
+{const da0=doAction3;doAction3=function(){const a=actionTarget3();if(a&&a.type==='tree'){if(Z.some(z=>!z.dead&&z.see&&Math.hypot(z.x-P.x,z.z-P.z)<8)){SFX.deny();toast('Zumbis te vendo · agora não');return}const ax=SV.owned.machado||P.wid==='machado';P.chop={i:a.i,t:0,dur:ax?5:9,k:0};say3(ax?'Bora cortar essa':'Sem machado vai demorar...',1.5);return}return da0()}}
+function chop3(dt){const c=P.chop;if(!c)return;const t=NAT.tree[c.i];if(!t||t.cut||P.mv>1||P.dead){P.chop=null;return}P.face=lerpA(P.face,Math.atan2(t.x-P.x,t.z-P.z),Math.min(1,dt*8));c.t+=dt;c.k-=dt;
+  if(c.k<=0){c.k=0.6;if(AU.c){const tt=AU.c.currentTime+0.12;thump(tt,120,55,0.12,0.5);anz(tt,0.05,2200,900,0.35,'bandpass',1.5);anz(tt+0.01,0.18,500,260,0.2,'bandpass',4)}noise3(P.x,P.z,8);G.shake=Math.max(G.shake,0.6)}
+  if(c.t<c.dur)return;P.chop=null;hideTree(c.i);SV.cut=SV.cut||[];SV.cut.push(c.i);SV.expl=(SV.expl||0)+1;const n=t.k==='dead'?2:t.k==='banana'||t.k==='palm'?1:3+Math.floor(Math.random()*2);let got=0;for(let i=0;i<n;i++){if(invAdd('plank'))got++;else{const l=addLoot3('part',P.x+rnd(-1,1),P.z+rnd(-1,1));l.item='plank';l.dropped=1}}
+  treeFall(t);skXP('build',8);toast(`🪓 Árvore cortada · 🪵×${n}`);save()}
+function treeFall(t){if(!AU.c)return;const s=AU.c.currentTime;for(let i=0;i<6;i++)anz(s+i*0.09,0.12,rnd(300,700),200,0.15,'bandpass',3);thump(s+0.9,70,30,0.5,0.7);sN(0.8,300,80,0.35,'lowpass',1,0.9)}
+{const sk0=skills3;skills3=function(dt){sk0(dt);try{chop3(dt)}catch(e){}}}
+{const bn0=buildNature3;buildNature3=function(){const r=bn0.apply(this,arguments);TREEIDX=null;try{for(const i of SV.cut||[])hideTree(i)}catch(e){}return r}}
+// ---------- the 🔨 button next to the needs tab ----------
+function buildBtn(){if($('bBuild'))return;const row=$('topBtns');if(!row)return;const b=document.createElement('button');b.id='bBuild';b.className='tbB';b.type='button';b.textContent='🔨';b.setAttribute('aria-label','Construir');
+  b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('pointerup',e=>{e.stopPropagation();e.preventDefault();if(BM.on)bmEnd();else bmStart()});b.addEventListener('click',e=>e.stopPropagation());row.insertBefore(b,row.firstChild)}
+{const uh=updateHUD;updateHUD=function(){const r=uh.apply(this,arguments);try{buildBtn()}catch(e){}return r}}
 
 start();
 
