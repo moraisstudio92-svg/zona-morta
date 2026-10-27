@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v38', NOTES='Um modo só: morreu, acabou; roupas refeitas com textura de verdade em cada personagem: malha, jeans com costura laranja, couro, lona, moletom, xadrez; costuras, bolsos, botões, gola canelada, punhos, cinto com fivela, dobras e vincos; barra da camiseta, mangas, bermuda e calça com volume saindo do corpo; jaquetas com forro, zíper e bolsos; regata com alças; tatuagens com desenho nítido: tribal, rosa, mandala, estrela náutica, andorinha, asas e escrita; corrida mais realista: andar até 2 m/s, correr até 4,5 m/s, ganhando velocidade aos poucos';
+const VERSION='v39', NOTES='Roupas sem emendas: o ombro agora faz parte do corpo, então a camiseta, a camisa e a jaqueta passam contínuas do peito ao braço; sem linhas de costura dividindo as peças; gola redonda de verdade em volta do pescoço; novos tipos de corpo: magro, normal, forte, musculoso e gordo (barriga, peitoral, ombros, braços, coxas e até o rosto mudam)';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -7345,14 +7345,14 @@ function defLook(){return{fem:false,name:'',hgt:'medio',build:'avg',skin:'#c48a6
 function lookToOf(L){const b=L.fem?false:(L.beard==='none'?false:L.beard);return{fem:!!L.fem,hgt:L.hgt,build:L.build,skin:L.skin,face:L.face,eye:L.eye,brow:L.brow,nose:L.nose,lips:L.lips,hairStyle:L.hairStyle,hair:L.hair,beard:b,mustache:L.fem?'none':(L.mustache||'none'),
   tattoo:L.tattoo||'none',tatC:L.tatC||'#1c2430',topT:L.topT,top:L.top,jacketT:L.jacket?(L.jacketT||'field'):null,jacket:L.jacket||null,pantsT:L.pantsT,pants:L.pants,shoe:L.shoe,shoeCol:L.shoeCol||'#2e2824',
   sole:L.shoe==='boot'?'#151210':'#e8e4dc',laces:L.shoe==='boot'?shade(L.shoeCol||'#2e2824',0.7):'#e8e4dc',sleeve:L.topT==='tee'||L.topT==='tank'?'short':'long',cap:L.cap||null,beanie:L.beanie||null,glasses:!!L.glasses,pack:L.pack?'#3d4130':null,bandana:L.bandana||null,hood:L.hood}}
-function randLook(fem){const r=Math.random;fem=fem===undefined?r()<0.5:fem;const L=defLook();Object.assign(L,{fem,hgt:pick(['baixo','medio','medio','alto']),build:pick(['slim','avg','avg','strong']),skin:pick(LK.skin),face:pick(['fino','oval','quad']),eye:pick(Object.keys(HL.eye)),
+function randLook(fem){const r=Math.random;fem=fem===undefined?r()<0.5:fem;const L=defLook();Object.assign(L,{fem,hgt:pick(['baixo','medio','medio','alto']),build:pick(['slim','avg','avg','strong','muscle','fat']),skin:pick(LK.skin),face:pick(['fino','oval','quad']),eye:pick(Object.keys(HL.eye)),
   brow:pick(['fina','media','grossa']),nose:pick(['peq','med','grd']),lips:pick(['fina','media','grossa']),hairStyle:fem?pick(['long','side','pony','bob','bun','curly','side']):pick(['short','quiff','buzz','bald','messy','curly','short']),hair:pick(LK2.hair),
   beard:fem?false:pick(['none','none','stubble','goatee',true,'lenhador']),mustache:fem?'none':pick(['none','none','none','fino','cheio','ferradura','bigodao']),tattoo:r()<0.25?pick(['antR','mangaR','mangas','pescoco','antebracos']):'none',tatC:pick(INK),
   topT:pick(['tee','tee','long','plaid','hoodie','tank','shirt']),top:pick(LK.top),jacket:r()<0.3?pick(LK.jacket):null,jacketT:pick(['field','leather','denim','wind']),pantsT:pick(['jeans','jeans','cargo','sweat','shorts']),pants:pick(LK.pants),
   shoe:pick(['sneaker','boot']),shoeCol:pick(LK.shoe),cap:r()<0.12?pick(LK2.acc):null,beanie:r()<0.06?pick(LK2.acc):null,glasses:r()<0.1,pack:r()<0.3});if(L.mustache!=='none'&&L.beard===true)L.mustache='none';return L}
 const CRTABS=[['corpo','CORPO'],['cabelo','CABELO'],['rosto','ROSTO'],['roupa','ROUPA'],['cores','CORES'],['tatu','TATUAGEM'],['barba','BARBA'],['bigode','BIGODE']];
 const CRO2={
-  corpo:[['fem','CORPO',[[false,'HOMEM'],[true,'MULHER']]],['hgt','ALTURA',[['baixo','BAIXO'],['medio','MÉDIO'],['alto','ALTO']]],['build','PORTE FÍSICO',[['slim','MAGRO'],['avg','ATLÉTICO'],['strong','FORTE']]],['skin','TOM DE PELE','c',LK.skin]],
+  corpo:[['fem','CORPO',[[false,'HOMEM'],[true,'MULHER']]],['hgt','ALTURA',[['baixo','BAIXO'],['medio','MÉDIO'],['alto','ALTO']]],['build','TIPO DE CORPO',[['slim','MAGRO'],['avg','NORMAL'],['strong','FORTE'],['muscle','MUSCULOSO'],['fat','GORDO']]],['skin','TOM DE PELE','c',LK.skin]],
   cabelo:[['hairStyle','TIPO DE CABELO',[['quiff','TOPETE'],['short','CURTO'],['messy','BAGUNÇADO'],['buzz','RASPADO'],['curly','CACHEADO'],['mohawk','MOICANO'],['side','DE LADO'],['bob','CHANEL'],['long','LONGO'],['pony','RABO'],['bun','COQUE'],['bald','CARECA']]],['hair','COR DO CABELO','c',LK2.hair]],
   rosto:[['face','FORMATO DO ROSTO',[['fino','FINO'],['oval','OVAL'],['quad','QUADRADO']]],['eye','COR DOS OLHOS','c',Object.values(HL.eye),Object.keys(HL.eye)],['brow','SOBRANCELHAS',[['fina','FINAS'],['media','MÉDIAS'],['grossa','GROSSAS']]],
     ['nose','NARIZ',[['peq','PEQUENO'],['med','MÉDIO'],['grd','GRANDE']]],['lips','BOCA',[['fina','FINA'],['media','MÉDIA'],['grossa','CARNUDA']]],['glasses','ÓCULOS',[[false,'SEM'],[true,'ÓCULOS ESCUROS']]]],
@@ -7534,12 +7534,26 @@ function tubeT(ys,nr,at,o){o=o||{};const open=o.phL!=null,cnt=nr+1,P=[],C=[],UV=
   if(!open){const N=g.attributes.normal;for(let i=0;i<ys.length;i++){const a=i*cnt,b=i*cnt+nr;const x=N.getX(a)+N.getX(b),y=N.getY(a)+N.getY(b),z=N.getZ(a)+N.getZ(b),l=Math.hypot(x,y,z)||1;N.setXYZ(a,x/l,y/l,z/l);N.setXYZ(b,x/l,y/l,z/l)}}
   g.userData.tex=!!o.uv;return g}
 // torso with a per-call extra thickness
-function torsoE(of,B){const fem=!!of.fem,T=fem?TOR_F:TOR_M;return(y,ph,ex)=>{const[w,df,db,cz]=prof(T,y),s=Math.sin(ph),c=Math.cos(ph),n=y>1.5?2:y<0.86?2.1:y<1.1?2.15:2.3,bx=y>1.5?1:B,e=ex||0;
+function bodyK(of){const b=of.build||'avg';return{B:{slim:0.9,avg:1,strong:1.07,fat:1.08,muscle:1.05}[b]||1,belly:{fat:1,strong:0.12}[b]||0,pec:{muscle:2.1,strong:1.4,fat:1.1,slim:0.7}[b]||1,pinch:{muscle:1,slim:0.4}[b]||0,
+  lobe:{muscle:0.014,strong:0.007,fat:0.006,slim:-0.004}[b]||0,lat:{muscle:0.016,strong:0.006}[b]||0,arm:{slim:0.88,strong:1.1,fat:1.16,muscle:1.2}[b]||1,bic:{muscle:2,strong:1.35,fat:0.6}[b]||1,leg:{slim:0.9,strong:1.07,fat:1.17,muscle:1.13}[b]||1,neck:{fat:1.18,muscle:1.16,strong:1.08,slim:0.94}[b]||1,abs:{muscle:2.2,strong:1.2,fat:0,slim:1.2}[b]??1}}
+// torso: chest, belly, hips AND the shoulders — the deltoid is part of the torso so clothes run without a seam from the chest to the arm
+function torsoE(of,B,sw){const fem=!!of.fem,T=fem?TOR_F:TOR_M,K=bodyK(of);sw=sw||0.19;return(y,ph,ex)=>{let[w,df,db,cz]=prof(T,y);const s=Math.sin(ph),c=Math.cos(ph),n=y>1.5?2:y<0.86?2.1:y<1.1?2.15:2.25,bx=y>1.5?1:B,e=ex||0;
+  if(y>1.555)w*=K.neck,df*=K.neck,db*=K.neck;w*=1-0.07*K.pinch*bump(y,0.98,1.22);w+=K.lat*bump(y,1.18,1.42)+K.belly*(fem?0.012:0.022)*bump(y,0.96,1.2);
   let x=se(s,n)*(w*bx+e),z=se(c,n)*((c>0?df:db)*(y>1.5?1:lerp(1,B,0.7))+e);const ax=Math.abs(x);
-  if(c>0){if(!fem){z+=0.013*bump(y,1.25,1.43)*bump(ax,0.012,0.15)*(B>1?1.4:1);z-=0.004*bump(ax,-0.012,0.012)*bump(y,1.0,1.42)*(e?0.3:1);if(!e)z+=0.003*Math.max(0,Math.cos((y-1.0)/0.062*Math.PI))*bump(y,1.0,1.22)*bump(ax,0.005,0.06)}
-    else z+=0.036*bump(y,1.21,1.39)*bump(ax,0.012,0.135)*(B>1?1.15:B<1?0.85:1);z+=0.005*bump(y,1.465,1.5)*bump(ax,0.02,0.15)*(e?0:1);z+=0.004*bump(y,0.86,0.96)*bump(ax,0.0,0.05)*(fem?0:1)}
-  else{z-=0.008*bump(y,1.3,1.46)*bump(ax,0.04,0.13)*(e?0.3:1);z+=0.004*bump(ax,-0.01,0.01)*bump(y,0.98,1.45);z-=(fem?0.03:0.02)*bump(y,0.8,0.97)*bump(ax,0.0,0.14)*(B>1?1.1:1)}
+  // shoulder caps (deltoids) belong to the torso
+  const pk=y<1.47?smw(y,1.35,1.47):1-smw(y,1.47,1.545),L=Math.max(0,sw+0.042+K.lobe-(w*bx))*pk;x+=Math.sign(s)*L*Math.pow(Math.abs(s),2.6)+Math.sign(s)*e*0*pk;
+  if(c>0){const pec=0.013*K.pec*bump(y,1.25,1.43)*bump(ax,0.012,0.15);if(!fem){z+=pec;z-=0.004*bump(ax,-0.012,0.012)*bump(y,1.0,1.42)*(e?0.3:1);if(!e)z+=0.003*K.abs*Math.max(0,Math.cos((y-1.0)/0.062*Math.PI))*bump(y,1.0,1.22)*bump(ax,0.005,0.06)}
+    else z+=0.036*bump(y,1.21,1.39)*bump(ax,0.012,0.135)*(K.B>1?1.15:K.B<1?0.85:1);
+    z+=K.belly*(fem?0.035:0.058)*bump(y,0.93,1.33)*Math.max(0,1-Math.pow(ax/(w*bx+0.02),2));
+    z+=0.005*bump(y,1.465,1.5)*bump(ax,0.02,0.15)*(e?0:1);z+=0.004*bump(y,0.86,0.96)*bump(ax,0.0,0.05)*(fem?0:1)}
+  else{z-=0.008*bump(y,1.3,1.46)*bump(ax,0.04,0.13)*(e?0.3:1);z+=0.004*bump(ax,-0.01,0.01)*bump(y,0.98,1.45);z-=(fem?0.03:0.02)*bump(y,0.8,0.97)*bump(ax,0.0,0.14)*(B>1?1.1:1)-K.belly*0.012*bump(y,0.95,1.2)}
+  // thickness at the shoulder cap
+  if(L>0.001){const sd=Math.pow(Math.abs(s),2.6)*pk;z=lerp(z,Math.sign(c)*Math.max(Math.abs(z)*0.75,0.05+e),sd*0.5)}
   return[x,z+cz]}}
+const ARM2=[[0.93,0.024],[0.96,0.025],[1.02,0.029],[1.1,0.036],[1.16,0.037],[1.205,0.033],[1.25,0.035],[1.31,0.04],[1.38,0.044],[1.43,0.046],[1.455,0.04],[1.47,0.018]];
+function armAt2(side,sw,k,bic,extra){const e=extra||0;return(y,ph)=>{const r0=prof(ARM2,y)[0]*k,s=Math.sin(ph),c=Math.cos(ph),out=side*s;let r=r0;
+  r+=0.008*k*bic*bump(y,1.27,1.41)*Math.max(0,c);r+=0.007*k*Math.sqrt(bic)*bump(y,1.29,1.43)*Math.max(0,-c);r+=0.005*k*bump(y,1.03,1.17)*Math.max(0,out*0.6+c*0.4);
+  const cx=side*sw+side*0.004*bump(y,1.3,1.46),cz=-0.004*bump(y,1.2,1.47);return[cx+s*(r+e),cz+c*(r*0.94+e)]}}
 // ---------- atlas ----------
 const REG={torso:{x:0,y:0,w:0.5,h:0.5,y0:0.79,y1:1.69},armL:{x:0.5,y:0,w:0.25,h:0.5,y0:0.93,y1:1.54},armR:{x:0.75,y:0,w:0.25,h:0.5,y0:0.93,y1:1.54},
   legL:{x:0,y:0.5,w:0.25,h:0.5,y0:0.06,y1:1.03},legR:{x:0.25,y:0.5,w:0.25,h:0.5,y0:0.06,y1:1.03},jk:{x:0.5,y:0.5,w:0.25,h:0.375,y0:0.92,y1:1.6},jkL:{x:0.75,y:0.5,w:0.125,h:0.375,y0:0.96,y1:1.55},jkR:{x:0.875,y:0.5,w:0.125,h:0.375,y0:0.96,y1:1.55}};
@@ -7616,11 +7630,10 @@ function paintAtlas(of,B,S,info){ATM=4/S;const c=document.createElement('canvas'
       g.fillStyle='#c8b070';const bx=X(R,0.5),by=Y(R,waist-0.013);g.fillRect(bx-9*k,by-8*k,18*k,16*k);g.fillStyle='#2a1e16';g.fillRect(bx-5*k,by-4*k,10*k,8*k);
       for(const u of[0.33,0.42,0.58,0.67,0.05,0.95])band(R,waist-0.03,waist+0.004,dk(pn),u-0.006,u+0.006)}
     // ---- top
-    if(!of.overall){const untuck=t!=='shirt',bot=untuck?0.955:waist,TP=fabricPat(g,fabricOf(t),tp,S);band(R,bot,1.505,TP);
+    if(!of.overall){const untuck=t!=='shirt',bot=untuck?0.955:waist,TP=fabricPat(g,fabricOf(t),tp,S);band(R,bot,1.57,TP);
       // hem
       band(R,bot,bot+0.012,dk(tp));stitch(R,[[0,bot+0.016],[1,bot+0.016]],shade(tp,0.62),1.2);
       // side seams
-      for(const u of[0.25,0.75])line(R,[[u,bot],[u,1.43]],dk(tp),1.6,0.55);
       // necklines
       g.fillStyle=SKP;const W=info.W;
       if(t==='tank'){// deep scoop, armholes cut at the sides, thin straps over the shoulders
@@ -7630,15 +7643,19 @@ function paintAtlas(of,B,S,info){ATM=4/S;const c=document.createElement('canvas'
         if(tat==='peito')tatWings(g,X(R,0.5),Y(R,1.4),70*k,ink,k);
         const TP2=fabricPat(g,'knit',tp,S);g.fillStyle=TP2;for(const back of[0,1])for(const d of[-1,1]){const a0=d*0.078,a1=d*0.104;poly([P2(a0,1.505,back),P2(a1,1.505,back),P2(a1*0.95,1.6,back),P2(a0*0.9,1.6,back)])}
         g.fillStyle=SKP}
-      else{band(R,1.505,R.y1,SKP);if(tat==='pescoco'){tatSwallow(g,X(R,0.6),Y(R,1.585),22*k,ink,k,1);tatStar(g,X(R,0.38),Y(R,1.56),9*k,ink,k)}
-        if(t==='shirt'||t==='plaid'){g.beginPath();g.moveTo(X(R,fu(1.505,-0.05)),Y(R,1.505));g.lineTo(X(R,0.5),Y(R,1.39));g.lineTo(X(R,fu(1.505,0.05)),Y(R,1.505));g.closePath();g.fill();
+      else{band(R,1.565,R.y1,SKP);const NB=(d,y,b)=>[X(R,fu(y,d,b)),Y(R,y)];
+        // back neck opening (all tops)
+        const BK=(fill)=>{for(const sh of[0,1]){const ua=-0.11/PER.torso(1.57)+sh,ub=0.11/PER.torso(1.57)+sh,um=sh;const ax=X(R,ua),bx2=X(R,ub),mx=X(R,um),y0=Y(R,1.57),ym=Y(R,1.53);g.beginPath();g.moveTo(ax,y0);g.quadraticCurveTo(mx,ym+(ym-y0)*0.6,bx2,y0);if(fill){g.closePath();g.fill()}else g.stroke()}};BK(true);
+        if(t==='shirt'||t==='plaid'){const a=NB(-0.062,1.585),b2=NB(0.062,1.585);g.beginPath();g.moveTo(a[0],a[1]);g.lineTo(X(R,0.5),Y(R,1.39));g.lineTo(b2[0],b2[1]);g.closePath();g.fill();
           // placket + buttons + chest pocket + back yoke
           band(R,bot,1.39,dk(tp),0.5-0.007,0.5+0.007);for(let y=1.06;y<1.39;y+=0.075){g.fillStyle='#ece8e0';g.beginPath();g.arc(X(R,0.5),Y(R,y),3.2*k,0,TAU);g.fill();g.fillStyle='rgba(0,0,0,.3)';g.fillRect(X(R,0.5)-1*k,Y(R,y)-0.6*k,2*k,1.2*k)}
           stitch(R,[[fu(1.4,0.035),1.4],[fu(1.33,0.035),1.33],[fu(1.33,0.105),1.33],[fu(1.4,0.105),1.4]],shade(tp,0.6));line(R,[[fu(1.4,0.035),1.4],[fu(1.4,0.105),1.4]],dk(tp),2,0.7);
           stitch(R,[[0,1.42],[0.12,1.45]],shade(tp,0.62));stitch(R,[[0.88,1.45],[1,1.42]],shade(tp,0.62))}
-        else{// crew neck dip + rib collar
-          g.beginPath();g.moveTo(X(R,fu(1.505,-0.06)),Y(R,1.505));g.quadraticCurveTo(X(R,0.5),Y(R,1.458),X(R,fu(1.505,0.06)),Y(R,1.505));g.closePath();g.fill();
-          const RB=fabricPat(g,'rib',dk(tp),S);g.strokeStyle=RB;g.lineWidth=9*k;g.beginPath();g.moveTo(X(R,0),Y(R,1.5));g.lineTo(X(R,fu(1.5,-0.062)),Y(R,1.5));g.quadraticCurveTo(X(R,0.5),Y(R,1.452),X(R,fu(1.5,0.062)),Y(R,1.5));g.lineTo(X(R,1),Y(R,1.5));g.stroke()}}
+        else{// round crew neck around the neck + ribbed collar (front and back)
+          const a=NB(-0.11,1.57),b2=NB(0.11,1.57),mY=Y(R,1.47);g.beginPath();g.moveTo(a[0],a[1]);g.bezierCurveTo(a[0],mY,b2[0],mY,b2[0],b2[1]);g.closePath();g.fill();
+          const RB=fabricPat(g,'rib',dk(tp),S);g.strokeStyle=RB;g.lineWidth=8*k;g.beginPath();g.moveTo(a[0],a[1]);g.bezierCurveTo(a[0],mY,b2[0],mY,b2[0],b2[1]);g.stroke();
+          BK(false)}
+        if(tat==='pescoco'){tatSwallow(g,X(R,0.66),Y(R,1.63),18*k,ink,k,1);tatStar(g,X(R,0.34),Y(R,1.62),8*k,ink,k)}}
       if(t==='hoodie'){// kangaroo pocket, ribbed waistband
         const RB=fabricPat(g,'rib',dk(tp),S);band(R,bot,bot+0.045,RB);g.fillStyle=shade(tp,0.94);g.beginPath();g.moveTo(X(R,fu(1.0,-0.095)),Y(R,0.985));g.lineTo(X(R,fu(1.12,-0.075)),Y(R,1.12));g.lineTo(X(R,fu(1.12,0.075)),Y(R,1.12));g.lineTo(X(R,fu(1.0,0.095)),Y(R,0.985));g.closePath();g.fill();
         stitch(R,[[fu(0.99,-0.09),0.99],[fu(1.115,-0.072),1.115],[fu(1.115,0.072),1.115],[fu(0.99,0.09),0.99]],shade(tp,0.6));fold(R,[[fu(1.03,-0.085),1.03],[fu(1.1,-0.07),1.1]],0.2,3);fold(R,[[fu(1.03,0.085),1.03],[fu(1.1,0.07),1.1]],0.2,3)}
@@ -7647,7 +7664,7 @@ function paintAtlas(of,B,S,info){ATM=4/S;const c=document.createElement('canvas'
       // folds: bunching above the hem, armpit pulls, chest drape
       for(let i=0;i<5;i++){const y=bot+0.03+i*0.022+r()*0.01,u0=r();fold(R,[[u0,y],[u0+0.08+r()*0.06,y+0.006]],0.1,4)}
       for(const u of[0.25,0.75])for(let i=0;i<3;i++)fold(R,[[u-0.02,1.44-i*0.012],[u+(r()-0.5)*0.12,1.36-i*0.03]],0.09,3);
-      hiFold(R,[[0.42,1.33],[0.58,1.33]],0.06,8)}
+      }
     if(of.overall){const OP=fabricPat(g,'canvas',of.overall,S);band(R,R.y0,1.36,OP,0,1);g.fillStyle=SKP}
   })}
   // ===== arms =====
@@ -7658,7 +7675,7 @@ function paintAtlas(of,B,S,info){ATM=4/S;const c=document.createElement('canvas'
     else if(fore){if(rightArm)tatScript(g,X(R,out),Y(R,1.08),pick(['Família','Fé','Liberdade','Resiste']),26*k,ink,k,-Math.PI/2);else tatMandala(g,X(R,out),Y(R,1.08),34*k,ink,k)}
     // sleeves
     if(sl!=='none'){const end=sl==='short'?1.32:0.965,TP=fabricPat(g,fabricOf(t),tp,S);band(R,end,R.y1,TP);band(R,end,end+0.014,dk(tp));stitch(R,[[0,end+0.018],[1,end+0.018]],shade(tp,0.6),1.2);
-      line(R,[[inn,end],[inn,1.5]],dk(tp),1.4,0.5);if(sl==='long'){const RB=fabricPat(g,t==='shirt'||t==='plaid'?fabricOf(t):'rib',dk(tp),S);band(R,end,end+0.05,RB);for(let i=0;i<4;i++)fold(R,[[inn-0.1,1.2+i*0.012],[inn+0.1,1.21+i*0.014]],0.12,3)}
+if(sl==='long'){const RB=fabricPat(g,t==='shirt'||t==='plaid'?fabricOf(t):'rib',dk(tp),S);band(R,end,end+0.05,RB);for(let i=0;i<4;i++)fold(R,[[inn-0.1,1.2+i*0.012],[inn+0.1,1.21+i*0.014]],0.12,3)}
       else for(let i=0;i<2;i++)fold(R,[[inn-0.12,1.36+i*0.02],[inn+0.12,1.37+i*0.02]],0.1,3)}
   })}
   // ===== legs =====
@@ -7668,10 +7685,10 @@ function paintAtlas(of,B,S,info){ATM=4/S;const c=document.createElement('canvas'
     if(pt==='jeans'||pt==='shorts'){// knee fade, whiskers behind knee, outseam with orange stitch, hem
       if(pt==='jeans'){g.save();g.globalAlpha=0.16;const gr=g.createRadialGradient(X(R,0.5),Y(R,0.5),2,X(R,0.5),Y(R,0.5),40*k);gr.addColorStop(0,'#fff');gr.addColorStop(1,'rgba(255,255,255,0)');g.fillStyle=gr;g.fillRect(X(R,0.3),Y(R,0.62),X(R,0.7)-X(R,0.3),Y(R,0.38)-Y(R,0.62));g.restore();
         for(let i=0;i<4;i++)fold(R,[[0.0+0.02,0.47+i*0.012],[0.12,0.48+i*0.014]],0.18,2.5),fold(R,[[0.88,0.48+i*0.014],[0.98,0.47+i*0.012]],0.18,2.5)}
-      line(R,[[out,end],[out,R.y1]],dk(pn),2,0.7);stitch(R,[[out+0.025,end],[out+0.025,R.y1]],thread(pn),1.2)}
-    else if(pt==='cargo'){line(R,[[out,end],[out,R.y1]],dk(pn),2,0.6);g.fillStyle=shade(pn,0.9);g.fillRect(X(R,out-0.1),Y(R,0.76),X(R,out+0.1)-X(R,out-0.1),Y(R,0.6)-Y(R,0.76));stitch(R,[[out-0.095,0.605],[out-0.095,0.755],[out+0.095,0.755],[out+0.095,0.605],[out-0.095,0.605]],shade(pn,0.6));
+}
+    else if(pt==='cargo'){g.fillStyle=shade(pn,0.9);g.fillRect(X(R,out-0.1),Y(R,0.76),X(R,out+0.1)-X(R,out-0.1),Y(R,0.6)-Y(R,0.76));stitch(R,[[out-0.095,0.605],[out-0.095,0.755],[out+0.095,0.755],[out+0.095,0.605],[out-0.095,0.605]],shade(pn,0.6));
       g.fillStyle=dk(pn);g.fillRect(X(R,out-0.105),Y(R,0.78),X(R,out+0.105)-X(R,out-0.105),Y(R,0.735)-Y(R,0.78))}
-    else if(pt==='sweat'){line(R,[[out,end],[out,R.y1]],'#e8e4dc',3,0.7);const RB=fabricPat(g,'rib',dk(pn),S);band(R,end,end+0.07,RB)}
+    else if(pt==='sweat'){const RB=fabricPat(g,'rib',dk(pn),S);band(R,end,end+0.07,RB)}
     band(R,end,end+0.012,dk(pn));stitch(R,[[0,end+0.016],[1,end+0.016]],thread(pn),1.1);
     // stacking folds above the hem, behind-knee creases, crotch pulls
     if(pt!=='shorts')for(let i=0;i<4;i++){const y=end+0.03+i*0.03+r()*0.01;fold(R,[[r(),y],[r()*0.3+0.2,y+0.01]],0.12,3)}
@@ -7693,7 +7710,7 @@ function paintAtlas(of,B,S,info){ATM=4/S;const c=document.createElement('canvas'
       if(jt==='leather'){for(const u of[0.14,0.86]){line(R,[[u-0.04,1.08],[u+0.04,1.16]],'#000',3,0.6);line(R,[[u-0.04,1.08],[u+0.04,1.16]],'#9a9a96',1,0.8)}for(let i=0;i<6;i++)hiFold(R,[[r(),1.0+r()*0.5],[r(),1.0+r()*0.5]],0.08,6)}
       for(let i=0;i<5;i++){const y=1.0+i*0.07,u=r();fold(R,[[u,y],[u+0.1,y+0.02]],0.14,4)}})}
     for(const side of[-1,1]){const R=side<0?REG.jkL:REG.jkR,inn=side<0?0.75:0.25;clip(R,()=>{band(R,R.y0,R.y1,JP);if(jt==='wind')band(R,R.y0,1.3,shade(jk,1.35));
-      const RB=fabricPat(g,jt==='leather'||jt==='denim'?jf:'rib',dk(jk),S);band(R,R.y0,R.y0+0.04,RB);stitch(R,[[0,R.y0+0.045],[1,R.y0+0.045]],th);line(R,[[inn,R.y0],[inn,1.5]],dk(jk),1.6,0.6);
+      const RB=fabricPat(g,jt==='leather'||jt==='denim'?jf:'rib',dk(jk),S);band(R,R.y0,R.y0+0.04,RB);stitch(R,[[0,R.y0+0.045],[1,R.y0+0.045]],th);
       for(let i=0;i<4;i++)fold(R,[[inn-0.15,1.19+i*0.015],[inn+0.15,1.2+i*0.017]],0.15,3)})}}
   // white patch for untextured parts
   g.fillStyle='#ffffff';g.fillRect(S*0.5,S*0.875,S*0.5,S*0.125);
@@ -7703,21 +7720,22 @@ function perimFn(at,y0,y1){const N=40,L=[];for(let i=0;i<=N;i++){const y=y0+(y1-
 let TEXHQ=false;
 function humanGeo(of){
   if(!of)of=GUARD_LOOK;const S=TEXHQ?1024:512,key='h38'+S+JSON.stringify(of);if(CHAR_GEO[key])return CHAR_GEO[key];
-  const fem=!!of.fem,B=of.build==='strong'?1.1:of.build==='slim'?0.91:1,sk=of.skin||'#c8916c',jk=of.jacket||null,jt=of.jacketT||(jk?'field':null),gl=of.glove||null;
-  const sw=(fem?0.172:0.193)*(B>1?1.05:B<1?0.96:1),R=restOf(sw),hx=R[10][0],A=skAcc(),t=of.topT||'tee',sl=topSleeve(of),pt=of.pantsT||'jeans',short=pt==='shorts';
-  const TE=torsoE(of,B),PER={torso:perimFn((y,ph)=>TE(y,ph,0),0.79,1.69)};
+  const fem=!!of.fem,KB=bodyK(of),B=KB.B,sk=of.skin||'#c8916c',jk=of.jacket||null,jt=of.jacketT||(jk?'field':null),gl=of.glove||null;
+  const sw=(fem?0.172:0.193)*(B>1?1.04:B<1?0.96:1)+(of.build==='muscle'?0.008:0),ak=(fem?0.86:1.08)*KB.arm,R=restOf(sw),hx=R[10][0],A=skAcc(),t=of.topT||'tee',sl=topSleeve(of),pt=of.pantsT||'jeans',short=pt==='shorts';
+  const TE=torsoE(of,B,sw),PER={torso:perimFn((y,ph)=>TE(y,ph,0),0.79,1.69)};
   const tex=paintAtlas(of,B,S,{perim:PER});
-  const torW=(x,y,z)=>{const w=smw(y,0.95,1.12),n=smw(y,1.56,1.66);if(y<0.9){const ax=Math.abs(x),tw=smw(ax,0.04,0.12)*smw(0.9-y,0,0.08)*0.5,sb=x<0?7:10;return[[0,1-tw],[sb,tw]]}return n>0?[[1,1-n],[2,n]]:[[0,1-w],[1,w]]};
+  const torW=(x,y,z)=>{const w=smw(y,0.95,1.12),n=smw(y,1.56,1.66);if(y<0.9){const ax=Math.abs(x),tw=smw(ax,0.04,0.12)*smw(0.9-y,0,0.08)*0.5,sb=x<0?7:10;return[[0,1-tw],[sb,tw]]}
+    const ua=x<0?3:5,wu=0.85*smw(Math.abs(x),0.13,sw+0.005)*smw(y,1.33,1.42)*(1-smw(y,1.52,1.57));if(n>0)return[[1,(1-n)*(1-wu)],[ua,wu],[2,n]];return[[0,(1-w)*(1-wu)],[1,w*(1-wu)],[ua,wu]]};
   // ---- torso skin + painted clothes
   {const ys=ysOf(0.79,1.69,0.016,[0.97,0.955,1.505]);skPush(A,tubeT(ys,32,(y,ph)=>TE(y,ph,0.002),{uv:uvOf(REG.torso),cap0:0.01,cap1:0}),torW)}
   // shirt hem standing off the body (untucked tops)
   if(!of.overall&&t!=='shirt'){const bot=0.955,ex=y=>0.006+0.008*(1-smw(y,bot,1.08)),ys=ysOf(bot,1.22,0.018);skPush(A,tubeT(ys,32,(y,ph)=>TE(y,ph,ex(y)),{uv:uvOf(REG.torso),lip:(y,ph)=>TE(y,ph,0.0)}),torW)}
   // ---- arms
-  const armW=(ua,fa)=>(x,y,z)=>{if(y>1.49){const c=smw(y,1.49,1.54)*0.3;return[[ua,1-c],[1,c]]}const e=smw(y,1.17,1.25);return[[fa,1-e],[ua,e]]};
-  for(const side of[-1,1]){const ua=side<0?3:5,fa=side<0?4:6,RG=side<0?REG.armL:REG.armR,af0=armAt(side,sw,B,fem,0.001);
-    skPush(A,tubeT(ysOf(0.93,1.538,0.0135,[1.32,0.965]),18,af0,{uv:uvOf(RG),cap1:0.012}),armW(ua,fa));
-    if(sl==='short'){const af=armAt(side,sw,B,fem,0.0),ys=ysOf(1.315,1.47,0.015);skPush(A,tubeT(ys,18,(y,ph)=>{const q=armAt(side,sw,B,fem,0.004+0.008*(1-smw(y,1.315,1.43)))(y,ph);return q},{uv:uvOf(RG),lip:af}),armW(ua,fa))}
-    const hp=[],hcol=gl||sk,hy=-0.31,aB=B*(fem?0.95:1.12);hp.push(Sph(0.036*aB,0,hy,0,hcol,0.85,1.15,0.48),Sph(0.024*aB,0,-0.282,0,hcol,1,0.8,0.75));
+  const armW=(ua,fa)=>(x,y,z)=>{if(y>1.42){const c=smw(y,1.42,1.47)*0.15;return[[ua,1-c],[1,c]]}const e=smw(y,1.17,1.25);return[[fa,1-e],[ua,e]]};
+  for(const side of[-1,1]){const ua=side<0?3:5,fa=side<0?4:6,RG=side<0?REG.armL:REG.armR,af0=armAt2(side,sw,ak,KB.bic,0.001);
+    skPush(A,tubeT(ysOf(0.93,1.47,0.0135,[1.32,0.965]),18,af0,{uv:uvOf(RG),cap1:0.012}),armW(ua,fa));
+    if(sl==='short'){const af=armAt2(side,sw,ak,KB.bic,0.0),ys=ysOf(1.315,1.46,0.015);skPush(A,tubeT(ys,18,(y,ph)=>{const q=armAt2(side,sw,ak,KB.bic,0.004+0.008*(1-smw(y,1.315,1.43)))(y,ph);return q},{uv:uvOf(RG),lip:af}),armW(ua,fa))}
+    const hp=[],hcol=gl||sk,hy=-0.31,aB=(fem?0.95:1.12)*Math.sqrt(KB.arm);hp.push(Sph(0.036*aB,0,hy,0,hcol,0.85,1.15,0.48),Sph(0.024*aB,0,-0.282,0,hcol,1,0.8,0.75));
     for(let i=0;i<4;i++){const fx=(-0.021+i*0.014)*aB,fl=(i===0||i===3?0.028:0.036)*(fem?0.95:1);hp.push(Cap(0.0074*aB,fl,fx,hy-0.038-fl/2,0.004,(gl&&!of.fingerless)?gl:sk,0.32,0,0))}
     hp.push(Cap(0.0085*aB,0.026,0.03*aB,hy+0.004,0.016,hcol,0.7,0,-0.6));if(of.wrap)hp.push({g:ring(0.032,-0.25,0.03,10),c:of.wrap});skRigid(A,hp,fa,R)}
   // ---- jacket with lining
@@ -7725,8 +7743,8 @@ function humanGeo(of){
     skPush(A,tubeT(ys,36,(y,ph)=>TE(y,ph,ex(y)),{uv:uvOf(REG.jk),ph0:0.3,phL:TAU-0.6}),torW);
     skPush(A,tubeT(ys,36,(y,ph)=>TE(y,ph,ex(y)-0.004),{ph0:0.3,phL:TAU-0.6,inv:true,col:()=>shade(jk,0.45)}),torW);
     skRigid(A,[{g:lathe([[0.074,0.5],[0.076,0.56],[0.072,0.59]],14,1.08,1.05,0.65,TAU-1.3),c:shade(jk,0.9),m:mtx(0,0,-0.01)}],1,R);
-    for(const side of[-1,1]){const ua=side<0?3:5,fa=side<0?4:6,RG=side<0?REG.jkL:REG.jkR,ys2=ysOf(0.975,1.53,0.02);
-      skPush(A,tubeT(ys2,18,armAt(side,sw,B,fem,0.013),{uv:uvOf(RG),cap1:0.01,lip:armAt(side,sw,B,fem,0.0)}),armW(ua,fa))}}
+    for(const side of[-1,1]){const ua=side<0?3:5,fa=side<0?4:6,RG=side<0?REG.jkL:REG.jkR,ys2=ysOf(0.975,1.46,0.02);
+      skPush(A,tubeT(ys2,18,armAt2(side,sw,ak,KB.bic,0.013),{uv:uvOf(RG),cap1:0.01,lip:armAt2(side,sw,ak,KB.bic,0.0)}),armW(ua,fa))}}
   if(jk&&jt==='vest'){const ys=ysOf(0.95,1.5,0.016);skPush(A,tubeT(ys,36,(y,ph)=>TE(y,ph,0.02),{uv:uvOf(REG.jk),ph0:0.32,phL:TAU-0.64}),torW);skPush(A,tubeT(ys,36,(y,ph)=>TE(y,ph,0.016),{ph0:0.32,phL:TAU-0.64,inv:true,col:()=>shade(jk,0.45)}),torW)}
   const vest=of.carrier||of.tvest||of.riot||of.rig;if(vest){const ys=ysOf(1.03,1.47,0.016);skPush(A,tubeT(ys,32,(y,ph)=>TE(y,ph,0.03),{col:(y,ph)=>Math.abs(Math.sin(ph))>0.93?shade(vest,0.75):vest,lip:(y,ph)=>TE(y,ph,0.004)}),torW);
     const pp=[];for(let i=0;i<3;i++)pp.push(Bx(0.07,0.09,0.035,-0.08+i*0.08,0.21,frontZ(of,B,1.2,-0.08+i*0.08)+0.045,shade(vest,0.82)));skRigid(A,pp,1,R)}
@@ -7743,9 +7761,9 @@ function humanGeo(of){
   // ---- legs
   for(const side of[-1,1]){const th=side<0?7:10,sh=side<0?8:11,ft=side<0?9:12,RG=side<0?REG.legL:REG.legR,boot=of.shoe==='boot';
     const legW=(x,y,z)=>{if(y>0.93){const p=smw(y,0.93,1.02)*0.6;return[[th,1-p],[0,p]]}const k=smw(y,0.44,0.53);if(y<0.12){const f=1-smw(y,0.06,0.12);return[[sh,1-f*0.7],[ft,f*0.7]]}return[[sh,1-k],[th,k]]};
-    skPush(A,tubeT(ysOf(0.06,1.03,0.016,[0.6,0.075,0.27]),18,legAt(side,hx,B,fem,short?0:0.004),{uv:uvOf(RG),cap1:0.01}),legW);
-    if(short){const ys=ysOf(0.585,0.8,0.016);skPush(A,tubeT(ys,18,(y,ph)=>legAt(side,hx,B,fem,0.007+0.012*(1-smw(y,0.585,0.72)))(y,ph),{uv:uvOf(RG),lip:legAt(side,hx,B,fem,0)}),legW)}
-    else if(!boot){const ys=ysOf(0.075,0.32,0.02);skPush(A,tubeT(ys,18,(y,ph)=>legAt(side,hx,B,fem,0.006+(pt==='sweat'?0.0:0.01)*(1-smw(y,0.075,0.3)))(y,ph),{uv:uvOf(RG),lip:legAt(side,hx,B,fem,0)}),legW)}
+    skPush(A,tubeT(ysOf(0.06,1.03,0.016,[0.6,0.075,0.27]),18,legAt(side,hx,B*KB.leg,fem,short?0:0.004),{uv:uvOf(RG),cap1:0.01}),legW);
+    if(short){const ys=ysOf(0.585,0.8,0.016);skPush(A,tubeT(ys,18,(y,ph)=>legAt(side,hx,B*KB.leg,fem,0.007+0.012*(1-smw(y,0.585,0.72)))(y,ph),{uv:uvOf(RG),lip:legAt(side,hx,B*KB.leg,fem,0)}),legW)}
+    else if(!boot){const ys=ysOf(0.075,0.32,0.02);skPush(A,tubeT(ys,18,(y,ph)=>legAt(side,hx,B*KB.leg,fem,0.006+(pt==='sweat'?0.0:0.01)*(1-smw(y,0.075,0.3)))(y,ph),{uv:uvOf(RG),lip:legAt(side,hx,B*KB.leg,fem,0)}),legW)}
     const kp=[];if(of.knee)kp.push(Sph(0.05,0,-0.01,0.048,typeof of.knee==='string'?of.knee:'#24261f',1.1,1.2,0.45));if(of.riot)kp.push(Bx(0.08,0.22,0.04,0,-0.18,0.055,of.riot));skRigid(A,kp,sh,R);
     const fp=[],shc=of.shoeCol||'#2e2824';{const prof2=boot?[[-0.075,-0.07],[0.19,-0.07],[0.215,-0.045],[0.2,-0.005],[0.1,0.03],[0.04,0.06],[0.03,0.11],[-0.06,0.11],[-0.08,0.03]]:[[-0.075,-0.065],[0.19,-0.065],[0.215,-0.045],[0.205,-0.012],[0.12,0.018],[0.04,0.04],[-0.05,0.05],[-0.085,0.02]];
       const s=new THREE.Shape();s.moveTo(prof2[0][0],prof2[0][1]);for(const q of prof2.slice(1))s.lineTo(q[0],q[1]);s.closePath();const ug=new THREE.ExtrudeGeometry(s,{depth:0.068,bevelEnabled:true,bevelThickness:0.014,bevelSize:0.012,bevelSegments:3,curveSegments:3});ug.translate(0,0,-0.034);ug.rotateY(-Math.PI/2);fp.push({g:ug,c:shc,m:mtx(0,0,0.02)});
@@ -7758,6 +7776,8 @@ function humanGeo(of){
 {const mh=makeHuman;makeHuman=function(of,wid,acc){const h=mh(of,wid,acc);if(h.G&&h.G.tex&&h.mat){h.mat.map=h.G.tex;h.mat.needsUpdate=true}return h}}
 {const bp=buildPlayer3;buildPlayer3=function(){TEXHQ=true;try{return bp.apply(this,arguments)}finally{TEXHQ=false}}}
 {const pm=prvModel;prvModel=function(of,wid){TEXHQ=true;try{const h=pm(of,wid);if(h&&h.G&&h.G.tex&&h.mat&&h.mat.map!==h.G.tex){h.mat.map=h.G.tex;h.mat.needsUpdate=true}return h}finally{TEXHQ=false}}}
+// rounder face for heavier builds, sharper jaw for muscular ones
+{const hs0=headShape;headShape=function(of){const f=hs0(of),b=of.build;if(b!=='fat'&&b!=='muscle')return f;return(xn,yn,zn)=>{const q=f(xn,yn,zn);if(b==='fat'){const k=bump(yn,-1.05,0.35);q[0]*=1+0.1*k;if(zn>0)q[2]*=1+0.03*k;if(yn<-0.6)q[1]-=0.006*(1-Math.abs(xn))}else{const k=bump(yn,-1.0,-0.2);q[0]*=1+0.05*k}return q}}}
 
 start();
 
