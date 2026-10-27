@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v46', NOTES='Nomes dos lugares escritos na fachada como letreiro luminoso (sem balões); árvores, grama e mato no estilo Age of Empires; zumbis caem de forma realista quando apanham e levantam; furgão, caminhão baú, trator e bicicleta; tanques de gasolina nos postos; cidade mais espaçada em mundos novos; ícone novo do app';
+const VERSION='v47', NOTES='Correção: o jogo fechava sozinho no celular — árvores muito mais leves, menos carros ao mesmo tempo, memória dos personagens liberada, e se o celular perder o 3D o jogo salva e recarrega';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -8368,7 +8368,7 @@ function parkVehicles(_r,CARC,chunk){const r=mulberry((SV.mapSeed||1)*7+4242);PA
         const perp=shop&&!moto,dist=perp?3.4:moto?1.6:2.4,x=cxS+(alongX?t*len:0)+s.nx*dist,z=czS+(alongX?0:t*len)+s.nz*dist;
         let rot=perp?(alongX?Math.PI/2:0):(alongX?0:Math.PI/2);if(r()<0.5)rot+=Math.PI;rot+=(r()-0.5)*0.08;
         const rural=b.x0<RURALX,kq=r();let kind=null;if(moto&&kq<0.35)kind='bike';else if(!moto&&rural&&!shop&&kq<0.32)kind='tractor';else if(!moto&&shop&&(b.kind==='gas'||b.kind==='market'||b.kind==='garage')&&kq<0.45)kind=kq<0.22?'truck':'van';
-        if(!free(x,z,rot,kind==='truck'?3.4:moto?1.1:2.3,kind==='truck'?1.2:moto?0.45:1.05))continue;const drive=r()<(shop?0.22:0.35),burnt=!drive&&!moto&&!kind&&r()<0.1;place(x,z,rot,moto,drive,burnt,drive?null:kind);put++}}}}
+        if(!free(x,z,rot,kind==='truck'?3.4:moto?1.1:2.3,kind==='truck'?1.2:moto?0.45:1.05))continue;const drive=r()<(shop?0.12:0.2),burnt=!drive&&!moto&&!kind&&r()<0.1;place(x,z,rot,moto,drive,burnt,drive?null:kind);put++}}}}
 // keep vehicles you own across the new parking layout
 {const vi0=vehInit;vehInit=function(){if(VSPOT0<0)VSPOT0=VSPOT.length;VSPOT.length=VSPOT0;SV.veh=SV.veh||{};
   if(SV.wgen!==43){const own=Object.values(SV.veh).filter(o=>o&&o.own);SV.veh={};own.forEach((o,j)=>{SV.veh[VSPOT0+j]=o});if(SV.dis&&PARKF0>=0)for(const k in SV.dis)if(+k>=PARKF0)delete SV.dis[k];SV.disp={};SV.wgen=43}
@@ -8812,7 +8812,7 @@ function facadeSign(txt,x,z,col,hgt,bb){let b=bb||null,bd=bb?0:1e9;if(!bb)for(co
    your survivor is a clean screen-door instead of noisy speckles.
    ===================================================================== */
 // noisy round clump with baked light (vertex colours) and smooth normals
-function clumpGeo(R,base,r,flat){const g=new THREE.IcosahedronGeometry(R,2),p=g.attributes.position,nr=g.attributes.normal,cols=[],c=new THREE.Color(),hi=new THREE.Color(mix(base,'#d0e468',0.25)),lo=new THREE.Color(shade(base,0.48)),sd=r()*100,fl=flat||0.85;
+function clumpGeo(R,base,r,flat){const g=new THREE.IcosahedronGeometry(R,1),p=g.attributes.position,nr=g.attributes.normal,cols=[],c=new THREE.Color(),hi=new THREE.Color(mix(base,'#d0e468',0.25)),lo=new THREE.Color(shade(base,0.48)),sd=r()*100,fl=flat||0.85;
   for(let i=0;i<p.count;i++){let x=p.getX(i),y=p.getY(i),z=p.getZ(i);const ux=x/R,uy=y/R,uz=z/R,n=0.86+0.14*Math.sin(ux*5.1+sd)*Math.cos(uz*4.3+sd)+0.06*Math.sin(uy*7+ux*3);x*=n;y*=n*fl;z*=n;if(y<-R*0.3)y=-R*0.3+(y+R*0.3)*0.5;p.setXYZ(i,x,y,z);
     const L=Math.hypot(ux,uy/fl,uz)||1;nr.setXYZ(i,ux/L,uy/fl/L,uz/L);const k=clamp((uy+0.6)/1.4,0,1),lit=clamp(0.5+0.5*(-0.3*ux+0.8*uy+0.35*uz),0,1);c.copy(lo).lerp(hi,k*0.55+lit*0.45);cols.push(c.r,c.g,c.b)}
   g.setAttribute('color',new THREE.Float32BufferAttribute(cols,3));return g}
@@ -8899,6 +8899,32 @@ function bikeModel(){const L=[],fw=0.55,rw=-0.52,r=0.34,fr='P';tube(L,[rw,r,0],[
 // bikes: no engine, no fuel
 {const eo0=engineOn;engineOn=function(v){if(v&&v.k==='bike'){engineOff();return}return eo0(v)}}
 {const va0=vehAnim3;vehAnim3=function(dt){for(const v of VEH)if(v.k==='bike')v.fuel=99;return va0(dt)}}
+
+/* =====================================================================
+   v47 STABILITY (phones were closing the game): the new round tree
+   canopies are rebuilt as indexed, much lighter meshes; fewer drivable
+   cars are spawned at once; survivor looks no longer pile up in memory
+   (old textures/meshes are released); if the phone's GPU drops the 3D
+   context the game saves and reloads instead of dying.
+   ===================================================================== */
+// weld duplicated vertices (same position, normal and colour) -> indexed geometry
+function weldGeo(g){if(!g||g.index)return g;const P=g.attributes.position,N=g.attributes.normal,C=g.attributes.color,U=g.attributes.uv,n=P.count,map=new Map(),rem=new Uint32Array(n);let k=0;
+  const np=[],nn=[],nc=[],nu=[];for(let i=0;i<n;i++){const key=Math.round(P.getX(i)*500)+','+Math.round(P.getY(i)*500)+','+Math.round(P.getZ(i)*500)+'|'+(N?Math.round(N.getX(i)*50)+','+Math.round(N.getY(i)*50)+','+Math.round(N.getZ(i)*50):'')+'|'+(C?Math.round(C.getX(i)*64)+','+Math.round(C.getY(i)*64)+','+Math.round(C.getZ(i)*64):'')+'|'+(U?Math.round(U.getX(i)*256)+','+Math.round(U.getY(i)*256):'');
+    let j=map.get(key);if(j===undefined){j=k++;map.set(key,j);np.push(P.getX(i),P.getY(i),P.getZ(i));if(N)nn.push(N.getX(i),N.getY(i),N.getZ(i));if(C)nc.push(C.getX(i),C.getY(i),C.getZ(i));if(U)nu.push(U.getX(i),U.getY(i))}rem[i]=j}
+  const o=new THREE.BufferGeometry();o.setAttribute('position',new THREE.Float32BufferAttribute(np,3));if(N)o.setAttribute('normal',new THREE.Float32BufferAttribute(nn,3));if(C)o.setAttribute('color',new THREE.Float32BufferAttribute(nc,3));if(U)o.setAttribute('uv',new THREE.Float32BufferAttribute(nu,2));
+  o.setIndex(k>65535?new THREE.Uint32BufferAttribute(rem,1):new THREE.Uint16BufferAttribute(rem,1));o.computeBoundingSphere();g.dispose();return o}
+// lighter canopy: one smooth clump + two small ones (indexed afterwards)
+canopy=function(LV,TR,cx,cy,cz,R,n,base,r,flat){const b=mix(base,'#4a8228',0.3),fl=flat?Math.max(0.62,flat+0.22):0.85;const g=clumpGeo(R*0.95,b,r,fl);g.translate(cx,cy,cz);TR.push({g,c:null});
+  for(let i=0;i<2;i++){const a=r()*TAU,el=(r()-0.1)*0.8,rr=R*0.7,s=R*(0.42+r()*0.16);const g2=clumpGeo(s,shade(b,0.92+r()*0.2),r,0.9);g2.translate(cx+Math.cos(a)*Math.cos(el)*rr,cy+Math.sin(el)*rr*fl,cz+Math.sin(a)*Math.cos(el)*rr);TR.push({g:g2,c:null})}};
+{const ta0=treeArch;treeArch=function(k){const had=!!TREEG[k];const G=ta0(k);if(!had&&G&&!G._w){G.tr=weldGeo(G.tr);if(G.lv)G.lv=weldGeo(G.lv);G._w=1}return G}}
+// survivor looks: keep at most 26 in memory
+{const order=[];const hg=humanGeo;humanGeo=function(of){const G=hg(of);if(G&&!G._lru){G._lru=1;order.push(G);while(order.length>26){const o=order.shift();for(const k in CHAR_GEO)if(CHAR_GEO[k]===o){delete CHAR_GEO[k];break}try{if(o.tex)o.tex.dispose()}catch(e){}}}return G}}
+// the GPU lost the 3D context (phone under pressure): save and come back
+{let armed=false;const arm=()=>{if(armed)return;const c=$('gl');if(!c)return;armed=true;c.addEventListener('webglcontextlost',e=>{e.preventDefault();try{save()}catch(_){}try{toast('Recarregando o jogo…')}catch(_){}setTimeout(()=>location.reload(),600)},false)};
+  setTimeout(arm,1500);const ew=enterWorld3D;enterWorld3D=function(){const r=ew.apply(this,arguments);arm();return r}}
+// phones: cap the pixel ratio and shadow size a little lower (ULTRA stays available on request)
+{const r0=resize3D;resize3D=function(){r0.apply(this,arguments);try{const phone=matchMedia('(pointer:coarse)').matches;if(R3&&phone){const max=SV.cfg&&SV.cfg.ultra?2.2:1.75;if(R3.getPixelRatio()>max){R3.setPixelRatio(max);R3.setSize(W,H,false)}
+  if(SUN&&SUN.shadow.mapSize.x>2048&&!(SV.cfg&&SV.cfg.ultra)){SUN.shadow.mapSize.set(2048,2048);if(SUN.shadow.map){SUN.shadow.map.dispose();SUN.shadow.map=null}}}}catch(e){}}}
 
 start();
 
