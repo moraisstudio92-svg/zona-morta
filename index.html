@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v39', NOTES='Roupas sem emendas: o ombro agora faz parte do corpo, então a camiseta, a camisa e a jaqueta passam contínuas do peito ao braço; sem linhas de costura dividindo as peças; gola redonda de verdade em volta do pescoço; novos tipos de corpo: magro, normal, forte, musculoso e gordo (barriga, peitoral, ombros, braços, coxas e até o rosto mudam)';
+const VERSION='v40', NOTES='Zumbis caem com física de corpo de verdade (ragdoll): cabeça, tronco, braços e pernas com peso próprio, joelhos e cotovelos dobram só para o lado certo, o corpo desaba, torce, rola e para do jeito que cair, empurrado pelo tiro (escopeta joga longe, tiro na cabeça derruba para trás); golpes corpo a corpo intensos: preparação, golpe explosivo com quadril, tronco e peso do corpo, continuação do movimento e volta à guarda; pau e facão em diagonal, taco em giro com as duas mãos, machado de cima para baixo, faca alternando estocada e corte; impacto com pausa no acerto, tremor forte, sangue e vibração';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -7778,6 +7778,121 @@ function humanGeo(of){
 {const pm=prvModel;prvModel=function(of,wid){TEXHQ=true;try{const h=pm(of,wid);if(h&&h.G&&h.G.tex&&h.mat&&h.mat.map!==h.G.tex){h.mat.map=h.G.tex;h.mat.needsUpdate=true}return h}finally{TEXHQ=false}}}
 // rounder face for heavier builds, sharper jaw for muscular ones
 {const hs0=headShape;headShape=function(of){const f=hs0(of),b=of.build;if(b!=='fat'&&b!=='muscle')return f;return(xn,yn,zn)=>{const q=f(xn,yn,zn);if(b==='fat'){const k=bump(yn,-1.05,0.35);q[0]*=1+0.1*k;if(zn>0)q[2]*=1+0.03*k;if(yn<-0.6)q[1]-=0.006*(1-Math.abs(xn))}else{const k=bump(yn,-1.0,-0.2);q[0]*=1+0.05*k}return q}}}
+
+/* =====================================================================
+   v40 RAGDOLL: a dead body is no longer a stiff pin tipping over. It
+   becomes a set of masses (head, neck, chest, shoulders, elbows, hands,
+   hips, knees, ankles) held by bones-as-sticks: gravity pulls, the hit
+   pushes, knees and elbows fold only the natural way, the body slumps,
+   twists, rolls, hits the ground and settles in whatever shape it lands.
+   + MELEE: anticipation, explosive strike with the whole body (hips,
+   torso, lean, lunge), follow-through, recovery; per weapon (stick and
+   machete diagonal chops, two-handed bat swing, axe overhead, knife
+   stab); hit-stop and heavy shake on impact.
+   ===================================================================== */
+const RG={active:[],v:[...Array(16)].map(()=>new THREE.Vector3()),m:new THREE.Matrix4(),m2:new THREE.Matrix4(),m3:new THREE.Matrix4(),q:new THREE.Quaternion(),s:new THREE.Vector3(),x:new THREE.Vector3(),y:new THREE.Vector3(),z:new THREE.Vector3(),p:new THREE.Vector3()};
+// particle ids
+const RP={hl:0,hr:1,sp:2,nk:3,hd:4,sl:5,sr:6,el:7,er:8,al:9,ar:10,kl:11,kr:12,fl:13,fr:14};
+const RRAD=[0.08,0.08,0.1,0.07,0.1,0.06,0.06,0.045,0.045,0.04,0.04,0.055,0.055,0.045,0.045];
+const RSTICK=[[0,1],[0,2],[1,2],[2,3],[0,3],[1,3],[3,5],[3,6],[5,6],[2,5],[2,6],[0,5],[1,6],[0,6],[1,5],[3,4],[5,4],[6,4],[5,7],[7,9],[6,8],[8,10],[0,11],[11,13],[1,12],[12,14]];
+const RMIN=[[9,5,0.14],[10,6,0.14],[13,0,0.34],[14,1,0.34],[4,2,0.33],[9,3,0.12],[10,3,0.12],[11,12,0.12],[13,14,0.1]];
+function rgInit(z,m,head,dx,dz){const P=[],O=[];m.root.updateMatrixWorld(true);const w=(b,x,y,zz)=>b.localToWorld(new THREE.Vector3(x||0,y||0,zz||0));
+  const pts=[w(m.thL),w(m.thR),w(m.chest,0,0.25,0),w(m.chest,0,0.56,0),w(m.head,0,0.12,0.01),w(m.uaL),w(m.uaR),w(m.faL),w(m.faR),w(m.faL,0,-0.3,0),w(m.faR,0,-0.3,0),w(m.shL),w(m.shR),w(m.ftL),w(m.ftR)];
+  const dl=Math.hypot(dx||0,dz||0)||1,hx=(dx||0)/dl,hz=(dz||0)/dl,dt=1/60;
+  const f=(head?1.4:1)*(z.lastF||1),vx=(z.vx||0)*0.35,vz=(z.vz||0)*0.35,vy=z.air?(z.vy||0):0;
+  pts.forEach((p,i)=>{P.push(p.clone());const up=i===4?2.6:i===3?2.0:i===2||i===5||i===6?1.6:i>=11?-0.25:0.6,k=up*f;
+    const jx=(Math.random()-0.5)*0.4,jz=(Math.random()-0.5)*0.4;O.push(new THREE.Vector3(p.x-(vx+hx*k+jx*0.3)*dt,p.y-(vy+(i>=11?0.0:0.15))*dt,p.z-(vz+hz*k+jz*0.3)*dt))});
+  // knees buckle a little at once so the body crumples instead of toppling stiff
+  for(const[k,a]of[[11,0],[12,1]]){const F=rgFwd(P);P[k].addScaledVector(F,0.03);O[k].copy(P[k]).addScaledVector(F,-0.02*dt*60*0.0)}
+  const L=RSTICK.map(([a,b])=>P[a].distanceTo(P[b]));z.rg={P,O,L,acc:0,still:0,rest:false,t:0,snd:0,gy:m.gy||0};RG.active.push(z);
+  // keep the number of simulated bodies bounded
+  if(RG.active.length>12){const o=RG.active.shift();if(o.rg)o.rg.rest=true}}
+function rgFwd(P){const X=RG.x.subVectors(P[1],P[0]),mid=RG.p.addVectors(P[0],P[1]).multiplyScalar(0.5),Y=RG.y.subVectors(P[3],mid);return RG.z.crossVectors(X,Y).normalize()}
+function rgStep(R,h){const P=R.P,O=R.O,g=-11*h*h,gy=R.gy;let mv=0;
+  for(let i=0;i<P.length;i++){const p=P[i],o=O[i];const vx=(p.x-o.x)*0.992,vy=(p.y-o.y)*0.992,vz=(p.z-o.z)*0.992;o.copy(p);p.x+=vx;p.y+=vy+g;p.z+=vz;mv=Math.max(mv,Math.abs(vx)+Math.abs(vy)+Math.abs(vz))}
+  for(let it=0;it<7;it++){
+    for(let c=0;c<RSTICK.length;c++){const a=P[RSTICK[c][0]],b=P[RSTICK[c][1]],L=R.L[c];const dx=b.x-a.x,dy=b.y-a.y,dz=b.z-a.z,d=Math.hypot(dx,dy,dz)||1e-6,k=(d-L)/d*0.5;a.x+=dx*k;a.y+=dy*k;a.z+=dz*k;b.x-=dx*k;b.y-=dy*k;b.z-=dz*k}
+    for(const[i,j,mn]of RMIN){const a=P[i],b=P[j];const dx=b.x-a.x,dy=b.y-a.y,dz=b.z-a.z,d=Math.hypot(dx,dy,dz)||1e-6;if(d<mn){const k=(d-mn)/d*0.5;a.x+=dx*k;a.y+=dy*k;a.z+=dz*k;b.x-=dx*k;b.y-=dy*k;b.z-=dz*k}}
+    // hinges: knees fold forward, elbows fold backward
+    const F=rgFwd(P);for(const[hp,kn,an,sg]of[[0,11,13,1],[1,12,14,1],[5,7,9,-1],[6,8,10,-1]]){const A=P[hp],K=P[kn],C=P[an];const lx=C.x-A.x,ly=C.y-A.y,lz=C.z-A.z,ll=lx*lx+ly*ly+lz*lz||1e-6;
+      const t=((K.x-A.x)*lx+(K.y-A.y)*ly+(K.z-A.z)*lz)/ll,ox=K.x-(A.x+lx*t),oy=K.y-(A.y+ly*t),oz=K.z-(A.z+lz*t),side=(ox*F.x+oy*F.y+oz*F.z)*sg;
+      if(side<0.012){const push=(0.012-side)*0.6*sg;K.x+=F.x*push;K.y+=F.y*push;K.z+=F.z*push}}
+    // ground
+    for(let i=0;i<P.length;i++){const p=P[i],r=RRAD[i];if(p.y<gy+r){p.y=gy+r;const o=O[i];o.x=lerp(o.x,p.x,0.55);o.z=lerp(o.z,p.z,0.55);if(o.y<p.y)o.y=p.y+(o.y-p.y)*-0.08}}}
+  return mv}
+function rgBasis(X,Y,pos,out){// orthonormal frame with given X (right) and Y (up) hints
+  const x=RG.x.copy(X).normalize(),y0=RG.y.copy(Y).normalize(),zz=RG.z.crossVectors(x,y0).normalize(),y=RG.s.crossVectors(zz,x).normalize();out.makeBasis(x,y,zz);out.setPosition(pos);return out}
+function rgLimb(J,C,fwd,pos,out){// bone at J pointing its -Y at C, Z near fwd
+  const y=RG.y.subVectors(J,C).normalize(),zz=RG.z.copy(fwd).addScaledVector(y,-fwd.dot(y));if(zz.lengthSq()<1e-6)zz.set(0,0,1);zz.normalize();const x=RG.x.crossVectors(y,zz).normalize();out.makeBasis(x,y,zz);out.setPosition(pos);return out}
+const _rgW={},_rgI=new THREE.Matrix4(),_rgL=new THREE.Matrix4();
+function rgApply(m,z){const R=z.rg,P=R.P;m.root.updateMatrixWorld();_rgI.copy(m.root.matrixWorld).invert();const L=P.map((p,i)=>(RG.v[i].copy(p).applyMatrix4(_rgI)));
+  const mid=RG.v[15].addVectors(L[0],L[1]).multiplyScalar(0.5);
+  const W=_rgW;for(const k of['pel','che','hed','uaL','faL','uaR','faR','thL','shL','ftL','thR','shR','ftR'])W[k]=W[k]||new THREE.Matrix4();
+  const X=new THREE.Vector3().subVectors(L[1],L[0]),Yp=new THREE.Vector3().subVectors(L[2],mid);const pelPos=mid.clone().addScaledVector(Yp.clone().normalize(),0.02);rgBasis(X,Yp,pelPos,W.pel);
+  const fwdP=new THREE.Vector3().setFromMatrixColumn(W.pel,2);
+  const msh=new THREE.Vector3().addVectors(L[5],L[6]).multiplyScalar(0.5),Xc=new THREE.Vector3().subVectors(L[6],L[5]),Yc=new THREE.Vector3().subVectors(L[3],L[2]).add(new THREE.Vector3().subVectors(msh,mid)).multiplyScalar(0.5);
+  rgBasis(Xc,Yc,new THREE.Vector3(),W.che);const ych=new THREE.Vector3().setFromMatrixColumn(W.che,1);W.che.setPosition(msh.clone().addScaledVector(ych,-0.5));const fwdC=new THREE.Vector3().setFromMatrixColumn(W.che,2);
+  rgBasis(Xc,new THREE.Vector3().subVectors(L[4],L[3]),L[3].clone().addScaledVector(ych,0.06),W.hed);
+  rgLimb(L[5],L[7],fwdC,L[5],W.uaL);rgLimb(L[7],L[9],fwdC,L[7],W.faL);rgLimb(L[6],L[8],fwdC,L[6],W.uaR);rgLimb(L[8],L[10],fwdC,L[8],W.faR);
+  rgLimb(L[0],L[11],fwdP,L[0],W.thL);rgLimb(L[11],L[13],fwdP,L[11],W.shL);rgLimb(L[1],L[12],fwdP,L[1],W.thR);rgLimb(L[12],L[14],fwdP,L[12],W.shR);
+  W.ftL.copy(W.pel).setPosition(L[13]);W.ftR.copy(W.pel).setPosition(L[14]);
+  const setB=(bone,Mw,Mpar)=>{_rgL.copy(Mpar).invert().multiply(Mw);_rgL.decompose(bone.position,bone.quaternion,RG.s);bone.scale.set(1,1,1)};
+  const I=RG.m3.identity();setB(m.pelvis,W.pel,I);setB(m.chest,W.che,W.pel);setB(m.head,W.hed,W.che);
+  setB(m.uaL,W.uaL,W.che);setB(m.faL,W.faL,W.che);setB(m.uaR,W.uaR,W.che);setB(m.faR,W.faR,W.che);
+  setB(m.thL,W.thL,W.pel);setB(m.shL,W.shL,W.pel);setB(m.ftL,W.ftL,W.pel);setB(m.thR,W.thR,W.pel);setB(m.shR,W.shR,W.pel);setB(m.ftR,W.ftR,W.pel);
+  if(z.headless)m.head.scale.setScalar(0.001)}
+// replaces the scripted fall
+{const dp0=deathPose;deathPose=function(m,z,dt){if(!m.pelvis||!m.thL||m.boss)return dp0(m,z,dt);
+  if(!z.rg){z.dd=z.dd||{};m.root.rotation.set(0,z.face||0,0);m.root.position.set(z.x,(m.gy||0),z.z);rgInit(z,m,!!(z.dd&&z.dd.head),z.hdx||0,z.hdz||0)}
+  const R=z.rg;m._dp=1;if(m._sh===undefined)m._sh=m.root.children.find(c=>c.geometry&&c.geometry.type==='CircleGeometry')||null;if(m._sh)m._sh.visible=false;
+  m.root.rotation.set(0,z.face||0,0);
+  if(!R.rest){R.acc+=Math.min(dt,0.05);let mv=0,n=0;while(R.acc>=1/60&&n<4){mv=Math.max(mv,rgStep(R,1/60));R.acc-=1/60;n++;R.t+=1/60}
+    // thud when the torso slams the ground
+    if(!R.snd&&R.P[2].y<R.gy+0.14&&R.t>0.15){R.snd=1;if(AU.c&&P){const d=Math.hypot(z.x-P.x,z.z-P.z);if(d<30){const v=clamp(1-d/30,0.15,1),t=AU.c.currentTime;thump(t,95,38,0.16,0.42*v);anz(t,0.12,700,200,0.18*v,'lowpass',1.2)}}if(QH)blood3(R.P[2].x,R.gy+0.1,R.P[2].z,4,0,0,0.5)}
+    R.still=mv<0.0016?R.still+n:0;if(R.still>45||R.t>7){R.rest=true;const i=RG.active.indexOf(z);if(i>=0)RG.active.splice(i,1)}
+    // the corpse "is" where the hips are (looting, culling)
+    const hx=(R.P[0].x+R.P[1].x)/2,hz=(R.P[0].z+R.P[1].z)/2;z.x=hx;z.z=hz;z.vx=z.vz=0;z.air=0;z.y=0;
+    m.root.position.set(z.x,m.gy||0,z.z);rgApply(m,z);R.root=[z.x,z.z]}
+  else{m.root.position.set(R.root?R.root[0]:z.x,(m.gy||0)-(z.fadeT||0)*0.3,R.root?R.root[1]:z.z)}}}
+// remember where the hit came from for the ragdoll push
+{const k0=killZ3;killZ3=function(z,head,dx,dz){z.hdx=dx;z.hdz=dz;z.lastF=(P&&P.wid==='shotgun')?2.2:(P&&MELEE[P.wid])?(MELEE[P.wid].two?1.8:1.3):1;k0(z,head,dx,dz);if(z.dd)z.dd.head=!!head}}
+// reused pooled zombies drop their ragdoll state
+{const az=animZombie;animZombie=function(m,z,dt){if(!z.dead&&z.rg)z.rg=null;if(!z.dead&&m._dp){m.pelvis.quaternion.identity();m.chest.quaternion.identity();m.head.quaternion.identity();m.pelvis.position.set(0,RIG.hip,0);m.chest.position.set(0,0.06,0);m.head.position.set(0,0.62,0.02);for(const b of[m.ftL,m.ftR])b.quaternion.identity()}return az(m,z,dt)}}
+
+/* ---------------- MELEE: weight, speed and follow-through ---------------- */
+// keyframes: [time, hand(x,y,z) in chest space, weapon euler(x,y,z), chest twist, chest lean, hips twist, crouch, lunge]
+const MSTY={
+  chop:[[0,[0.17,0.13,0.2],[-0.9,-0.25,0.15],0,0,0,0,0],[0.3,[0.24,0.56,-0.06],[-2.7,-0.3,0.5],0.65,-0.2,0.25,0.02,-0.03],[0.36,[0.24,0.58,-0.08],[-2.8,-0.3,0.55],0.7,-0.22,0.27,0.02,-0.03],
+    [0.44,[0.02,0.3,0.48],[0.6,-0.1,-0.4],-0.55,0.35,-0.3,0.07,0.12],[0.62,[-0.14,-0.02,0.3],[1.5,0,-0.9],-0.85,0.42,-0.4,0.08,0.13],[1,[0.17,0.13,0.2],[-0.9,-0.25,0.15],0,0,0,0,0]],
+  bat:[[0,[0.12,0.22,0.24],[-1.0,-0.2,0.3],0,0,0,0,0],[0.32,[0.3,0.48,-0.12],[-2.0,0.9,1.3],1.0,-0.12,0.45,0.04,-0.04],[0.38,[0.31,0.5,-0.13],[-2.05,0.95,1.35],1.05,-0.13,0.47,0.04,-0.04],
+    [0.46,[0.02,0.33,0.5],[-1.55,-0.4,1.55],-0.4,0.22,-0.35,0.08,0.13],[0.66,[-0.3,0.3,0.18],[-1.5,-1.3,1.5],-1.2,0.25,-0.6,0.07,0.12],[1,[0.12,0.22,0.24],[-1.0,-0.2,0.3],0,0,0,0,0]],
+  axe:[[0,[0.08,0.2,0.24],[-1.0,-0.1,0.1],0,0,0,0,0],[0.32,[0.06,0.66,-0.06],[-2.95,0,0.05],0.25,-0.3,0.1,0.0,-0.05],[0.39,[0.06,0.68,-0.08],[-3.0,0,0.05],0.25,-0.32,0.1,0.0,-0.05],
+    [0.47,[0.03,0.2,0.48],[0.7,0,0],-0.1,0.55,-0.05,0.13,0.14],[0.66,[0.0,-0.06,0.38],[1.55,0,0],-0.15,0.62,-0.05,0.14,0.15],[1,[0.08,0.2,0.24],[-1.0,-0.1,0.1],0,0,0,0,0]],
+  stab:[[0,[0.15,0.2,0.22],[-1.45,-0.15,0.1],0,0,0,0,0],[0.25,[0.2,0.24,0.02],[-1.5,-0.1,0.2],0.35,-0.08,0.2,0.02,-0.04],[0.4,[0.03,0.3,0.58],[-1.6,-0.05,0.0],-0.35,0.25,-0.25,0.05,0.14],
+    [0.58,[0.04,0.29,0.55],[-1.55,0,0],-0.3,0.22,-0.22,0.05,0.13],[1,[0.15,0.2,0.22],[-1.45,-0.15,0.1],0,0,0,0,0]],
+  slash:[[0,[0.15,0.2,0.22],[-1.45,-0.15,0.1],0,0,0,0,0],[0.26,[0.28,0.42,0.06],[-1.2,0.7,0.9],0.6,-0.08,0.3,0.02,-0.03],[0.44,[-0.12,0.18,0.45],[-1.3,-1.2,-0.4],-0.7,0.25,-0.35,0.05,0.12],[1,[0.15,0.2,0.22],[-1.45,-0.15,0.1],0,0,0,0,0]]};
+function mStyle(id,h){if(id==='faca')return h.stabAlt?'slash':'stab';if(id==='taco')return'bat';if(id==='machado')return'axe';return'chop'}
+const _me=new THREE.Euler();
+function mKey(h,o){const s=o.swing||0,u=s>0?1-s:1,K=MSTY[mStyle(h.wid,h)];let a=K[0],b=K[1];for(let i=0;i<K.length-1;i++)if(u>=K[i][0]&&u<=K[i+1][0]){a=K[i];b=K[i+1];break}
+  const k0=(u-a[0])/Math.max(1e-4,b[0]-a[0]),strike=a[6]<b[6]||(b[4]>a[4]&&b[0]-a[0]<0.12);
+  // anticipation eases out, the strike accelerates (power curve), recovery eases
+  const k=strike?k0*k0*k0:b[0]===1?k0*k0*(3-2*k0):1-Math.pow(1-k0,2);return{a,b,k,u,s}}
+function meleePose(h,o,SL,SR,t,run,ph){const M=MELEE[h.wid]||MELEE.pau,two=M.two,{a,b,k,u,s}=mKey(h,o);
+  const L=(i,j)=>lerp(a[i][j],b[i][j],k),Lv=i=>lerp(a[i],b[i],k);
+  const hp=[L(1,0),L(1,1)+(run?Math.abs(Math.sin(ph))*0.03:0),L(1,2)];
+  h.chest.rotation.y+=Lv(3);h.chest.rotation.x+=Lv(4);h.pelvis.rotation.y+=Lv(5);
+  h.gun.position.set(hp[0],hp[1],hp[2]);_me.set(L(2,0),L(2,1),L(2,2));h.gun.quaternion.setFromEuler(_me);h.gun.updateMatrix();
+  _hT.set(0,0,0).applyMatrix4(h.gun.matrix);_hP.set(0.6,-1,-0.6);ik3(h.uaR,h.faR,SR,_hT,RIG.ua,RIG.fa+0.04,_hP);
+  if(two){_hT.set(0,0,-0.11).applyMatrix4(h.gun.matrix);_hP.set(-0.6,-1,-0.4)}else{const sw2=s>0?Math.sin(u*Math.PI):0;_hT.set(-0.16-0.06*sw2,0.28+0.1*sw2+(run?0.04:0),0.22+0.08*sw2);_hP.set(-0.6,-1,-0.4)}ik3(h.uaL,h.faL,SL,_hT,RIG.ua,RIG.fa+0.04,_hP)}
+// swing timing per weapon, alternating knife moves, hit-stop and heavy feedback
+let HITSTOP=0;
+{const m0=melee3;melee3=function(tg){const cd=P.cd;m0(tg);if(P.cd>cd&&P.wid&&MELEE[P.wid]){if(PM)PM.stabAlt=P.wid==='faca'?!PM.stabAlt:false}}}
+// the body drops into the strike (feet stay planted)
+{const ah=animHuman;animHuman=function(h,o){if(h.melee&&h.gun&&o&&o.swing>0&&!o.dead){const q=mKey(h,o),c=lerp(q.a[6],q.b[6],q.k);o=Object.assign({},o,{crouch:(o.crouch||0)+c})}return ah(h,o)}}
+{const h0=hurtZ3;hurtZ3=function(z,dmg,head,dx,dz){const was=z.dead;h0(z,dmg,head,dx,dz);if(P&&MELEE[P.wid]&&P.swing>0&&Math.hypot(z.x-P.x,z.z-P.z)<2.8){const M=MELEE[P.wid];
+  HITSTOP=Math.max(HITSTOP,M.two?0.09:P.wid==='faca'?0.04:0.065);G.shake=Math.max(G.shake,M.two?5:3);if(QH)blood3(z.x,1.3,z.z,M.two?14:8,dx,dz,1.4);try{navigator.vibrate&&navigator.vibrate(M.two?35:20)}catch(_){}
+  if(!z.dead){z.stun=Math.max(z.stun||0,M.two?0.5:0.3);z.vx+=dx*(M.knock*0.9);z.vz+=dz*(M.knock*0.9)}}}}
+{const u3=update3D;update3D=function(dt){if(HITSTOP>0){HITSTOP-=dt;dt*=0.06}return u3(dt)}}
 
 start();
 
