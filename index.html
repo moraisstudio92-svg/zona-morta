@@ -370,7 +370,7 @@ button.crIn{text-align:left;min-height:46px;cursor:text}
 #bossBar .bb{height:9px;border-radius:5px;background:rgba(0,0,0,.65);border:1px solid rgba(255,90,58,.6);overflow:hidden}#bossBar .bb i{display:block;height:100%;background:linear-gradient(90deg,#8a0f0b,#e0402a);transform-origin:left}
 .short .mid .wnx{font-size:11px}
 #gl{position:absolute;left:0;top:0;display:block;touch-action:none}
-#joyZone{position:absolute;left:0;bottom:0;width:46%;height:72%;z-index:6;touch-action:none}
+#joyZone{position:absolute;left:0;bottom:0;width:40%;height:66%;z-index:6;touch-action:none}
 #joyB{position:absolute;width:132px;height:132px;margin:-66px 0 0 -66px;border-radius:50%;border:2px solid rgba(236,230,211,.28);background:radial-gradient(circle,rgba(0,0,0,.18),rgba(0,0,0,.38));opacity:.55;transition:opacity .15s;left:110px;top:calc(100% - 110px);pointer-events:none}
 #joyB.on{opacity:1;transform:scale(1.04);border-color:rgba(227,162,59,.55);box-shadow:0 0 22px rgba(227,162,59,.18)}
 #joyB{transition:opacity .15s,transform .15s,border-color .15s}
@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v55', NOTES='Melhorias disponíveis';
+const VERSION='v56', NOTES='Melhorias disponíveis';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -9545,10 +9545,14 @@ if(typeof SV!=='undefined'&&SV.look&&SV.look.model==='remy')setTimeout(remyLoad,
    is always there: the best safe is far from the city (fewer zombies) —
    but it is your choice.
    ===================================================================== */
-{let id=null,lx=0,moved=0;const st=(e)=>{if(id!==null||APP!=='world'||!W3.on||!$('sheet').hidden||(typeof BM!=='undefined'&&BM.on))return;const t=e.target;if(!t||t.tagName!=='CANVAS')return;id=e.pointerId;lx=e.clientX;moved=0};
+let CYT=null;
+{let id=null,lx=0,moved=0;const lw=()=>(typeof W==='number'&&W)||innerWidth;
+  const st=e=>{if(id!==null||APP!=='world'||!W3.on||!$('sheet').hidden||(typeof BM!=='undefined'&&BM.on))return;const t=e.target;if(!t||t.tagName!=='CANVAS')return;id=e.pointerId;lx=toLogical(e).x;moved=0;if(CYT==null)CYT=CY};
   window.addEventListener('pointerdown',st,true);
-  window.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;const dx=e.clientX-lx;lx=e.clientX;moved+=Math.abs(dx);if(moved<6)return;CY-=dx*0.0085;CY=((CY%TAU)+TAU)%TAU},true);
+  window.addEventListener('pointermove',e=>{if(e.pointerId!==id)return;const x=toLogical(e).x,dx=x-lx;lx=x;moved+=Math.abs(dx);if(moved<8)return;CYT-=dx/lw()*2.6},true);
   const end=e=>{if(e.pointerId===id)id=null};window.addEventListener('pointerup',end,true);window.addEventListener('pointercancel',end,true)}
+// the camera glides to the new angle (no jitter)
+{const u0=update3D;update3D=function(dt){if(CYT!=null){const d=CYT-CY;if(Math.abs(d)<1e-4){CY=CYT}else CY+=d*Math.min(1,dt*16)}return u0(dt)}}
 // how many safes you may have
 function safeMax(){const l=SV.lvl||1;return 1+(l>=20?1:0)+(l>=40?1:0)}
 function safeCount(){return(SV.base?1:0)+((SV.safes&&SV.safes.length)||0)}
