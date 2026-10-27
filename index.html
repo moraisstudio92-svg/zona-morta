@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v47', NOTES='Correção: o jogo fechava sozinho no celular — árvores muito mais leves, menos carros ao mesmo tempo, memória dos personagens liberada, e se o celular perder o 3D o jogo salva e recarrega';
+const VERSION='v48', NOTES='Várias SAFEs: qualquer casa, loja ou prédio vira SAFE (limpe os zumbis e use o botão de ação lá dentro); cada uma evolui: Abrigo, Fortificada, Oficina (libera construir em volta), Energia (luz e humor) e Muralha (libera muros e torre); depósito compartilhado entre todas';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -8491,7 +8491,7 @@ function sleepHere(where){if(!W3.on||!P||P.dead)return;if(zSeeNear(25)){SFX.deny
     const n=SV.tod>=19.5||SV.tod<5.5;SV.night=n;W3.night=n;W3.day=SV.day;
     S.fat=Math.min(100,S.fat+hrs*12*eff);S.hun=Math.max(0,S.hun-hrs*2.2);S.thi=Math.max(0,S.thi-hrs*3);S.fun=Math.min(100,S.fun+hrs*1.5);S.mood=Math.min(100,S.mood+10*eff);S.pan=0;P.hp=Math.min(P.max,P.hp+P.max*0.05*hrs*eff);P.stam=100;
     $('slT').textContent=`${hrs}H`;$('slS').textContent=where==='bed'?'Dormiu numa cama · sono recuperado':where==='sofa'?'Cochilou no sofá':'Dormiu no chão · o corpo reclama';
-    const risk=where==='ground'&&!inside?0.4:inside?0.12:0.25;if(Math.random()<risk){const n2=2+Math.floor(Math.random()*2);for(let i=0;i<n2;i++){const a=Math.random()*TAU,d=rnd(7,11),x=P.x+Math.cos(a)*d,z=P.z+Math.sin(a)*d;if(!blocked(x,z,0.5)){const o=spawnZ3('walker',x,z,Math.max(1,zone3(x,z)));o.alert=10}}
+    const risk=(typeof inSafe==='function'&&inSafe())?0:where==='ground'&&!inside?0.4:inside?0.12:0.25;if(Math.random()<risk){const n2=2+Math.floor(Math.random()*2);for(let i=0;i<n2;i++){const a=Math.random()*TAU,d=rnd(7,11),x=P.x+Math.cos(a)*d,z=P.z+Math.sin(a)*d;if(!blocked(x,z,0.5)){const o=spawnZ3('walker',x,z,Math.max(1,zone3(x,z)));o.alert=10}}
       setTimeout(()=>toast('😱 Você acordou com barulho de zumbis!'),2000)}
     save();SFX.levelup&&SFX.levelup()},1300);
   setTimeout(()=>{ov.classList.remove('show');setTimeout(()=>{ov.hidden=true},700)},4300)}
@@ -8657,15 +8657,14 @@ function finishSite(s){const i=sites().indexOf(s);if(i>=0)sites().splice(i,1);co
 {const bb0=buildBuilds3;buildBuilds3=function(){const r=bb0.apply(this,arguments);try{buildSites3()}catch(e){console.error(e)}return r}}
 // ---------- the build mode ----------
 const BM={on:false,cat:'def',sel:null,x:0,z:0,r:0,a:null,cx:0,cz:0,ghost:null,undo:[]};
-function bmAvail(k){return explPts()>=BITEM[k].u}
-function bmStart(){if(!W3.on||!P||P.dead||P.drive)return;if(!SV.base){SFX.deny();toast('🏠 Primeiro arrume uma safe house: entre numa casa abandonada e use o botão de ação');return}
-  if(Math.hypot(P.x-BO.x,P.z-BO.z)>55){SFX.deny();toast('🔨 Volte para perto da sua safe house para construir');return}
-  BM.on=true;BM.cx=P.x;BM.cz=P.z;BM.x=P.x+Math.sin(P.face)*3;BM.z=P.z+Math.cos(P.face)*3;BM.a=null;BM.undo=[];IN.fire=false;JOY.x=JOY.y=0;bmUI(true);bmSel(BM.sel&&bmAvail(BM.sel)?BM.sel:'barric');SFX.click&&SFX.click()}
+function bmAvail(k){if(BM.on&&BM.ctr&&!BM.ctr.full&&BITEM[k].cat==='def')return false;return explPts()>=BITEM[k].u}
+function bmStart(){if(!W3.on||!P||P.dead||P.drive)return;const C=bmCenter(P.x,P.z);if(!C){SFX.deny();toast(SV.base||(SV.safes&&SV.safes.length)?'🔨 Volte para perto de uma safe (nível OFICINA ou mais) para construir':'🏠 Primeiro transforme um lugar em SAFE: entre numa casa ou loja vazia e use o botão de ação');return}
+  BM.ctr=C;BM.on=true;BM.cx=P.x;BM.cz=P.z;BM.x=P.x+Math.sin(P.face)*3;BM.z=P.z+Math.cos(P.face)*3;BM.a=null;BM.undo=[];IN.fire=false;JOY.x=JOY.y=0;bmUI(true);bmSel(BM.sel&&bmAvail(BM.sel)?BM.sel:'barric');SFX.click&&SFX.click()}
 function bmEnd(){BM.on=false;BM.a=null;if(BM.ghost){SC3.remove(BM.ghost);BM.ghost=null}if(BM.line){SC3.remove(BM.line);BM.line=null}bmUI(false);if(sites().length){BJ.on=true;toast(`🔨 ${sites().length} obra${sites().length>1?'s':''} · o personagem vai construir (mexa o joystick para parar)`)}}
 function bmSel(k){BM.sel=k;BM.a=null;if(BM.ghost){SC3.remove(BM.ghost);BM.ghost=null}const I=BITEM[k],P0=[];const b={t:I.deco||k,x:0,z:0,r:0,lvl:1};if(I.wire)b.t='wire';if(I.tower)b.t='vigia';bParts(b,P0);
   BM.ghost=new THREE.Mesh(mergeParts(P0),new THREE.MeshBasicMaterial({color:0x7fd36a,transparent:true,opacity:0.5,depthWrite:false}));SC3.add(BM.ghost);bmRender()}
-function bmValid(k,x,z,r){const I=BITEM[k],w=r?I.d:I.w,d=r?I.w:I.d,rc=[x-w/2,z-d/2,x+w/2,z+d/2];if(Math.hypot(x-BO.x,z-BO.z)>45)return false;
-  const ib=bldAt(x,z);if(ib&&(ib!==baseBld()||I.cat==='def'))return false;if(!ib&&I.cat==='mov'&&!inBase(x,z))return false;
+function bmValid(k,x,z,r){const I=BITEM[k],w=r?I.d:I.w,d=r?I.w:I.d,rc=[x-w/2,z-d/2,x+w/2,z+d/2];const C=BM.ctr||bmCenter(x,z);if(!C||Math.hypot(x-C.x,z-C.z)>45)return false;if(I.cat==='def'&&!C.full)return false;
+  const ib=bldAt(x,z);if(ib&&(ib!==C.b||I.cat==='def'))return false;if(!ib&&I.cat==='mov'&&!(C.main&&inBase(x,z)))return false;
   for(let gx=Math.floor(rc[0]/CG)-1;gx<=Math.floor(rc[2]/CG)+1;gx++)for(let gz=Math.floor(rc[1]/CG)-1;gz<=Math.floor(rc[3]/CG)+1;gz++)for(const b of(CGRID.get(ck(gx,gz))||[])){if(b.tag==='gate'||b.tag==='bar')continue;if(rc[0]<b.x1-0.02&&rc[2]>b.x0+0.02&&rc[1]<b.z1-0.02&&rc[3]>b.z0+0.02)return false}
   for(const b of builds()){const o=bRect(b);if(rc[0]<o[2]-0.02&&rc[2]>o[0]+0.02&&rc[1]<o[3]-0.02&&rc[3]>o[1]+0.02)return false}
   for(const s of sites()){const o=siteRect(s);if(rc[0]<o[2]-0.02&&rc[2]>o[0]+0.02&&rc[1]<o[3]-0.02&&rc[3]>o[1]+0.02)return false}return true}
@@ -8739,7 +8738,7 @@ function bjob3(dt){if(!P||P.dead||P.drive){P.bwork=null;return}const L=sites();i
 {const sk0=skills3;skills3=function(dt){sk0(dt);try{bjob3(dt)}catch(e){console.error(e)}}}
 // the action button offers to resume the work
 {const at0=actionTarget3;actionTarget3=function(){const a=at0();if(!P||P.dead||P.drive||BM.on)return a;if(P.bwork)return{type:'busy',label:'🔨 CONSTRUINDO…'};
-  if(!BJ.on&&sites().length&&SV.base&&Math.hypot(P.x-BO.x,P.z-BO.z)<55&&(!a||a.type==='hub'||a.type==='stn'))return{type:'bjob',label:`🔨 CONSTRUIR · ${sites().length} OBRA${sites().length>1?'S':''}`};return a}}
+  if(!BJ.on&&sites().length&&sites().some(s=>Math.hypot(P.x-s.x,P.z-s.z)<55)&&(!a||a.type==='hub'||a.type==='stn'))return{type:'bjob',label:`🔨 CONSTRUIR · ${sites().length} OBRA${sites().length>1?'S':''}`};return a}}
 {const da0=doAction3;doAction3=function(){const a=actionTarget3();if(a&&a.type==='bjob'){BJ.on=true;return}return da0()}}
 // ---------- chopping trees ----------
 // remember which instance draws each tree (natInst is called per archetype; we re-scan the scene once)
@@ -8899,6 +8898,58 @@ function bikeModel(){const L=[],fw=0.55,rw=-0.52,r=0.34,fr='P';tube(L,[rw,r,0],[
 // bikes: no engine, no fuel
 {const eo0=engineOn;engineOn=function(v){if(v&&v.k==='bike'){engineOff();return}return eo0(v)}}
 {const va0=vehAnim3;vehAnim3=function(dt){for(const v of VEH)if(v.k==='bike')v.fuel=99;return va0(dt)}}
+
+/* =====================================================================
+   v48 MANY SAFES: any house, shop or building can become a SAFE (clear
+   the zombies inside, then use the action button inside). You can have
+   as many as you like; the storage (depósito) is shared by all of them.
+   Each safe evolves: ABRIGO → FORTIFICADA → OFICINA → ENERGIA → MURALHA.
+   ===================================================================== */
+const SAFE_LV=[{n:'ABRIGO',d:'Dormir sem risco, guardar e pegar coisas do depósito',mat:{plank:2}},{n:'FORTIFICADA',d:'Janelas pregadas e portas reforçadas · zumbis demoram a entrar',mat:{plank:6}},
+  {n:'OFICINA',d:'Libera o modo construção 🔨 em volta (móveis e coisas úteis)',mat:{plank:4,scrap:4}},{n:'ENERGIA',d:'Luz à noite · o humor sobe quando você está dentro',mat:{scrap:6}},{n:'MURALHA',d:'Libera muros, cercas, arame e torre em volta',mat:{plank:10,scrap:6}}];
+function safes(){return SV.safes||(SV.safes=[])}
+function safeOf(b){return b?safes().find(s=>s.bid===b.id)||null:null}
+function inSafe(){if(!P||!G)return false;const b=G.inB||bldAt(P.x,P.z);return !!b&&(!!safeOf(b)||(SV.base&&b===baseBld()))}
+// where can we build? the main base, or a safe with OFICINA (3) or more
+function bmCenter(x,z){let best=null,bd=55;if(SV.base){const d=Math.hypot(x-BO.x,z-BO.z);if(d<bd){bd=d;best={x:BO.x,z:BO.z,b:baseBld(),full:true,main:true}}}
+  for(const s of safes()){if(s.lv<3)continue;const b=BLDS[s.bid];if(!b)continue;const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2,d=Math.hypot(x-cx,z-cz);if(d<bd){bd=d;best={x:cx,z:cz,b,full:s.lv>=5,main:false,s}}}return best}
+// ---------- visuals: SAFE sign, boarded windows, light ----------
+let SAFE3=null,SAFEL=null;
+function safeVis(){if(!SC3)return;if(SAFE3)SC3.remove(SAFE3);SAFE3=new THREE.Group();SC3.add(SAFE3);const P0=[];
+  for(const s of safes()){const b=BLDS[s.bid];if(!b)continue;try{const d=b.doors[0];if(d){const tx=d.nz!==0?1:0,tz=d.nz!==0?0:1,o=d.w/2+0.55;SAFE3.add(wallSign('SAFE',d.x+tx*o+d.nx*0.14,1.75,d.z+tz*o+d.nz*0.14,Math.atan2(d.nx,d.nz),s.lv>=4?'rgba(127,211,106,.95)':'rgba(236,214,160,.95)',0.3,false,s.lv<4))}}catch(e){}
+    if(s.lv>=2)for(const w of b.wins){if(!w.barr){w.barr=true;w.bhp=w.bhp||180;w.broken=true;w.open=false;try{winMat(w)}catch(e){}}const ax=w.ax==='x';for(const a of[1,-1])P0.push(Bx(ax?1.35:0.06,0.15,ax?0.06:1.35,w.x+w.nx*(0.16+(a>0?0.02:0)),1.55,w.z+w.nz*(0.16+(a>0?0.02:0)),'#7a5634',ax?0:a*0.62,0,ax?a*0.62:0))}
+    if(s.lv>=2)for(const d of b.doors){d.locked=false;d.hp=Math.max(d.hp||0,420);if(!d.broken){const ax=d.ax==='x';P0.push(Bx(ax?d.w*0.9:0.05,0.12,ax?0.05:d.w*0.9,d.x+d.nx*0.17,1.0,d.z+d.nz*0.17,'#4a4e52'),Bx(ax?d.w*0.9:0.05,0.12,ax?0.05:d.w*0.9,d.x+d.nx*0.17,1.9,d.z+d.nz*0.17,'#4a4e52'))}}}
+  if(P0.length)SAFE3.add(meshOf(P0,MATV));if(GLASSIM)GLASSIM.instanceMatrix.needsUpdate=true}
+function safeLight(){if(!SC3||!P)return;if(!SAFEL){SAFEL=new THREE.PointLight(0xffd8a0,0,14,1.6);SC3.add(SAFEL)}let best=null,bd=45;for(const s of safes()){if(s.lv<4)continue;const b=BLDS[s.bid];if(!b)continue;const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2,d=Math.hypot(P.x-cx,P.z-cz);if(d<bd){bd=d;best=[cx,cz]}}
+  if(best&&SKY.dark>0.35){SAFEL.position.set(best[0],2.6,best[1]);SAFEL.intensity=lerp(SAFEL.intensity,6*(SKY.dark),0.1)}else SAFEL.intensity=Math.max(0,SAFEL.intensity-0.3)}
+{const ew=enterWorld3D;enterWorld3D=function(){const r=ew.apply(this,arguments);try{safeVis()}catch(e){console.error(e)}return r}}
+// ---------- the action button inside a building ----------
+{const at0=actionTarget3;actionTarget3=function(){const a=at0();if(!P||P.dead||P.drive||(typeof BM!=='undefined'&&BM.on))return a;const b=G&&G.inB;if(!b||a)return a;
+  const s=safeOf(b);if(s)return{type:'safe',s,label:`🏠 SAFE ${SAFE_LV[s.lv-1].n} · DORMIR · DEPÓSITO · EVOLUIR`};
+  if(SV.base&&b===baseBld())return a;if(b.claim&&!SV.base)return a;if(!b.rooms||!b.rooms.length)return a;
+  return{type:'mksafe',b,label:zInside(b)?'⚠ HÁ ZUMBIS AQUI DENTRO':`🏠 TRANSFORMAR EM SAFE (${matTxt(SAFE_LV[0].mat)})`}}}
+let SAFEC=null;
+{const da0=doAction3;doAction3=function(){const a=actionTarget3();if(a&&a.type==='mksafe'){makeSafe(a.b);return}if(a&&a.type==='safe'){SAFEC=a.s;shSel='safe';GS=null;renderSheet();sheetOpen(true);$('sIn').scrollTop=0;return}return da0()}}
+function makeSafe(b){if(zInside(b)){SFX.deny();toast('Ainda há zumbis aqui dentro · limpe tudo antes');return}const need=SAFE_LV[0].mat;if(!hasMat(need)){SFX.deny();toast(`Precisa de ${matTxt(need)} · desmonte móveis ou corte árvores`);return}
+  useMat(need);const s={bid:b.id,lv:1,name:(b.name&&b.name!=='CASA ABANDONADA'?b.name:'CASA')+' '+(safes().length+1)};safes().push(s);for(const d of b.doors){d.locked=false}
+  for(let i=DORM.length-1;i>=0;i--){const q=DORM[i];if(q.x>b.x0-2&&q.x<b.x1+2&&q.z>b.z0-2&&q.z<b.z1+2)DORM.splice(i,1)}SV.spawn={x:(b.doors[0]||b).x||P.x,z:(b.doors[0]||b).z||P.z};
+  safeVis();SFX.levelup&&SFX.levelup();G.shake=2;banner('NOVA SAFE!',`${safes().length} safe${safes().length>1?'s':''} · dormir aqui é seguro · evolua pelo botão de ação`);save()}
+function renderSafe(body){const s=SAFEC;if(!s){closeSheet();return}$('sKick').textContent=`SAFE · NÍVEL ${s.lv} DE ${SAFE_LV.length}`;$('sTitle').textContent=SAFE_LV[s.lv-1].n;
+  const row=(ic,t,d,b)=>{const r=el('div','irow');r.append(el('i','',ic));const tt=el('div','it');tt.append(el('b','',t),el('span','',d));r.append(tt);const ac=el('div','ia');if(b)ac.append(b);r.append(ac);body.append(r)};
+  row('😴','DORMIR','Aqui dentro você dorme sem risco',btn('DORMIR','buy alt',()=>sleepHere('bed')));
+  row('📦','DEPÓSITO','O mesmo depósito em todas as suas safes',btn('ABRIR','buy alt',()=>{shSel='store';GS=null;renderSheet()}));
+  if(s.lv>=3)row('🔨','CONSTRUIR AQUI','Toque no 🔨 lá em cima perto desta safe',null);
+  body.append(el('h4','sec','EVOLUIR'));
+  SAFE_LV.forEach((L,i)=>{const lv=i+1,done=s.lv>=lv,next=lv===s.lv+1;const bt=next?btn(`EVOLUIR · ${matTxt(L.mat)}`,'buy alt',()=>{if(!hasMat(L.mat)){SFX.deny();toast(`Faltam materiais: ${matTxt(L.mat)}`);return}useMat(L.mat);s.lv=lv;skXP('build',20);safeVis();SFX.levelup&&SFX.levelup();G.shake=2;toast(`🏠 Safe agora é ${L.n}`);save();renderSheet()}):null;
+    row(done?'✅':next?'⬆':'🔒',`${lv}. ${L.n}`,L.d,bt)});
+  body.append(btn('ABANDONAR ESTA SAFE','ghost',()=>{const i=safes().indexOf(s);if(i>=0)safes().splice(i,1);safeVis();toast('Safe abandonada');save();closeSheet()}))}
+{const rs0=renderSheet;renderSheet=function(){if(shSel==='safe'){const body=$('sBody');body.innerHTML='';renderSafe(body);return}return rs0()}}
+// mood and light inside a safe
+{const s0=surv3;surv3=function(dt){s0(dt);if(!P||P.dead)return;try{if(inSafe()){const S=needs();const lit=safeOf(G.inB);S.mood=Math.min(100,S.mood+dt*(lit&&lit.lv>=4?0.25:0.12))}safeLight()}catch(e){}}}
+
+{const rr0=renderRest;renderRest=function(body){rr0(body);const b=G&&G.inB;if(!b)return;const s=safeOf(b);const r=el('div','irow');r.append(el('i','','🏠'));const tt=el('div','it');
+  if(s){tt.append(el('b','',`SAFE ${SAFE_LV[s.lv-1].n}`),el('span','','Depósito, evoluir e dormir sem risco'));r.append(tt);const ac=el('div','ia');ac.append(btn('ABRIR','ghost',()=>{SAFEC=s;shSel='safe';renderSheet()}));r.append(ac);body.append(r)}
+  else if(!(SV.base&&b===baseBld())&&b.rooms&&b.rooms.length){tt.append(el('b','','TRANSFORMAR EM SAFE'),el('span','',matTxt(SAFE_LV[0].mat)));r.append(tt);const ac=el('div','ia');ac.append(btn('VIRAR SAFE','ghost',()=>{closeSheet();makeSafe(b)}));r.append(ac);body.append(r)}}}
 
 /* =====================================================================
    v47 STABILITY (phones were closing the game): the new round tree

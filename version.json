@@ -1,1 +1,1 @@
-{"version": "v47", "notes": "Correção: o jogo fechava sozinho no celular — árvores muito mais leves, menos carros ao mesmo tempo, memória dos personagens liberada, e se o celular perder o 3D o jogo salva e recarrega"}
+{"version": "v48", "notes": "Várias SAFEs: qualquer casa, loja ou prédio vira SAFE (limpe os zumbis e use o botão de ação lá dentro); cada uma evolui: Abrigo, Fortificada, Oficina (libera construir em volta), Energia (luz e humor) e Muralha (libera muros e torre); depósito compartilhado entre todas"}
