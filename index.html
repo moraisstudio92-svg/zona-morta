@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v50', NOTES='Melhorias disponíveis';
+const VERSION='v51', NOTES='Melhorias disponíveis';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -9345,6 +9345,10 @@ function slimScene(){if(!SC3)return;const keep=new Set();for(const f of FURN)if(
   // only unique, static world meshes (chunks, buildings, shops); shared/cached geometries and vehicles are left alone
   SC3.traverse(o=>{if(!o.isMesh||o.isSkinnedMesh||o.isInstancedMesh||!o.geometry||veh.has(o))return;const g=o.geometry;if(!g.attributes.position||g.attributes.position.count<600||refs.get(g)>1)return;slimGeo(g,keep.has(o));n++});return n}
 {const bw0=buildWorld3D;buildWorld3D=function(){const r=bw0.apply(this,arguments);try{slimScene()}catch(e){console.error(e)}return r}}
+
+/* v51: no stamina — you can run (and swing, and dodge) without getting tired; the bar is gone */
+{const u0=update3D;update3D=function(dt){if(P)P.stam=100;const r=u0(dt);if(P)P.stam=100;return r}}
+{const st=document.createElement('style');st.textContent='.bar.st{display:none!important}';document.head.appendChild(st)}
 
 start();
 
