@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v49', NOTES='Melhorias disponíveis';
+const VERSION='v50', NOTES='Melhorias disponíveis';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -8974,7 +8974,7 @@ canopy=function(LV,TR,cx,cy,cz,R,n,base,r,flat){const b=mix(base,'#4a8228',0.3),
 {let armed=false;const arm=()=>{if(armed)return;const c=$('gl');if(!c)return;armed=true;c.addEventListener('webglcontextlost',e=>{e.preventDefault();try{save()}catch(_){}try{toast('Recarregando o jogo…')}catch(_){}setTimeout(()=>location.reload(),600)},false)};
   setTimeout(arm,1500);const ew=enterWorld3D;enterWorld3D=function(){const r=ew.apply(this,arguments);arm();return r}}
 // phones: cap the pixel ratio and shadow size a little lower (ULTRA stays available on request)
-{const r0=resize3D;resize3D=function(){r0.apply(this,arguments);try{const phone=matchMedia('(pointer:coarse)').matches;if(R3&&phone){const max=SV.cfg&&SV.cfg.ultra?2.2:1.75;if(R3.getPixelRatio()>max){R3.setPixelRatio(max);R3.setSize(W,H,false)}
+{const r0=resize3D;resize3D=function(){r0.apply(this,arguments);try{const phone=matchMedia('(pointer:coarse)').matches;if(R3&&phone){const max=SV.cfg&&SV.cfg.ultra?2.2:1.5;if(R3.getPixelRatio()>max){R3.setPixelRatio(max);R3.setSize(W,H,false)}
   if(SUN&&SUN.shadow.mapSize.x>2048&&!(SV.cfg&&SV.cfg.ultra)){SUN.shadow.mapSize.set(2048,2048);if(SUN.shadow.map){SUN.shadow.map.dispose();SUN.shadow.map=null}}}}catch(e){}}}
 
 /* v49 baked motion capture (Mixamo: Scary Zombie Pack, rifle patrol, running), retargeted offline */
@@ -9243,7 +9243,7 @@ function shopFurn(t){const box=(w,h,d,x,y,z,c)=>Bx(w,h,d,x,y+h/2,z,c),CL=['#c83a
     for(let i=0;i<11;i++)p.push(box(0.05,0.62+((i*5)%3)*0.06,0.42,-0.62+i*0.124,0.82,0,CL[(i*3+t.length)%CL.length]));return p}
   case'manq':return[box(0.3,0.05,0.3,0,0,0,'#4a4e52'),box(0.03,0.7,0.03,0,0,0,'#4a4e52'),box(0.34,0.55,0.2,0,0.72,0,CL[Math.floor(Math.random()*CL.length)]),box(0.16,0.18,0.16,0,1.3,0,'#e8dcc8'),box(0.3,0.32,0.18,0,0.42+0.3,0,'#2a3a5a')];
   case'acase':{const p=[box(1.6,0.85,0.55,0,0,0,'#e8e4dc'),box(1.6,0.3,0.55,0,0.85,0,'#b8d8e8')];for(let i=0;i<6;i++)p.push(box(0.14,0.06,0.12,-0.6+i*0.24,0.88,0.02*(i%2),CL[(i*5)%CL.length]));return p}
-  case'bcase':{const p=[box(1.6,2.0,0.36,0,0,0,'#6a4a2c')];for(let s=0;s<5;s++){p.push(box(1.5,0.03,0.33,0,0.12+s*0.38,0.02,'#5a3e24'));for(let j=0;j<12;j++)p.push(box(0.09,0.24+((j*7+s*3)%5)*0.015,0.24,-0.66+j*0.12,0.15+s*0.38,0.06,CL[(j*3+s*5)%CL.length]))}return p}
+  case'bcase':{const p=[box(1.6,2.0,0.36,0,0,0,'#6a4a2c')];for(let s=0;s<5;s++){p.push(box(1.5,0.03,0.33,0,0.12+s*0.38,0.02,'#5a3e24'));for(let j=0;j<4;j++)p.push(box(0.3+((j+s)%3)*0.03,0.24+((j*7+s*3)%5)*0.015,0.24,-0.55+j*0.37,0.15+s*0.38,0.06,CL[(j*3+s*5)%CL.length]))}return p}
   case'fsofa':return[box(2.0,0.45,0.85,0,0,0,'#6a5a7a'),box(2.0,0.5,0.2,0,0.45,-0.33,'#5a4a6a'),box(0.2,0.25,0.85,-0.9,0.45,0,'#5a4a6a'),box(0.2,0.25,0.85,0.9,0.45,0,'#5a4a6a')];
   case'fbed':return[box(1.5,0.45,2.0,0,0,0,'#8a6a4a'),box(1.4,0.18,1.9,0,0.45,0,'#f0ece4'),box(1.4,0.08,1.2,0,0.63,0.35,'#4a6a8a'),box(1.2,0.12,0.4,0,0.6,-0.7,'#ffffff'),box(1.5,0.9,0.1,0,0,-1.0,'#6a4a2a')];
   case'ftable':return[box(1.4,0.05,0.9,0,0.75,0,'#a0784a'),box(0.06,0.75,0.06,-0.62,0,-0.38,'#6a4a2a'),box(0.06,0.75,0.06,0.62,0,-0.38,'#6a4a2a'),box(0.06,0.75,0.06,-0.62,0,0.38,'#6a4a2a'),box(0.06,0.75,0.06,0.62,0,0.38,'#6a4a2a')];
@@ -9327,6 +9327,24 @@ function runMocap(h,o,dt,spd){const c=ZM.c.prun;if(!c||!h||!h.pelvis)return;o.rt
 function runTick(dt){if(PM&&P&&!P.dead&&!P.drive&&!P.clb&&P.run&&P.mv>3)runMocap(PM,P,dt,P.mv);else if(P)P.rw=0;
   for(const a of ALLY){if(a.m&&a.st!=='gone'&&(a.sp||0)>4.4)runMocap(a.m,a,dt,a.sp);else a.rw=0}}
 {const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(W3.on&&P&&$('sheet').hidden)runTick(dt)}catch(e){console.error(e)}return r}}
+
+/* =====================================================================
+   v50 MEMORY: the world was holding ~160 MB of geometry twice (in the
+   phone's memory and on the GPU). Static meshes now store normals and
+   colours as bytes (half the GPU memory) and drop their CPU copy once
+   uploaded; furniture keeps only the positions (needed to take it
+   apart). Phones stop closing the game.
+   ===================================================================== */
+function slimGeo(g,keepPos){if(!g||g.userData.slim||!g.attributes||!g.attributes.position)return;g.userData.slim=1;if(!g.boundingSphere)g.computeBoundingSphere();if(!g.boundingBox)g.computeBoundingBox();
+  const N=g.attributes.normal,C=g.attributes.color;
+  if(N&&N.array instanceof Float32Array&&N.itemSize===3){const a=N.array,q=new Int8Array(a.length);for(let i=0;i<a.length;i++)q[i]=Math.max(-127,Math.min(127,Math.round(a[i]*127)));g.setAttribute('normal',new THREE.BufferAttribute(q,3,true))}
+  if(C&&C.array instanceof Float32Array&&C.itemSize===3){const a=C.array,q=new Uint8Array(a.length);for(let i=0;i<a.length;i++)q[i]=Math.max(0,Math.min(255,Math.round(a[i]*255)));g.setAttribute('color',new THREE.BufferAttribute(q,3,true))}
+  const drop=function(){this.array=null};for(const k in g.attributes){if(k==='position'&&keepPos)continue;g.attributes[k].onUpload(drop)}if(g.index&&!keepPos)g.index.onUpload(drop)}
+function slimScene(){if(!SC3)return;const keep=new Set();for(const f of FURN)if(f.mesh)keep.add(f.mesh);const veh=new Set();for(const v of VEH)if(v.m)v.m.traverse(o=>veh.add(o));
+  const refs=new Map();SC3.traverse(o=>{if(o.geometry)refs.set(o.geometry,(refs.get(o.geometry)||0)+1)});let n=0;
+  // only unique, static world meshes (chunks, buildings, shops); shared/cached geometries and vehicles are left alone
+  SC3.traverse(o=>{if(!o.isMesh||o.isSkinnedMesh||o.isInstancedMesh||!o.geometry||veh.has(o))return;const g=o.geometry;if(!g.attributes.position||g.attributes.position.count<600||refs.get(g)>1)return;slimGeo(g,keep.has(o));n++});return n}
+{const bw0=buildWorld3D;buildWorld3D=function(){const r=bw0.apply(this,arguments);try{slimScene()}catch(e){console.error(e)}return r}}
 
 start();
 
