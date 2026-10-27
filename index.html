@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v60', NOTES='Melhorias disponíveis';
+const VERSION='v61', NOTES='Melhorias disponíveis';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -9655,6 +9655,25 @@ function iosGuide(force){if(!IOS)return;const st=iosStandalone();let seen={};try
   (document.getElementById('app')||document.body).appendChild(o);o.querySelector('button').addEventListener('click',()=>{seen[key]=1;try{localStorage.setItem('zm_iosguide',JSON.stringify(seen))}catch(e){}o.remove()})}
 if(IOS){document.documentElement.style.height='100%';document.body&&(document.body.style.minHeight='100%');
   setTimeout(()=>iosGuide(false),1800);addEventListener('orientationchange',()=>setTimeout(()=>{const o=document.getElementById('iosG');if(o&&!ROT&&iosStandalone())o.remove()},400))}
+
+/* =====================================================================
+   v61 · every safe gets a chest inside: walk up to it and use the action
+   button to store and take things (the same depósito as the safe menu).
+   ===================================================================== */
+let SCHEST=[];
+function safeChestSpot(s){if(s.chest)return s.chest;const b=BLDS[s.bid];if(!b||!b.rooms||!b.rooms.length)return null;
+  const R=b.rooms.slice().sort((p,q)=>(q.x1-q.x0)*(q.z1-q.z0)-(p.x1-p.x0)*(p.z1-p.z0))[0];
+  const cand=[];for(let i=0;i<24;i++){const fx=(i%6)/5,fz=Math.floor(i/6)/3;cand.push([lerp(R.x0+0.7,R.x1-0.7,fx),lerp(R.z0+0.6,R.z1-0.6,fz)])}
+  const wallD=([x,z])=>Math.min(x-R.x0,R.x1-x,z-R.z0,R.z1-z);cand.sort((a,c)=>wallD(a)-wallD(c));
+  for(const c of cand){if(blocked(c[0],c[1],0.6))continue;if(b.portals.some(p=>Math.hypot(p.x-c[0],p.z-c[1])<1.3))continue;s.chest={x:c[0],z:c[1]};return s.chest}
+  s.chest={x:(R.x0+R.x1)/2,z:(R.z0+R.z1)/2};return s.chest}
+{const sv0=safeVis;safeVis=function(){sv0();try{for(const c of SCHEST){removeColRef(c.col)}SCHEST=[];if(!SAFE3)return;
+  for(const s of safes()){const p=safeChestSpot(s);if(!p)continue;const y=gy(p.x,p.z);
+    const m=meshOf([Bx(0.95,0.5,0.6,0,0.25,0,'#6b4a2c'),Bx(0.99,0.07,0.64,0,0.06,0,'#3b4652'),Bx(0.99,0.07,0.64,0,0.46,0,'#3b4652'),Bx(0.95,0.22,0.6,0,0.62,0,'#7a5634'),Bx(0.12,0.16,0.05,0,0.36,0.31,'#e0b84a')],MATV);
+    m.position.set(p.x,y,p.z);SAFE3.add(m);SCHEST.push({s,x:p.x,z:p.z,col:addCol(p.x-0.5,p.z-0.32,p.x+0.5,p.z+0.32,'furn')})}}catch(e){console.error(e)}}}
+{const at0=actionTarget3;actionTarget3=function(){const a=at0();if(!P||P.dead||P.drive||(a&&a.type==='busy'))return a;
+  for(const c of SCHEST)if(Math.hypot(c.x-P.x,c.z-P.z)<1.35&&(!a||a.type==='safe'||a.type==='rest'||a.type==='cont'||a.type==='dis'||a.type==='win'||a.type==='door'))return{type:'safechest',c,label:'📦 BAÚ · GUARDAR E PEGAR'};return a}}
+{const da0=doAction3;doAction3=function(){const a=actionTarget3();if(a&&a.type==='safechest'){shSel='store';GS=null;SFX.click();renderSheet();sheetOpen(true);$('sIn').scrollTop=0;try{SFX.chest&&SFX.chest()}catch(e){}return}return da0()}}
 
 start();
 
