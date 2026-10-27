@@ -492,7 +492,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v61', NOTES='Melhorias disponíveis';
+const VERSION='v62', NOTES='Melhorias disponíveis';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -3417,9 +3417,9 @@ function addCol(x0,z0,x1,z1,tag){if(COLOFF){x0+=COLOFF.x;x1+=COLOFF.x;z0+=COLOFF
 function collide(e,r,zombie){
   const gx=Math.floor(e.x/CG),gz=Math.floor(e.z/CG);
   for(let ix=gx-1;ix<=gx+1;ix++)for(let iz=gz-1;iz<=gz+1;iz++){const l=CGRID.get(ck(ix,iz));if(!l)continue;
-    for(const b of l){if(b.tag==='gate'&&(!gateUp()||GATE_O>0.55))continue;if(b.tag==='pgate'&&b.ref.open>0.55)continue;if((b.tag==='rfence'||b.tag==='pgate'||b.tag==='bdef'&&b.ref&&b.ref.t==='cerca')&&e.climb>0)continue;if(b.tag==='bar'&&(zombie||!gateUp()))continue;if(b.tag==='door'&&(b.ref.broken||b.ref.open>0.5))continue;if(b.tag==='win'&&e.vault&&(b.ref.broken||b.ref.open)&&!b.ref.barr)continue;if(b.tag==='fence'&&!zombie&&false)continue;
+    for(const b of l){if(b.tag==='gate'&&(!gateUp()||GATE_O>0.55))continue;if(b.tag==='pgate'&&b.ref.open>0.55)continue;if((b.tag==='rfence'||b.tag==='lfence'||b.tag==='pgate'||b.tag==='bdef'&&b.ref&&b.ref.t==='cerca')&&e.climb>0)continue;if(b.tag==='bar'&&(zombie||!gateUp()))continue;if(b.tag==='door'&&(b.ref.broken||b.ref.open>0.5))continue;if(b.tag==='win'&&e.vault&&(b.ref.broken||b.ref.open)&&!b.ref.barr)continue;if(b.tag==='fence'&&!zombie&&false)continue;
       const cx=clamp(e.x,b.x0,b.x1),cz=clamp(e.z,b.z0,b.z1),dx=e.x-cx,dz=e.z-cz,d2=dx*dx+dz*dz;
-      if(d2<r*r){if(b.tag==='rfence')e.fenceT=T;if(b.tag==='win'&&(b.ref.broken||b.ref.open)&&!b.ref.barr){e.wHitT=T;e.winRef=b.ref}if(zombie&&b.ref&&b.tag!=='pgate'){if(b.tag==='door'||b.tag==='win'){e.hitD=b.ref;e.hitDT=T}else{e.hitB=b.ref;e.hitT=T}}if(d2>1e-6){const d=Math.sqrt(d2),k=(r-d)/d;e.x+=dx*k;e.z+=dz*k}else{const l0=e.x-b.x0,l1=b.x1-e.x,l2=e.z-b.z0,l3=b.z1-e.z,m=Math.min(l0,l1,l2,l3);
+      if(d2<r*r){if(b.tag==='rfence'||b.tag==='lfence')e.fenceT=T;if(b.tag==='win'&&(b.ref.broken||b.ref.open)&&!b.ref.barr){e.wHitT=T;e.winRef=b.ref}if(zombie&&b.ref&&b.tag!=='pgate'){if(b.tag==='door'||b.tag==='win'){e.hitD=b.ref;e.hitDT=T}else{e.hitB=b.ref;e.hitT=T}}if(d2>1e-6){const d=Math.sqrt(d2),k=(r-d)/d;e.x+=dx*k;e.z+=dz*k}else{const l0=e.x-b.x0,l1=b.x1-e.x,l2=e.z-b.z0,l3=b.z1-e.z,m=Math.min(l0,l1,l2,l3);
         if(m===l0)e.x=b.x0-r;else if(m===l1)e.x=b.x1+r;else if(m===l2)e.z=b.z0-r;else e.z=b.z1+r}}}}
   if(Math.abs(e.x)<MAPH+60&&Math.abs(e.z)<MAPH+60){e.x=clamp(e.x,-MAPH,MAPH);e.z=clamp(e.z,-MAPH,MAPH)}}
 function blocked(x,z,r){for(const b of (CGRID.get(ck(Math.floor(x/CG),Math.floor(z/CG)))||[])){if(b.tag==='gate'||b.tag==='bar')continue;if(x>b.x0-r&&x<b.x1+r&&z>b.z0-r&&z<b.z1+r)return true}return false}
@@ -5274,7 +5274,7 @@ function genBlock(i,j,cx,cz,c,r,dist){
     for(const[lx,lz]of L){if(r()<0.12)continue;const w=7.5+r()*2.5,d=6.5+r()*2,x=cx+lx+(r()-0.5),z=cz+lz+(r()-0.5);lotDecor(c,x,z,15,15,r);
       const b=genHouse(x,z,w,d,lz<0?'n':'s',r,c,false);POPSPOT.push({x,z,n:Math.floor(r()*3),b,r:2});
       if(r()<0.3)r();if(r()<0.5){const tx=x+(r()-0.5)*12,tz=z+(lz<0?-6.5:6.5);treeParts(c.p,tx,tz,r);addCol(tx-0.35,tz-0.35,tx+0.35,tz+0.35)}}
-    for(let q=0;q<5;q++)c.p.push(Bx(0.08,0.8,15,cx,0.65,cz+(q<3?-8:8),'#7a6a52'));return}
+    for(let q=0;q<5;q++)c.p.push(Bx(0.08,0.8,15,cx,0.65,cz+(q<3?-8:8),'#7a6a52'));for(const oz of[-8,8])addCol(cx-0.09,cz+oz-7.5,cx+0.09,cz+oz+7.5,'lfence');return}
   // shops / special places (more loot = more zombies)
   if(k<0.82&&dist>=1){const t=pickPOI(r,dist);buildPOI(t,cx,cz,c,r);return}
   // park
@@ -8743,7 +8743,7 @@ function bjob3(dt){if(!P||P.dead||P.drive){P.bwork=null;return}const L=sites();i
 // ---------- chopping trees ----------
 // remember which instance draws each tree (natInst is called per archetype; we re-scan the scene once)
 let TREEIDX=null;function treeIndex(){if(TREEIDX)return TREEIDX;TREEIDX=new Map();const key=(x,z)=>Math.round(x*10)+','+Math.round(z*10);const L=NAT.tree;const pos=new Map();L.forEach((t,i)=>pos.set(key(t.x,t.z),i));
-  SC3.traverse(o=>{if(!o.isInstancedMesh||(o.material!==MATV&&o.material!==MATLEAF))return;const m=new THREE.Matrix4(),p=new THREE.Vector3();for(let i=0;i<o.count;i++){o.getMatrixAt(i,m);p.setFromMatrixPosition(m);const ti=pos.get(key(p.x,p.z));if(ti==null)continue;let l=TREEIDX.get(ti);if(!l)TREEIDX.set(ti,l=[]);l.push([o,i])}});return TREEIDX}
+  SC3.traverse(o=>{if(!o.isInstancedMesh||(o.material!==MATV&&o.material!==MATLEAF&&(typeof MATTREE==='undefined'||o.material!==MATTREE)))return;const m=new THREE.Matrix4(),p=new THREE.Vector3();for(let i=0;i<o.count;i++){o.getMatrixAt(i,m);p.setFromMatrixPosition(m);const ti=pos.get(key(p.x,p.z));if(ti==null)continue;let l=TREEIDX.get(ti);if(!l)TREEIDX.set(ti,l=[]);l.push([o,i])}});return TREEIDX}
 let STUMPG=null;function hideTree(i){const t=NAT.tree[i];if(!t||t.cut)return;t.cut=1;if(t.k!=='banana'){if(!STUMPG)STUMPG=mergeParts([Cy(0.2,0.26,0.32,0,0.16,0,'#5a4430',8),Cy(0.19,0.19,0.01,0,0.325,0,'#c8a878',8)]);const m=new THREE.Mesh(STUMPG,MATV);m.position.set(t.x,gy(t.x,t.z),t.z);m.scale.setScalar(t.s||1);m.castShadow=QH;SC3.add(m)}const l=treeIndex().get(i)||[];const z=new THREE.Matrix4().makeScale(0,0,0);for(const[o,j]of l){o.setMatrixAt(j,z);o.instanceMatrix.needsUpdate=true}
   for(const b of (CGRID.get(ck(Math.floor(t.x/CG),Math.floor(t.z/CG)))||[]).slice()){const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2;if(Math.abs(cx-t.x)<0.12&&Math.abs(cz-t.z)<0.12&&b.x1-b.x0<1.2)removeColRef(b)}}
 function nearTree(){let best=null,bd=1.5;for(let i=0;i<NAT.tree.length;i++){const t=NAT.tree[i];if(t.cut)continue;const dx=t.x-P.x,dz=t.z-P.z;if(Math.abs(dx)>2||Math.abs(dz)>2)continue;const d=Math.hypot(dx,dz);if(d<bd){bd=d;best=i}}return best}
@@ -9093,7 +9093,7 @@ function losTick(dt){if(!P)return;LOS_T-=dt;const n=Z.length;if(!n)return;const 
     const tr=m._op<0.995;if(m.mat.transparent!==tr){m.mat.transparent=tr;m.mat.needsUpdate=true}m.mat.opacity=m._op;m.root.visible=m._op>0.02||!!m._keepVis}}
 // ---------------------------------------------------------------- climbing low fences and gates
 const _clV=HAS3?new THREE.Vector3():null;
-function climbH(b){if(!b)return 0;if(b.tag==='rfence')return 1.1;if(b.tag==='pgate')return b.ref&&b.ref.open>0.55?0:1.2;if(b.tag==='bdef'&&b.ref&&(b.ref.t==='cerca'))return 1.3;return 0}
+function climbH(b){if(!b)return 0;if(b.tag==='rfence')return 1.1;if(b.tag==='lfence')return 1.0;if(b.tag==='pgate')return b.ref&&b.ref.open>0.55?0:1.2;if(b.tag==='bdef'&&b.ref&&(b.ref.t==='cerca'))return 1.3;return 0}
 function climbFind(){const jx=(JOY.sx||JOY.x||0)+((IN.r?1:0)-(IN.l?1:0)),jy=(JOY.sy||JOY.y||0)+((IN.u?1:0)-(IN.d?1:0)),jl=Math.hypot(jx,jy);if(jl<0.5)return null;
   const s=Math.sin(CY),c=Math.cos(CY),mx=(jx*c+jy*-s)/jl,mz=(jx*-s+jy*-c)/jl;let best=null;
   for(let gx=Math.floor((P.x-1)/CG);gx<=Math.floor((P.x+1)/CG);gx++)for(let gz=Math.floor((P.z-1)/CG);gz<=Math.floor((P.z+1)/CG);gz++)for(const b of(CGRID.get(ck(gx,gz))||[])){const H=climbH(b);if(!H)continue;
@@ -9674,6 +9674,91 @@ function safeChestSpot(s){if(s.chest)return s.chest;const b=BLDS[s.bid];if(!b||!
 {const at0=actionTarget3;actionTarget3=function(){const a=at0();if(!P||P.dead||P.drive||(a&&a.type==='busy'))return a;
   for(const c of SCHEST)if(Math.hypot(c.x-P.x,c.z-P.z)<1.35&&(!a||a.type==='safe'||a.type==='rest'||a.type==='cont'||a.type==='dis'||a.type==='win'||a.type==='door'))return{type:'safechest',c,label:'📦 BAÚ · GUARDAR E PEGAR'};return a}}
 {const da0=doAction3;doAction3=function(){const a=actionTarget3();if(a&&a.type==='safechest'){shSel='store';GS=null;SFX.click();renderSheet();sheetOpen(true);$('sIn').scrollTop=0;try{SFX.chest&&SFX.chest()}catch(e){}return}return da0()}}
+
+/* =====================================================================
+   v62 · a chopped tree really falls: it tips away from you slowly, speeds
+   up, slams into the ground with a thud and a little bounce, lies there
+   for a moment and then sinks away, leaving the stump.
+   ===================================================================== */
+let TREST=false;const TFALL=[];
+{const bn=buildNature3;buildNature3=function(){TREST=true;try{return bn.apply(this,arguments)}finally{TREST=false}}}
+{const h0=hideTree;hideTree=function(i){const t=NAT.tree[i];let parts=null;
+  if(!TREST&&t&&!t.cut&&W3.on&&P){try{parts=[];const l=treeIndex().get(i)||[];for(const[o,j]of l){const m=new THREE.Matrix4();o.getMatrixAt(j,m);parts.push({o,m})}}catch(e){parts=null}}
+  h0(i);if(!parts||!parts.length)return;
+  try{const y=gy(t.x,t.z),piv=new THREE.Group();piv.position.set(t.x,y,t.z);const inv=new THREE.Matrix4().makeTranslation(-t.x,-y,-t.z);
+    for(const p of parts){const mesh=new THREE.Mesh(p.o.geometry,p.o.material);mesh.matrixAutoUpdate=false;mesh.matrix.copy(inv).multiply(p.m);mesh.castShadow=QH;piv.add(mesh)}
+    let dx=t.x-P.x,dz=t.z-P.z;const dl=Math.hypot(dx,dz)||1;dx/=dl;dz/=dl;const axis=new THREE.Vector3(dz,0,-dx).normalize();SC3.add(piv);
+    TFALL.push({piv,axis,th:0.02,w:0,t:0,hit:0,x:t.x,z:t.z,dx,dz})}catch(e){console.error(e)}}}
+// the falling sound is played when it really hits the ground
+treeFall=function(t){if(!AU.c)return;const s=AU.c.currentTime;for(let i=0;i<6;i++)anz(s+i*0.11,0.14,rnd(300,700),200,0.13,'bandpass',3)};
+function treeFall3(dt){for(let i=TFALL.length-1;i>=0;i--){const f=TFALL[i];f.t+=dt;
+  if(f.hit<2){f.w+=(2.6*Math.sin(f.th+0.08)+0.2)*dt;f.th+=f.w*dt;if(f.th>=1.5){f.th=1.5;if(!f.hit){f.hit=1;f.w=-f.w*0.22;G.shake=Math.max(G.shake,3);
+      if(AU.c){const d=Math.hypot(f.x-P.x,f.z-P.z),v=clamp(1-d/40,0.2,1),s=AU.c.currentTime;thump(s,70,30,0.5,0.7*v);sN(0.8,300,80,0.35*v,'lowpass',1);anz(s+0.05,0.3,900,300,0.12*v,'bandpass',2)}
+      noise3(f.x+f.dx*3,f.z+f.dz*3,14);blood3&&0}else{f.hit=2;f.w=0}}}
+  else if(f.t>4.2){const k=Math.min(1,(f.t-4.2)/1.2);f.piv.position.y-=dt*0.9;if(k>=1){SC3.remove(f.piv);TFALL.splice(i,1);continue}}
+  f.piv.quaternion.setFromAxisAngle(f.axis,f.th)}}
+{const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(TFALL.length)treeFall3(dt)}catch(e){console.error(e)}return r}}
+
+/* =====================================================================
+   v62 PEOPLE + SAFES:
+   · build mode works inside any safe you own (defences from level 2).
+   · the well (POÇO D'ÁGUA) can be built right away: drink and fill bottles.
+   · 👥 button: everyone you rescued — who is with you, who stays at the
+     safe and what each one is doing. Change their job any time, send them
+     to TRAIN or READ to level up (stronger companions, better guards).
+   · survivors who stay at a safe really live there: you see them inside,
+     resting, training or reading.
+   ===================================================================== */
+// ---------------------------------------------------------------- build anywhere in your safe
+bmCenter=function(x,z){let best=null,bd=55;if(SV.base){const d=Math.hypot(x-BO.x,z-BO.z);if(d<bd){bd=d;best={x:BO.x,z:BO.z,b:baseBld(),full:true,main:true}}}
+  for(const s of safes()){const b=BLDS[s.bid];if(!b)continue;const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2,d=Math.hypot(x-cx,z-cz);if(d<bd){bd=d;best={x:cx,z:cz,b,full:s.lv>=2,main:false,s}}}return best};
+SAFE_LV[1].d='Janelas pregadas, portas reforçadas · libera muros, cercas e barricadas em volta';SAFE_LV[2].d='Bancada de oficina · desmontar rende mais';SAFE_LV[4].d='Muralha · zumbis quase não entram';
+if(BITEM.d_poco){BITEM.d_poco.u=0;BITEM.d_poco.desc='Água sem fim: beba e encha garrafas'}
+// ---------------------------------------------------------------- survivor levels
+const PJOB={explore:['🧭','EXPLORAR','Vai na frente com você procurando itens e gente'],defend:['🛡','ME PROTEGER','Gruda em você e segura os zumbis'],attack:['⚔','ATACAR COMIGO','Parte pra cima dos zumbis com você'],
+  safe:['🏠','CUIDAR DA SAFE','Fica na safe, vigia e arruma as coisas'],treino:['💪','TREINAR','Fica na safe treinando · sobe de nível'],leitura:['📖','LER E ESTUDAR','Lê na safe · sobe de nível 2× mais rápido (precisa de 1 livro)']};
+function pLv(v){return v.lv||1}function pNeed(v){return 90*pLv(v)}
+function pRole(v){if(v.hurt)return'ferido';if(v.job==='expedicao')return v.amode||(SV.amode)||'defend';if(v.job==='treino')return'treino';if(v.job==='leitura')return'leitura';return'safe'}
+function pSet(v,k){if(k==='explore'||k==='defend'||k==='attack'){const n=SV.surv.filter(q=>q.job==='expedicao'&&q!==v&&!q.hurt).length;if(n>=allyCap()){SFX.deny();toast(`Só ${allyCap()} podem ir com você agora (mais no nível ${allyNext()||'—'})`);return false}v.job='expedicao';v.amode=k}
+  else if(k==='leitura'){const I=sv().inv,S=sv().store;const bk=Object.keys(I).find(q=>ITEMS[q]&&ITEMS[q].book&&I[q]>0)||Object.keys(S).find(q=>ITEMS[q]&&ITEMS[q].book&&S[q]>0)||(SV.bks&&Object.values(SV.bks).some(a=>a.length)?'shelf':null);
+    if(!bk){SFX.deny();toast('Precisa de um livro (mochila, depósito ou estante)');return false}v.job='leitura';v.amode=null}
+  else if(k==='treino'){v.job='treino';v.amode=null}else{v.job=SV.base?'patrulha':'rest';v.amode=null}
+  try{setupAllies3(true);setupYard3(true)}catch(e){}save();return true}
+function pTick(dt){if(!SV.surv)return;for(const v of SV.surv){if(v.job!=='treino'&&v.job!=='leitura')continue;if(pLv(v)>=10)continue;v.xp=(v.xp||0)+dt*(v.job==='leitura'?2:1);if(v.xp>=pNeed(v)){v.xp-=pNeed(v);v.lv=pLv(v)+1;toast(`📈 ${v.name} subiu para o nível ${v.lv}`);SFX.levelup&&SFX.levelup();save()}}}
+// stronger companions: their shots hit harder with level
+let ALLYLV=0;
+{const a0=allies3;allies3=function(dt){const L=ALLY.map(a=>a.v?pLv(a.v):1);ALLYLV=L.length?L.reduce((x,y)=>x+y,0)/L.length:0;try{return a0(dt)}finally{ALLYLV=0}}}
+{const h0=hurtZ3;hurtZ3=function(z,dmg,head,dx,dz){if(ALLYLV>1)dmg*=1+0.08*(ALLYLV-1);return h0(z,dmg,head,dx,dz)}}
+// ---------------------------------------------------------------- the 👥 panel
+let PPLSEL=null;
+function renderPeople(body){$('sKick').textContent='SOBREVIVENTES';$('sTitle').textContent=`QUEM ESTÁ COM VOCÊ (${SV.surv.length})`;
+  if(!SV.surv.length){body.append(hint('Ninguém ainda. Procure pedidos de SOCORRO pelo mapa e resgate sobreviventes.'));return}
+  const where=v=>{const r=pRole(v);if(r==='ferido')return'🤕 Ferido · descansando na safe';if(v.job==='expedicao'){const a=ALLY.find(q=>q.v===v);return`${PJOB[r][0]} Com você · ${PJOB[r][1].toLowerCase()}${a?'':' (vai aparecer do seu lado)'}`}return`${PJOB[r][0]} Na safe · ${PJOB[r][1].toLowerCase()}`};
+  for(const v of SV.surv){const r=el('div','irow');r.append(el('i','',v.look&&v.look.fem?'👩':'👨'));const tt=el('div','it');const lv=pLv(v),pc=Math.round((v.xp||0)/pNeed(v)*100);tt.append(el('b','',`${v.name.toUpperCase()} · NÍVEL ${lv}`),el('span','',`${where(v)} · ${lv<10?pc+'% pro próximo':'nível máximo'}`));r.append(tt);
+    const ac=el('div','ia');ac.append(btn(PPLSEL===v?'FECHAR':'MUDAR','ghost',()=>{PPLSEL=PPLSEL===v?null:v;renderSheet()}));r.append(ac);body.append(r);
+    if(PPLSEL===v){const w=el('div','chs');for(const k of Object.keys(PJOB)){const on=pRole(v)===k;w.append(btn(`${PJOB[k][0]} ${PJOB[k][1]}`,'chip'+(on?' on':''),()=>{if(pSet(v,k)){toast(`${v.name}: ${PJOB[k][1].toLowerCase()}`);PPLSEL=null}renderSheet()}))}body.append(w);
+      body.append(el('p','note',PJOB[pRole(v)]?PJOB[pRole(v)][2]:''))}}
+  body.append(hint(`Com você: até ${allyCap()} · cada nível deixa o sobrevivente 8% mais forte`))}
+{const rs0=renderSheet;renderSheet=function(){if(shSel==='people'){const body=$('sBody');body.innerHTML='';renderPeople(body);return}return rs0()}}
+function peopleBtn(){if($('bPpl'))return;const row=$('topBtns');if(!row)return;const b=document.createElement('button');b.id='bPpl';b.className='tbB';b.type='button';b.setAttribute('aria-label','Sobreviventes');b.innerHTML='👥<em id="pplN"></em>';
+  const st=document.createElement('style');st.textContent='#bPpl em{position:absolute;right:-4px;top:-4px;min-width:16px;height:16px;border-radius:8px;background:#c4261e;color:#fff;font:800 10px/16px sans-serif;font-style:normal;text-align:center;padding:0 3px}#bPpl em:empty{display:none}';document.head.append(st);
+  row.insertBefore(b,row.firstChild);b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('pointerup',e=>{e.stopPropagation();e.preventDefault();if(!W3.on)return;PPLSEL=null;shSel='people';GS=null;SFX.click();renderSheet();sheetOpen(true);$('sIn').scrollTop=0});b.addEventListener('click',e=>e.stopPropagation())}
+// after a rescue, the choice box offers the new jobs too
+RSOPT.push(['treino','💪','TREINAR NA SAFE','Fica na safe treinando e sobe de nível']);
+{const rs=rescueSet;rescueSet=function(v,k){if(k==='treino'){v.job='treino';v.amode=null;toast(`💪 ${v.name} foi treinar na safe`);save();return}return rs(v,k)}}
+// ---------------------------------------------------------------- they live in the safe
+let PNPC=[];
+function homeSafe(){const L=safes();if(L.length)return BLDS[L[0].bid]||null;return SV.base?null:null}
+function pNpcTick(dt){const b=homeSafe();const list=b?SV.surv.filter(v=>v.job==='rest'||v.job==='treino'||v.job==='leitura'||(v.job==='patrulha'&&!SV.base)):[];
+  const near=b&&P&&Math.hypot((b.x0+b.x1)/2-P.x,(b.z0+b.z1)/2-P.z)<55,sig=near?list.map(v=>v.name+v.job).join('|')+b.id:'';
+  if(sig!==pNpcTick.sig){pNpcTick.sig=sig;for(const n of PNPC){SC3.remove(n.m.root);disposeChar(n.m)}PNPC=[];if(near){const R=b.rooms;list.slice(0,8).forEach((v,i)=>{const r=R[i%R.length];const m=makeHuman(v.look,null,null);const x=lerp(r.x0+0.8,r.x1-0.8,0.3+0.4*((i*37)%10)/10),z=lerp(r.z0+0.8,r.z1-0.8,0.5);m.root.position.set(x,gy(x,z),z);SC3.add(m.root);PNPC.push({v,m,x,z,tx:x,tz:z,r,face:rnd(0,TAU),t:rnd(1,4),seed:rnd(0,50)})})}}
+  for(const n of PNPC){const m=n.m;n.t-=dt;let sp=0;const job=n.v.job;
+    if(job==='rest'||job==='patrulha'){const d=Math.hypot(n.tx-n.x,n.tz-n.z);if(d>0.2){const s=Math.min(d,1.1*dt);n.x+=(n.tx-n.x)/d*s;n.z+=(n.tz-n.z)/d*s;n.face=lerpA(n.face,Math.atan2(n.tx-n.x,n.tz-n.z),Math.min(1,dt*6));sp=1.1}else if(n.t<=0){n.t=rnd(3,7);n.tx=rnd(n.r.x0+0.7,n.r.x1-0.7);n.tz=rnd(n.r.z0+0.7,n.r.z1-0.7)}}
+    m.gy=gy(n.x,n.z);m.root.position.set(n.x,m.gy,n.z);m.root.rotation.y=n.face;
+    if(job==='leitura')animHuman(m,{spd:0,t:T+n.seed,work:'read',crouch:0.46,lean:0.12,fz:[0.42,0.36]});
+    else if(job==='treino'){const k=Math.max(0,Math.sin(T*2.6+n.seed));animHuman(m,{spd:0,t:T+n.seed,crouch:0.42*k,lean:0.1})}
+    else animHuman(m,{spd:sp,t:T+n.seed})}}
+{const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(W3.on&&P&&$('sheet').hidden){pTick(dt);pNpcTick(dt);peopleBtn();const n=$('pplN');if(n){const c=String(SV.surv.length||'');if(n.textContent!==c)n.textContent=c}}}catch(e){console.error(e)}return r}}
 
 start();
 
