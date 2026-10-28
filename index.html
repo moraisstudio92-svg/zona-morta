@@ -212,7 +212,7 @@ h4.sec{margin:22px 0 4px;font:800 13px/1 var(--hud);letter-spacing:.24em;color:v
 .ov{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:auto;
   padding:calc(16px + var(--st)) max(18px,var(--sr)) calc(16px + var(--sb)) max(18px,var(--sl));
   background:radial-gradient(ellipse at 50% 60%,rgba(6,10,9,.2),rgba(4,6,6,.84))}
-.t2{gap:18px}.t2 .tlogo{width:min(46vw,300px);max-height:34vh;height:auto;color:#ece6d3;filter:drop-shadow(0 6px 26px rgba(196,38,30,.35));animation:spIn .9s cubic-bezier(.2,.9,.3,1) both}
+.t2{gap:18px}.t2 .tlogo{height:min(46vh,340px);width:auto;max-width:70vw;display:block;filter:drop-shadow(0 8px 22px rgba(0,0,0,.85)) drop-shadow(0 0 18px rgba(196,38,30,.35));animation:spIn .9s cubic-bezier(.2,.9,.3,1) both}.t2{gap:10px}
 .t2 .tname{font-family:var(--hud);font-weight:800;font-size:clamp(14px,3.4vh,20px);letter-spacing:.38em;margin-right:-.38em;color:#ece6d3}.t2 .tname em{font-style:normal;color:var(--blood,#c4261e)}.t2 .tname i{font-style:normal;color:var(--toxic);margin:0 .2em}
 .card0{max-width:620px;width:100%;text-align:center;display:flex;flex-direction:column;gap:12px;align-items:center;margin:auto}
 .kick{font-size:13px;letter-spacing:.32em;color:var(--toxic);font-weight:700}
@@ -463,7 +463,7 @@ button.crIn{text-align:left;min-height:46px;cursor:text}
 </div>
 <div id="title" class="ov" hidden><span id="updV" class="verTag"></span>
   <div class="card0 t2">
-    <svg aria-hidden="true" class="tlogo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 410 180"><path fill="currentColor" d="M114.34 159.10L62.00 0.00L122.00 0.00L181.22 180.00L143.22 180.00Q121.22 180.00 114.34 159.10Z"/><path fill="currentColor" d="M204.34 159.10L152.00 0.00L212.00 0.00L271.22 180.00L233.22 180.00Q211.22 180.00 204.34 159.10Z"/><path fill="currentColor" d="M294.34 159.10L242.00 0.00L302.00 0.00L361.22 180.00L323.22 180.00Q301.22 180.00 294.34 159.10Z"/><path fill="#E4003A" d="M346.74 60.00L327.00 0.00L367.00 0.00Q387.00 0.00 393.25 19.00L406.74 60.00L346.74 60.00Z"/><path fill="#E4003A" d="M6.94 159.10L30.00 89.00L90.00 89.00L60.06 180.00L22.06 180.00Q0.06 180.00 6.94 159.10Z"/></svg>
+    <img class="tlogo" src="logo_z.png" alt="Zona Morta">
     <div class="tname">ZONA <em>MORTA</em> <i>·</i> SETOR 7</div>
     <button class="go" id="play">JOGAR</button>
     <div class="qual" role="group" aria-label="Qualidade gráfica" style="display:none"><span>QUALIDADE</span><button id="qHigh" class="on" type="button">MÁXIMA</button><button id="qLow" type="button">BAIXA</button></div>
@@ -494,7 +494,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v66', NOTES='';
+const VERSION='v67', NOTES='';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -9546,7 +9546,8 @@ function makeRemy(of,wid,acc,R){R=R||REMY;const root=new THREE.Group();root.rota
   for(const s of['L','R']){const th=B(),sh=B(),ft=B();pelvis.add(th,sh,ft);h['th'+s]=th;h['sh'+s]=sh;h['ft'+s]=ft;bones.push(th,sh,ft)}
   if(R.inv.length>13){for(const s of['L','R']){const ha=B();chest.add(ha);h['ha'+s]=ha;bones.push(ha)}h.R=R}
   const sk=new THREE.Skeleton(bones,R.inv.map(m=>m.clone()));h.mat=new THREE.MeshLambertMaterial({vertexColors:true});h.mats=[];
-  for(const p of R.P){const m=new THREE.MeshLambertMaterial({map:p.map,alphaTest:p.alpha?0.4:0,side:p.alpha?THREE.DoubleSide:THREE.FrontSide});m.color.copy(remyTint(p.kind,of,R));h.mats.push(m);const sm=new THREE.SkinnedMesh(p.g,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm);if(!h.body)h.body=sm}
+  for(const p of R.P){const m=new THREE.MeshLambertMaterial({map:p.map,alphaTest:p.alpha?0.4:0,side:p.alpha?THREE.DoubleSide:THREE.FrontSide});m.color.copy(remyTint(p.kind,of,R));h.mats.push(m);const gg=p.kind==='hair'&&typeof hairVar==='function'?hairVar(R,p,of):p.g;if(!gg)continue;const sm=new THREE.SkinnedMesh(gg,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm);if(!h.body)h.body=sm}
+  if(typeof hairExtra==='function')for(const g of hairExtra(R,of)){const m=new THREE.MeshLambertMaterial({color:remyTint('hair',of,R).multiplyScalar(0.55),side:THREE.DoubleSide});h.mats.push(m);const sm=new THREE.SkinnedMesh(g,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm)}
   if(wid){h.melee=!!MELEE[wid];h.gun=new THREE.Mesh(weaponGeo(wid,acc),h.mat);h.gun.castShadow=QH;h.chest.add(h.gun)}
   const shadow=new THREE.Mesh(new THREE.CircleGeometry(0.42,14),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:0.32,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=0.03;root.add(shadow);
   return h}
@@ -10319,7 +10320,7 @@ function zsDown(z,dt){const S=z.seq;z.vx=z.vz=0;z.state='down';z.down=Math.max(z
   z.vx=z.vz=0;z.air=0;z.krg=null;z.face=Math.atan2(dx,dz)-zsH('stumble');zsStart(z,'stumble');z.down=9;z.state='down'}catch(e){console.error(e)}}}
 // death while standing → stumble and fall dead; death while lying → stays as it lies
 {const h0=hurtZ3;hurtZ3=function(z,dmg,head,dx,dz){const was=z&&z.dead;if(z&&z.seq&&z.seq.hold)z.seq.wake=1;h0(z,dmg,head,dx,dz);try{if(!z||was||!z.dead||z.type==='boss'||!z.m||!z.m.pelvis)return;
-  if(z.seq){z.seq=null;z.dseq={done:1};return}if(z.air||z.krg||z.down>0)return;
+  if(z.seq){const S=z.seq;z.seq=null;if(S.k==='lie'||(S.k==='zrise'&&S.hold))z.dseq={done:1};else if(S.k==='stumble')z.dseq=S;else{zsStart(z,'die');z.dseq=z.seq;z.seq=null}return}if(z.air||z.krg||z.down>0)return;
   if(z.rg){const i=RG.active.indexOf(z);if(i>=0)RG.active.splice(i,1);z.rg=null}const l=Math.hypot(dx||0,dz||0);const hd=l>0.01?Math.atan2(dx,dz):(z.face||0)+Math.PI;
   z.face=hd-zsH('die');zsStart(z,'die');z.dseq=z.seq;z.seq=null}catch(e){console.error(e)}}}
 {const az=animZombie;animZombie=function(m,z,dt){if(z&&z.dead&&z.dseq){if(z.dseq.done)return;try{if(zsStep(z,z.dseq,dt||0.016)){z.dseq={done:1};if(m._sh===undefined)m._sh=m.root.children.find(c=>c.geometry&&c.geometry.type==='CircleGeometry')||null;if(m._sh)m._sh.visible=false;
@@ -10443,6 +10444,45 @@ function logTick(dt){for(const m of WLOG){const L=m.userData.L;if(L&&L.show&&!m.
 {const zp=zvPlay;let lastS=0;zvPlay=function(kind,v,z,rate){try{if(z&&z.hid)return true;const c=AU.c;const k=kind==='spot'||kind==='shriek'?0.42:kind==='brute'?0.6:kind==='bite'?0.7:0.8;
   if((kind==='spot'||kind==='shriek')&&c){if(c.currentTime-lastS<2.5)return true;lastS=c.currentTime}return zp(kind,Math.min(0.8,v*k),z,rate)}catch(e){return true}}}
 {const zs=zShriek;zShriek=function(v){return zs(Math.min(0.6,(v||0.6)*0.45))}}
+
+/* =====================================================================
+   v67 HAIR STYLES for the realistic people
+   men: CURTO · TOPETE · RASPADO · CARECA
+   women: AMARRADO · LISO (long, down the back) · ENCARACOLADO (curls)
+   ===================================================================== */
+const HSTY={m:[['curto','CURTO'],['topete','TOPETE'],['raspado','RASPADO'],['careca','CARECA']],f:[['amarrado','AMARRADO'],['liso','LISO'],['encaracolado','ENCARACOLADO']]};
+function hsNorm(L){const f=!!(L&&L.fem),s=L&&L.hairStyle,ok=(f?HSTY.f:HSTY.m).map(x=>x[0]);if(ok.includes(s))return s;
+  const map=f?{pony:'amarrado',bun:'amarrado',curly:'encaracolado',long:'liso',side:'liso',bob:'liso'}:{quiff:'topete',buzz:'raspado',bald:'careca',short:'curto',messy:'curto',curly:'curto',mohawk:'topete'};return map[s]||(f?'amarrado':'curto')}
+function hairBox(R,p){if(p._hb)return p._hb;const a=p.g.attributes.position.array;let x0=1e9,y0=1e9,z0=1e9,x1=-1e9,y1=-1e9,z1=-1e9;for(let i=0;i<a.length;i+=3){x0=Math.min(x0,a[i]);x1=Math.max(x1,a[i]);y0=Math.min(y0,a[i+1]);y1=Math.max(y1,a[i+1]);z0=Math.min(z0,a[i+2]);z1=Math.max(z1,a[i+2])}
+  p._hb={c:[(x0+x1)/2,(y0+y1)/2,(z0+z1)/2],r:[(x1-x0)/2,(y1-y0)/2,(z1-z0)/2],top:y1};return p._hb}
+function hairVar(R,p,of){const st=hsNorm(of);if(st==='careca'||st==='raspado')return null;if(st==='topete')return p.g;if(st==='curto'||st==='amarrado'||st==='liso'||st==='encaracolado')return p.g;
+  R._hv=R._hv||{};if(R._hv[st])return R._hv[st];const g=p.g.clone(),a=g.attributes.position.array,B=hairBox(R,p),c=B.c,r=B.r;
+  for(let i=0;i<a.length;i+=3){let x=a[i],y=a[i+1],z=a[i+2];
+    if(st==='raspado'){x=c[0]+(x-c[0])*0.95;y=c[1]+(y-c[1])*0.95-0.004;z=c[2]+(z-c[2])*0.95}
+    else if(st==='topete'){const fy=(y-c[1])/r[1],fz=(z-c[2])/r[2];const k=Math.max(0,Math.min(1,(fy+0.1)/0.9))*Math.max(0,Math.min(1,(fz+0.1)/0.9));y+=0.05*k;z+=0.03*k;x=c[0]+(x-c[0])*(1+0.06*k)}
+    a[i]=x;a[i+1]=y;a[i+2]=z}
+  g.attributes.position.needsUpdate=true;g.computeBoundingSphere();R._hv[st]=g;return g}
+function hairSkinned(P0){const g=mergeParts(P0),n=g.attributes.position.count,si=new Uint8Array(n*4),sw=new Uint8Array(n*4);for(let i=0;i<n;i++){si[i*4]=2;sw[i*4]=255}
+  g.setAttribute('skinIndex',new THREE.BufferAttribute(si,4));g.setAttribute('skinWeight',new THREE.BufferAttribute(sw,4,true));if(g.attributes.color)g.deleteAttribute('color');return g}
+function hairExtra(R,of){const st=hsNorm(of);if(st!=='liso'&&st!=='encaracolado'&&st!=='raspado'&&st!=='topete')return[];R._hx=R._hx||{};if(R._hx[st])return[R._hx[st]];const hp=R.P.find(p=>p.kind==='hair');if(!hp)return[];
+  const B=hairBox(R,hp),c=B.c,r=B.r,P0=[];
+  if(st==='liso'){// long straight hair down the back and sides
+    const N=20,M=10,pos=[],idx=[];for(let j=0;j<=M;j++){const t=j/M,y=c[1]+r[1]*0.55-t*(r[1]*1.05+0.26),fl=1.04+0.22*t*t;
+      for(let i=0;i<=N;i++){const th=-2.1+4.2*i/N,x=c[0]+Math.sin(th)*r[0]*fl,z=c[2]-Math.cos(th)*r[2]*fl+(t>0.5?-0.03*(t-0.5):0);pos.push(x,y+Math.sin(i*1.7+j)*0.004,z)}}
+    for(let j=0;j<M;j++)for(let i=0;i<N;i++){const a=j*(N+1)+i,b=a+N+1;idx.push(a,b,a+1,b,b+1,a+1)}
+    const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();P0.push({g,c:null,m:null})}
+  else if(st==='raspado'){// a buzz cut: a thin cap on the scalp
+    const g=new THREE.SphereGeometry(1,24,14,0,Math.PI*2,0,1.32);g.scale(r[0]*0.9,r[1]*0.92,r[2]*0.92);g.rotateX(-0.28);g.translate(c[0],c[1]+r[1]*0.04,c[2]-r[2]*0.08);P0.push({g,c:null,m:null})}
+  else if(st==='topete'){// a quiff on top of the short hair
+    const rg=mulberry(11);for(let i=0;i<9;i++){const fx=(i%3-1)*0.45,fz=0.15+Math.floor(i/3)*0.25,sx=r[0]*0.38,sy=r[1]*0.22,sz=r[2]*0.36;
+      P0.push({g:new THREE.SphereGeometry(1,10,8),c:null,m:mtx(c[0]+fx*r[0]*0.6,c[1]+r[1]*(0.78-Math.floor(i/3)*0.06)+rg()*0.01,c[2]+fz*r[2]*1.1,-0.5,0,0,sx,sy,sz)})}}
+  else{// curls all over the head
+    const rg=mulberry(7);for(let i=0;i<110;i++){const th=rg()*Math.PI*2,ph=rg()*1.9;if(Math.cos(th)>0.35&&ph>0.75)continue;const s=Math.sin(ph),k=1.06+rg()*0.06;
+      const x=c[0]+Math.sin(th)*s*r[0]*k,y=c[1]+r[1]*0.2+Math.cos(ph)*r[1]*k,z=c[2]+Math.cos(th)*s*r[2]*k,rad=0.026+rg()*0.016;P0.push({g:new THREE.IcosahedronGeometry(rad,1),c:null,m:mtx(x,y,z,rg()*3,rg()*3,0)})}}
+  const g=hairSkinned(P0);R._hx[st]=g;return[g]}
+// the creator: hair style chips for the realistic people
+{const rc=renderCreator;renderCreator=function(){try{const L=CR.look;L.hairStyle=hsNorm(L);CRO2.cabelo=[['hairStyle','TIPO DE CABELO',L.fem?HSTY.f:HSTY.m],['hair','COR DO CABELO','c',LK2.hair]];
+  if(!CRTABS.some(t=>t[0]==='cabelo'))CRTABS.splice(1,0,['cabelo','CABELO'])}catch(e){}return rc.apply(this,arguments)}}
 
 start();
 
