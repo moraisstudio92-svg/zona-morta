@@ -494,7 +494,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v68', NOTES='';
+const VERSION='v69', NOTES='';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -10496,9 +10496,20 @@ let HAIRTEX=null;function hairTex(){if(HAIRTEX)return HAIRTEX;HAIRTEX=canvasTex(
    v68 · bigger CÂMERA button (the only zoom on phones), fixed joystick
    base (only the stick moves), phone zoom back to the button presets.
    ===================================================================== */
-{const st=document.createElement('style');st.textContent=`#bCam{height:42px!important;min-width:96px;padding:0 16px!important;font-size:13px!important;border-radius:21px!important;margin-top:8px!important;justify-content:center}
-  #bCam svg{width:18px!important;height:18px!important}html.pc #bCam{height:30px!important;min-width:0;font-size:11px!important}`;document.head.append(st)}
+{const st=document.createElement('style');st.textContent=`#bCam{height:30px!important;min-width:0!important;width:auto!important;padding:0 12px!important;font-size:11px!important;border-radius:15px!important;gap:6px!important;white-space:nowrap;overflow:hidden;align-items:center}
+  #bCam svg{width:15px!important;height:15px!important;flex:none}html.pc #bCam{height:26px!important;padding:0 10px!important;font-size:10px!important}html.pc #bCam svg{width:13px!important;height:13px!important}`;document.head.append(st)}
 try{if(!(typeof PCM!=='undefined'&&PCM)){const f=()=>{if(typeof SV!=='undefined'&&SV){SV.camZ=1;if(typeof CZT!=='undefined')CZT=1}else setTimeout(f,300)};f()}}catch(e){}
+
+/* =====================================================================
+   v69 HUD FIX: buttons you moved in "EDITAR BOTÕES" no longer float above
+   everything. They sit with the rest of the game controls (under the
+   menus, the map, the backpack, the sleep screen…), show only while you
+   are playing, and are hidden on the PC layout.
+   ===================================================================== */
+{const st=document.createElement('style');st.textContent='#hudLay{z-index:7!important}.hudEdit #hudLay{z-index:33!important}html.pc:not(.hudEditing) #hudLay{display:none!important}';document.head.append(st)}
+setInterval(()=>{try{const L=document.getElementById('hudLay');if(!L)return;if(typeof CFG!=='undefined'&&CFG.edit){L.style.visibility='';return}
+  const vis=id=>{const e=document.getElementById(id);return!!(e&&!e.hidden&&getComputedStyle(e).display!=='none')};
+  const show=typeof APP!=='undefined'&&APP==='world'&&W3.on&&!vis('over')&&!vis('bigMap')&&!vis('create')&&!(vis('sleepOv'))&&!vis('title');L.style.visibility=show?'':'hidden'}catch(e){}},150);
 
 start();
 
