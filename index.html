@@ -494,7 +494,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v70', NOTES='';
+const VERSION='v71', NOTES='';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -2903,7 +2903,7 @@ function expandHouse(){const nt=(SV.tier||1)+1,T2=TIERS[nt];if(!T2||SV.cash<T2.c
   houseTier(nt);if(SPR)SPR.house=sprHouse(nt);SHBG=null;closeSheet();shLayout();SFX.levelup();banner(TIERS[nt].name,'Novos cômodos liberados');save();updateHouseUI(true)}
 function renderSurv(body){
   $('sKick').textContent=`${SV.surv.length} DE 12 · RESGATE MAIS NAS RUAS`;$('sTitle').textContent='SOBREVIVENTES';
-  {const cap=allyCap(),nx=allyNext();body.append(el('p','note',cap?`EXPEDIÇÃO: até ${cap} aliado${cap>1?'s':''} vai com você lutar e explorar${nx?` · +1 vaga no nível ${nx}`:''}. Escolha o modo no botão verde do jogo.`:`EXPEDIÇÃO libera no nível ${nx}: um sobrevivente vai com você explorar e lutar.`))}
+  {const cap=allyCap(),nx=allyNext();body.append(el('p','note',cap?`EXPEDIÇÃO: até ${cap} sobrevivente${cap>1?'s':''} vai com você lutar e explorar${nx?` · +1 vaga no nível ${nx}`:''}. Escolha o modo no botão verde do jogo.`:`EXPEDIÇÃO libera no nível ${nx}: um sobrevivente vai com você explorar e lutar.`))}
   if(allyCap())renderBagUp(body);
   if(!SV.surv.length){body.append(el('p','note','Ninguém por aqui ainda. Procure pessoas gritando SOCORRO nas ruas, toque em RESGATAR e traga de volta até o portão da base. Aqui você define o que cada um faz no pátio.'));return}
   const list=el('div','list');
@@ -4578,7 +4578,7 @@ function setupAllies3(force){const list=SV.surv.filter(v=>v.job==='expedicao'&&!
 function updAllyBar(){const M=AMODE[amode()];$('abModeT').textContent=`${M.ic} ${M.n} ▾`;const ld=ALLY.reduce((q,a)=>q+a.load,0),cp=bagCap()*ALLY.length;$('abBag').textContent=ALLY.length?`🎒 ${ld}/${cp}`:'';$('abN').textContent=ALLY.length>1?`${ALLY.length} ALIADOS`:(ALLY[0]?ALLY[0].name.toUpperCase():'ALIADO');
   document.querySelectorAll('#allyModes button').forEach(b=>b.classList.toggle('on',b.dataset.m===amode()))}
 function setAmode(k){SV.amode=k;for(const a of ALLY)a.post=k==='watch'?{x:a.x,z:a.z}:null;updAllyBar();$('allyModes').hidden=true;SFX.click();
-  const a=ALLY[0];if(a)ftxt(a.x,2.3,a.z,AMODE[k].n+'!','#9fd0ff',15);toast(`${ALLY.length>1?'Aliados':ALLY[0].name}: ${AMODE[k].n.toLowerCase()} · ${AMODE[k].d}`);save()}
+  const a=ALLY[0];if(a)ftxt(a.x,2.3,a.z,AMODE[k].n+'!','#9fd0ff',15);toast(`${ALLY.length>1?'Sobreviventes':ALLY[0].name}: ${AMODE[k].n.toLowerCase()} · ${AMODE[k].d}`);save()}
 function whistle(v){if(!AU.c)return;sT(2350,2750,0.16,0.16*v,'sine');sT(2750,2300,0.28,0.16*v,'sine',0.18);sT(2350,2800,0.12,0.12*v,'sine',0.5);sN(0.4,3000,2500,0.04*v,'bandpass',6)}
 function hurtAlly3(a,d){if(a.st!=='ok')return;a.hp-=d;a.flash=1;SFX.hurt();blood3(a.x,1.3,a.z,QH?6:3,0,0,0.6);
   if(a.hp<=0){a.hp=0;a.st='down';a.downT=0;banner(`${a.name.toUpperCase()} CAIU!`,'Chegue perto e toque em REANIMAR');SFX.thunder()}}
@@ -4736,7 +4736,7 @@ function allyUnload(a){let cash=0,parts=0,food=0,med=0,ammo=0;const ST=sv().stor
   a.bag.length=0;a.load=0;a.fullMsg=0;if(cash)earn(cash);if(ammo){ammoR().p+=ammo*8;ammoR().r+=ammo*6;ammoR().s+=ammo*3}
   SFX.coin();banner(`${a.name.toUpperCase()} DESCARREGOU`,[cash?`$ ${fmt(cash)}`:'',parts?`${parts} peça${parts>1?'s':''}`:'',food?`${food} de comida/água no depósito`:'',med?`${med} remédio${med>1?'s':''} no depósito`:'',ammo?'munição cheia':''].filter(Boolean).join(' · '));updAllyBar();save()}
 function renderBagUp(body){const l=SV.bagLvl||1,up=el('div','upg');up.append(el('small','',`MOCHILA DA EXPEDIÇÃO · NÍVEL ${l} DE ${BAGCAP.length}`));
-  up.append(el('p','now',`Cada aliado carrega ${BAGCAP[l-1]} de peso · quanto mais cheia, mais devagar ele anda · descarrega sozinho ao entrar na base`));
+  up.append(el('p','now',`Cada sobrevivente carrega ${BAGCAP[l-1]} de peso · quanto mais cheia, mais devagar ele anda · descarrega sozinho ao entrar na base`));
   if(l<BAGCAP.length){const c=BAGCOST[l];up.append(el('p','next',`▲ ${BAGCAP[l]} de peso`));up.append(costBtn('MELHORAR MOCHILA',c,()=>{if(SV.cash<c){SFX.deny();return}SV.cash-=c;SV.bagLvl=l+1;SFX.buy();toast(`Mochila nível ${l+1}`);save();renderSheet();updAllyBar()}))}else up.append(el('p','max','Nível máximo'));body.append(up)}
 document.addEventListener('pointerdown',e=>{const m=$('allyModes');if(!m||m.hidden)return;if(!e.target.closest('#allyBar')){m.hidden=true}},true);
 
@@ -5061,12 +5061,12 @@ function renderInv(body){const S=sv();$('sKick').textContent=`MOCHILA · ${invW(
   if(!any)body.append(el('p','note','Mochila vazia. Procure comida, água e remédios nas fazendas, mercados e farmácias.'));
   body.append(el('p','note','Dica: agache para passar despercebido · fique seco perto da fogueira · durma no dormitório para recuperar a energia.'))}
 function renderStore(body){const S=sv();$('sKick').textContent='DEPÓSITO DA BASE';$('sTitle').textContent='SUPRIMENTOS';
-  body.append(hint(`Sua mochila: ${invW().toFixed(1).replace('.',',')} de ${invCap().toFixed(0)} kg · o que os aliados trazem também fica aqui`));
+  body.append(hint(`Sua mochila: ${invW().toFixed(1).replace('.',',')} de ${invCap().toFixed(0)} kg · o que os sobreviventes trazem também fica aqui`));
   let any=false;for(const k of ITEM_ORDER){const a=S.store[k]||0,b=S.inv[k]||0;if(!a&&!b)continue;any=true;const acts=[];
     if(a)acts.push(btn('PEGAR','buy alt',()=>{if(invAdd(k,1)){S.store[k]--;SFX.click()}else{SFX.deny();toast('Mochila cheia')}save();renderSheet()}));
     if(b)acts.push(btn('GUARDAR','ghost sm',()=>{S.inv[k]--;if(!S.inv[k])delete S.inv[k];S.store[k]=(S.store[k]||0)+1;SFX.click();save();renderSheet()}));
     body.append(itemRow(k,`${a} no depósito · ${b} com você`,acts))}
-  if(!any)body.append(el('p','note','Depósito vazio. Coloque aliados no modo COLETAR para trazer suprimentos.'))}
+  if(!any)body.append(el('p','note','Depósito vazio. Coloque sobreviventes no modo COLETAR para trazer suprimentos.'))}
 function renderWater(body){const S=sv();$('sKick').textContent='CAIXA D\'ÁGUA';$('sTitle').textContent='ÁGUA';const box=el('div','gen');box.append(el('small','','RESERVATÓRIO'));box.append(el('b','',Math.round(S.water)+' litros'));
   box.append(el('p','','Enche sozinho quando chove. A horta cresce mais devagar se acabar.'));const row=el('div','act');
   row.append(btn('BEBER',S.water>=5?'buy alt':'ghost',()=>{if(S.water<5){SFX.deny();return}S.water-=5;S.thi=Math.min(100,S.thi+50);sN(0.4,700,300,0.08,'lowpass',3);save();renderSheet()},S.water<5));
@@ -9535,9 +9535,9 @@ function remyParse(j,buf,ims){const P=[];let skinBase=null;
 // colours from the creator: hair, top, pants, shoes and skin tone
 const _rc=HAS3?new THREE.Color():null;
 function remyTint(kind,of,R){const c=new THREE.Color(1,1,1);of=of||{};
-  if(kind==='hair'||kind==='hairmed')c.set(of.hair||'#6a4a2a');else if(kind==='tops')c.set(of.top||'#5a6066');else if(kind==='bottoms')c.set(of.pants||'#4a4a4e');else if(kind==='shoes')c.set(of.shoeCol||'#e8e6e0');
+  if(kind==='hair'||kind==='hairmed'||kind==='hairshort'||kind==='hairshortb'||kind==='hairbun'||kind==='hairbuncap')c.set(of.hair||'#6a4a2a');else if(kind==='tops')c.set(of.top||'#5a6066');else if(kind==='bottoms')c.set(of.pants||'#4a4a4e');else if(kind==='shoes')c.set(of.shoeCol||'#e8e6e0');
   else if(kind==='body'&&of.skin){_rc.set(of.skin);const b=new THREE.Color(R.skinBase[0]/255,R.skinBase[1]/255,R.skinBase[2]/255).convertSRGBToLinear();c.setRGB(Math.min(1.6,_rc.r/Math.max(0.02,b.r)),Math.min(1.6,_rc.g/Math.max(0.02,b.g)),Math.min(1.6,_rc.b/Math.max(0.02,b.b)))}
-  if(kind==='hair'||kind==='hairmed'||kind==='tops'||kind==='bottoms'||kind==='shoes'){c.multiplyScalar(1.15)}return c}
+  if(kind==='hair'||kind==='hairmed'||kind==='hairshort'||kind==='hairbun'||kind==='hairbuncap'||kind==='tops'||kind==='bottoms'||kind==='shoes'){c.multiplyScalar(1.15)}return c}
 function makeRemy(of,wid,acc,R){R=R||REMY;const root=new THREE.Group();root.rotation.order='YXZ';const h={root,wid,ph:0,G:{sw:R.sw},lean:0,twist:0,aimS:0,rel:-1,dg:0,remy:1,rcy:R.cy};
   const B=()=>new THREE.Bone();const pelvis=B();pelvis.position.y=RIG.hip;root.add(pelvis);const chest=B();chest.position.y=R.cy;pelvis.add(chest);const head=B();head.position.set(0,0.63,0);chest.add(head);
   h.pelvis=pelvis;h.chest=chest;h.head=head;const bones=[pelvis,chest,head];
@@ -9545,7 +9545,7 @@ function makeRemy(of,wid,acc,R){R=R||REMY;const root=new THREE.Group();root.rota
   for(const s of['L','R']){const th=B(),sh=B(),ft=B();pelvis.add(th,sh,ft);h['th'+s]=th;h['sh'+s]=sh;h['ft'+s]=ft;bones.push(th,sh,ft)}
   if(R.inv.length>13){for(const s of['L','R']){const ha=B();chest.add(ha);h['ha'+s]=ha;bones.push(ha)}h.R=R}
   const sk=new THREE.Skeleton(bones,R.inv.map(m=>m.clone()));h.mat=new THREE.MeshLambertMaterial({vertexColors:true});h.mats=[];
-  for(const p of R.P){const m=new THREE.MeshLambertMaterial({map:p.map,alphaTest:p.alpha?0.12:0,transparent:!!p.alpha,depthWrite:!p.alpha,side:p.alpha||p.kind==='hairmed'?THREE.DoubleSide:THREE.FrontSide});m.color.copy(remyTint(p.kind,of,R));h.mats.push(m);const gg=p.kind==='hairmed'?(typeof hsNorm==='function'&&hsNorm(of)==='medio'?p.g:null):p.kind==='hair'&&typeof hairVar==='function'?hairVar(R,p,of):p.g;if(!gg)continue;const sm=new THREE.SkinnedMesh(gg,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm);if(!h.body)h.body=sm}
+  for(const p of R.P){const hs_=p.kind==='hairshort';const m=new THREE.MeshLambertMaterial({map:p.map,alphaTest:hs_?0.42:p.alpha?0.12:0,transparent:!!p.alpha&&!hs_,depthWrite:!p.alpha||hs_,side:p.alpha||p.kind==='hairmed'||p.kind==='hairbun'?THREE.DoubleSide:THREE.FrontSide});m.color.copy(remyTint(p.kind,of,R));if(p.kind==='hairshortb')m.color.multiplyScalar(0.78);if(p.kind==='hairshort'){m.emissive.copy(m.color).multiplyScalar(0.28)}if(p.kind==='hairbuncap'&&m.map){m.map=m.map.clone();m.map.wrapS=m.map.wrapT=THREE.RepeatWrapping;m.map.repeat.set(8,8);m.map.needsUpdate=true;m.color.multiplyScalar(0.7)}h.mats.push(m);const gg=p.kind==='hairmed'?(typeof hsNorm==='function'&&hsNorm(of)==='medio'?p.g:null):(p.kind==='hairshort'||p.kind==='hairshortb')?(typeof hsNorm==='function'&&hsNorm(of)==='curto'?p.g:null):(p.kind==='hairbuncap'||p.kind==='hairbun')?(typeof hsNorm==='function'&&hsNorm(of)==='amarrado'?p.g:null):p.kind==='hair'&&typeof hairVar==='function'?hairVar(R,p,of):p.g;if(!gg)continue;const sm=new THREE.SkinnedMesh(gg,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm);if(!h.body)h.body=sm}
   if(typeof hairExtra==='function')for(const g of hairExtra(R,of)){const m=new THREE.MeshLambertMaterial({color:remyTint('hair',of,R).multiplyScalar(0.82),map:typeof hairTex==='function'?hairTex():null,side:THREE.DoubleSide});h.mats.push(m);const sm=new THREE.SkinnedMesh(g,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm)}
   if(wid){h.melee=!!MELEE[wid];h.gun=new THREE.Mesh(weaponGeo(wid,acc),h.mat);h.gun.castShadow=QH;h.chest.add(h.gun)}
   const shadow=new THREE.Mesh(new THREE.CircleGeometry(0.42,14),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:0.32,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=0.03;root.add(shadow);
@@ -10447,14 +10447,16 @@ function logTick(dt){for(const m of WLOG){const L=m.userData.L;if(L&&L.show&&!m.
    v67 HAIR STYLES for the realistic people
    men: CURTO · TOPETE · RASPADO · CARECA
    women: AMARRADO · LISO (long, down the back) · ENCARACOLADO (curls)
+   v71: COQUE (women) is the bun the player sent, on a combed-back base
+   v71: CURTO (men) is the real short haircut the player sent
    v70: MÉDIO for both (the real hair model the player sent, fitted to each head)
    ===================================================================== */
-const HSTY={m:[['medio','MÉDIO'],['curto','CURTO'],['topete','TOPETE'],['raspado','RASPADO'],['careca','CARECA']],f:[['medio','MÉDIO'],['amarrado','AMARRADO'],['liso','LISO'],['encaracolado','ENCARACOLADO']]};
+const HSTY={m:[['medio','MÉDIO'],['curto','CURTO'],['topete','TOPETE'],['raspado','RASPADO'],['careca','CARECA']],f:[['medio','MÉDIO'],['amarrado','COQUE'],['liso','LISO'],['encaracolado','ENCARACOLADO']]};
 function hsNorm(L){const f=!!(L&&L.fem),s=L&&L.hairStyle,ok=(f?HSTY.f:HSTY.m).map(x=>x[0]);if(ok.includes(s))return s;
   const map=f?{pony:'amarrado',bun:'amarrado',curly:'encaracolado',long:'liso',side:'medio',bob:'medio'}:{quiff:'topete',buzz:'raspado',bald:'careca',short:'curto',messy:'medio',curly:'curto',mohawk:'topete'};return map[s]||(f?'amarrado':'curto')}
 function hairBox(R,p){if(p._hb)return p._hb;const a=p.g.attributes.position.array;let x0=1e9,y0=1e9,z0=1e9,x1=-1e9,y1=-1e9,z1=-1e9;for(let i=0;i<a.length;i+=3){x0=Math.min(x0,a[i]);x1=Math.max(x1,a[i]);y0=Math.min(y0,a[i+1]);y1=Math.max(y1,a[i+1]);z0=Math.min(z0,a[i+2]);z1=Math.max(z1,a[i+2])}
   p._hb={c:[(x0+x1)/2,(y0+y1)/2,(z0+z1)/2],r:[(x1-x0)/2,(y1-y0)/2,(z1-z0)/2],top:y1};return p._hb}
-function hairVar(R,p,of){const st=hsNorm(of);if(st==='careca'||st==='raspado'||st==='medio')return null;if(st==='topete')return p.g;if(st==='curto'||st==='amarrado'||st==='liso'||st==='encaracolado')return p.g;
+function hairVar(R,p,of){const st=hsNorm(of);if(st==='careca'||st==='raspado'||st==='medio')return null;if(st==='curto'&&R.P.some(q=>q.kind==='hairshort'))return null;if(st==='amarrado'&&R.P.some(q=>q.kind==='hairbun'))return null;if(st==='topete')return p.g;if(st==='curto'||st==='amarrado'||st==='liso'||st==='encaracolado')return p.g;
   R._hv=R._hv||{};if(R._hv[st])return R._hv[st];const g=p.g.clone(),a=g.attributes.position.array,B=hairBox(R,p),c=B.c,r=B.r;
   for(let i=0;i<a.length;i+=3){let x=a[i],y=a[i+1],z=a[i+2];
     if(st==='raspado'){x=c[0]+(x-c[0])*0.95;y=c[1]+(y-c[1])*0.95-0.004;z=c[2]+(z-c[2])*0.95}
@@ -10469,7 +10471,7 @@ function hairCap(R){if(R._cap!==undefined)return R._cap;const bp=R.P.find(p=>p.k
   let top=-1e9;for(let i=1;i<a.length;i+=3)top=Math.max(top,a[i]);let x0=1e9,x1=-1e9,zb=1e9,zf=-1e9;for(let i=0;i<a.length;i+=3){const y=a[i+1];if(y<top-0.1)continue;x0=Math.min(x0,a[i]);x1=Math.max(x1,a[i]);zb=Math.min(zb,a[i+2]);if(y>top-0.05)zf=Math.max(zf,a[i+2])}
   const rx=(x1-x0)/2+0.014,rz=(zf-zb)/2+0.016,ry=0.118,cx=(x0+x1)/2,cz=(zf+zb)/2-0.006,cy=top-ry+0.013;
   const g=new THREE.SphereGeometry(1,24,12,0,Math.PI*2,0,1.5);g.scale(rx,ry,rz);g.rotateX(-0.18);g.translate(cx,cy,cz);R._cap=hairSkinned([{g,c:null,m:null}]);return R._cap}
-function hairExtra(R,of){const st=hsNorm(of);if(st==='careca'||st==='medio')return[];const cap=st==='raspado'?null:hairCap(R),out=cap?[cap]:[];if(st!=='liso'&&st!=='encaracolado'&&st!=='raspado'&&st!=='topete')return out;R._hx=R._hx||{};if(R._hx[st])return out.concat([R._hx[st]]);const hp=R.P.find(p=>p.kind==='hair');if(!hp)return out;
+function hairExtra(R,of){const st=hsNorm(of);if(st==='careca'||st==='medio')return[];if(st==='curto'&&R.P.some(q=>q.kind==='hairshort'))return[];if(st==='amarrado'&&R.P.some(q=>q.kind==='hairbun'))return[];const cap=st==='raspado'?null:hairCap(R),out=cap?[cap]:[];if(st!=='liso'&&st!=='encaracolado'&&st!=='raspado'&&st!=='topete')return out;R._hx=R._hx||{};if(R._hx[st])return out.concat([R._hx[st]]);const hp=R.P.find(p=>p.kind==='hair');if(!hp)return out;
   const B=hairBox(R,hp),c=B.c,r=B.r,P0=[];
   if(st==='liso'){// long straight hair down the back and sides
     const N=20,M=10,pos=[],idx=[],uvs=[];for(let j=0;j<=M;j++){const t=j/M,y=c[1]+r[1]*0.55-t*(r[1]*1.05+0.26),fl=1.04+0.22*t*t;
@@ -10513,6 +10515,26 @@ try{if(!(typeof PCM!=='undefined'&&PCM)){const f=()=>{if(typeof SV!=='undefined'
 setInterval(()=>{try{const L=document.getElementById('hudLay');if(!L)return;if(typeof CFG!=='undefined'&&CFG.edit){L.style.visibility='';return}
   const vis=id=>{const e=document.getElementById(id);return!!(e&&!e.hidden&&getComputedStyle(e).display!=='none')};
   const show=typeof APP!=='undefined'&&APP==='world'&&W3.on&&!vis('over')&&!vis('bigMap')&&!vis('create')&&!(vis('sleepOv'))&&!vis('title');L.style.visibility=show?'':'hidden'}catch(e){}},150);
+
+/* =====================================================================
+   v71 ONE NAME: SOBREVIVENTES. The people you rescue are survivors;
+   the ones who come with you are just survivors at your side. The
+   separate "ALIADOS" bar on the left is gone: the group orders
+   (COBERTURA, COLETAR, EXPLORAR…) and the group backpack now live in
+   the 👥 SOBREVIVENTES button at the top. The red number on 👥 shows
+   how many are with you right now (green) or how many you rescued.
+   ===================================================================== */
+{const st=document.createElement('style');st.textContent='#allyBar{display:none!important}#bPpl em.on{background:#2f9a4a}.grpBox{border:1px solid rgba(236,230,211,.18);border-radius:12px;padding:10px 12px;margin:0 0 12px;background:rgba(255,255,255,.03)}.grpBox small{display:block;font:800 11px/1.3 system-ui,sans-serif;letter-spacing:.14em;color:#9fd0ff;margin-bottom:6px}.grpBox p{margin:6px 0 0;font-size:12px;opacity:.75}';document.head.append(st)}
+function grpBox(body){if(!ALLY.length)return;const ld=ALLY.reduce((q,a)=>q+a.load,0),cp=bagCap()*ALLY.length,M=AMODE[amode()];
+  const b=el('div','grpBox');b.append(el('small','',`COM VOCÊ AGORA: ${ALLY.map(a=>a.name.toUpperCase()).join(' · ')}  ·  🎒 ${ld}/${cp}`));
+  const w=el('div','chs');for(const k of AMODE_K){const A=AMODE[k];w.append(btn(`${A.ic} ${A.n}`,'chip'+(amode()===k?' on':''),()=>{setAmode(k);renderSheet()}))}b.append(w);b.append(el('p','',`${M.ic} ${M.n}: ${M.d}`));body.append(b)}
+{const rp=renderPeople;renderPeople=function(body){rp(body);try{const t=body.firstChild;const tmp=document.createElement('div');grpBox(tmp);if(tmp.firstChild)body.insertBefore(tmp.firstChild,t)}catch(e){console.error(e)}}}
+// the 👥 number: green = how many are with you, red = how many you rescued
+{const u0=update3D;update3D=function(dt){const r=u0(dt);try{const n=$('pplN');if(n&&W3.on){const w=ALLY.length,c=String(w||SV.surv.length||'');if(n.textContent!==c)n.textContent=c;n.classList.toggle('on',w>0)}}catch(e){}return r}}
+// every group order also exists per person (so the list always knows what each one is doing)
+for(const k of AMODE_K)if(!PJOB[k])PJOB[k]=[AMODE[k].ic,AMODE[k].n,'Vai com você · '+AMODE[k].d];
+{const ps=pSet;pSet=function(v,k){if(AMODE[k]&&!(k==='explore'||k==='defend'||k==='attack')){const r=ps(v,'defend');if(r){v.amode=k;save()}return r}return ps(v,k)}}
+{const sa=setAmode;setAmode=function(k){for(const v of SV.surv)if(v.job==='expedicao')v.amode=k;return sa(k)}}
 
 start();
 
