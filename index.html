@@ -494,7 +494,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v76', NOTES='';
+const VERSION='v77', NOTES='';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -3317,7 +3317,7 @@ function resize(){
 }
 let last=0,DSC=1;const FT={n:0,t:0};
 function loop(now){const dt=Math.min(0.05,(now-last)/1000||0);last=now;
-  if(APP==='world'&&!document.hidden){FT.n++;FT.t+=(now-(FT.l||now))/1000;FT.l=now;if(FT.t>3){const fps=FT.n/FT.t;FT.n=0;FT.t=0;if(fps<34&&DSC>0.92){DSC=Math.max(0.92,DSC-0.04);FT.good=0;FT.cool=3;resize()}else if(fps>48){FT.good=(FT.good||0)+1;if(FT.good>=2&&DSC<1&&!(FT.cool>0)){DSC=Math.min(1,DSC+0.05);FT.good=0;resize()}}else FT.good=0;if(FT.cool>0)FT.cool--}}else FT.l=now;if(!document.hidden){update(dt);render()}requestAnimationFrame(loop)}
+  if(APP==='world'&&!document.hidden){FT.n++;FT.t+=(now-(FT.l||now))/1000;FT.l=now;if(FT.t>3){const fps=FT.n/FT.t;FT.n=0;FT.t=0;if(fps<34&&DSC>(window.DSCMIN||0.92)){DSC=Math.max(window.DSCMIN||0.92,DSC-0.04);FT.good=0;FT.cool=3;resize()}else if(fps>48){FT.good=(FT.good||0)+1;if(FT.good>=2&&DSC<1&&!(FT.cool>0)){DSC=Math.min(1,DSC+0.05);FT.good=0;resize()}}else FT.good=0;if(FT.cool>0)FT.cool--}}else FT.l=now;if(!document.hidden){update(dt);render()}requestAnimationFrame(loop)}
 function drawIcon(ctx,size){withCtx(ctx,()=>{const q=QH;QH=true;
   const gr=g.createRadialGradient(size/2,size*0.45,size*0.05,size/2,size/2,size*0.75);gr.addColorStop(0,'#2d4a3c');gr.addColorStop(1,'#070b0b');g.fillStyle=gr;g.fillRect(0,0,size,size);
   const z={type:'walker',face:1,p:0,state:'walk',att:0.5,dead:false,deadT:0,flash:0,headless:false,seed:2,hp:1,max:1,lane:0,x:0,ly:0};
@@ -9173,8 +9173,9 @@ function carBang(dt){const v=P&&P.drive;if(!v||v.t==='moto')return;const C=VCFG[
   if(v.rock>0&&v.m){v.rock=Math.max(0,v.rock-dt);v.m.rotation.z=Math.sin(T*40)*v.rock*0.12}}
 // ---------------------------------------------------------------- the dead feed on you
 function eatTick(dt){if(!P)return;if(!P.dead){if(G.eatOn){G.eatOn=0;for(const z of Z){z.eat=null;z.eatOn=0}}return}
-  if(!G.eatOn){G.eatOn=1;if(G.over>0)G.over=Math.max(G.over,4.6);const L=Z.filter(z=>!z.dead&&z.type!=='boss'&&!z.crawl&&Math.hypot(z.x-P.x,z.z-P.z)<22).sort((a,b)=>Math.hypot(a.x-P.x,a.z-P.z)-Math.hypot(b.x-P.x,b.z-P.z)).slice(0,2);
-    L.forEach((z,i)=>{const a=Math.atan2(z.x-P.x,z.z-P.z)+(i?0.9:0);z.eat={x:P.x+Math.sin(a)*0.92,z:P.z+Math.cos(a)*0.92,face:a+Math.PI}})}
+  if(!G.eatOn&&(P.deadT||0)<0.9)return;
+  if(!G.eatOn){G.eatOn=1;if(G.over>0)G.over=Math.max(G.over,4.6);let bx=P.x,bz=P.z;try{if(PM&&PM.chest){PM.root.updateMatrixWorld(true);const q=new THREE.Vector3();PM.chest.getWorldPosition(q);bx=q.x;bz=q.z}}catch(e){}const L=Z.filter(z=>!z.dead&&z.type!=='boss'&&!z.crawl&&Math.hypot(z.x-bx,z.z-bz)<22).sort((a,b)=>Math.hypot(a.x-bx,a.z-bz)-Math.hypot(b.x-bx,b.z-bz)).slice(0,2);
+    L.forEach((z,i)=>{const a=Math.atan2(z.x-bx,z.z-bz)+(i?0.9:0);z.eat={x:bx+Math.sin(a)*0.7,z:bz+Math.cos(a)*0.7,face:a+Math.PI}})}
   for(const z of Z){if(!z.eat||z.dead)continue;const E=z.eat,d=Math.hypot(E.x-z.x,E.z-z.z);
     if(!z.eatOn){z.alert=10;z.lx=E.x;z.lz=E.z;if(d<0.4){z.eatOn=1}else{const s=Math.min(d,1.1*dt);z.x+=(E.x-z.x)/d*s;z.z+=(E.z-z.z)/d*s;z.face=Math.atan2(E.x-z.x,E.z-z.z)}}
     else{z.x=E.x;z.z=E.z;z.vx=z.vz=0;z.face=E.face;z.state='idle'}
@@ -10455,9 +10456,9 @@ function logTick(dt){for(const m of WLOG){const L=m.userData.L;if(L&&L.show&&!m.
    v71: CURTO (men) is the real short haircut the player sent
    v70: MÉDIO for both (the real hair model the player sent, fitted to each head)
    ===================================================================== */
-const HSTY={m:[['medio','MÉDIO'],['curto','CURTO'],['topete','TOPETE'],['raspado','RASPADO'],['careca','CARECA']],f:[['medio','MÉDIO'],['amarrado','COQUE'],['liso','LISO'],['encaracolado','ENCARACOLADO']]};
+const HSTY={m:[['medio','MÉDIO'],['curto','CURTO'],['careca','CARECA']],f:[['medio','MÉDIO'],['amarrado','COQUE']]};
 function hsNorm(L){const f=!!(L&&L.fem),s=L&&L.hairStyle,ok=(f?HSTY.f:HSTY.m).map(x=>x[0]);if(ok.includes(s))return s;
-  const map=f?{pony:'amarrado',bun:'amarrado',curly:'encaracolado',long:'liso',side:'medio',bob:'medio'}:{quiff:'topete',buzz:'raspado',bald:'careca',short:'curto',messy:'medio',curly:'curto',mohawk:'topete'};return map[s]||(f?'amarrado':'curto')}
+  const map=f?{pony:'amarrado',bun:'amarrado',curly:'medio',long:'medio',side:'medio',bob:'medio',liso:'medio',encaracolado:'medio'}:{quiff:'curto',buzz:'curto',bald:'careca',short:'curto',messy:'medio',curly:'curto',mohawk:'curto',topete:'curto',raspado:'curto'};return map[s]||(f?'amarrado':'curto')}
 function hairBox(R,p){if(p._hb)return p._hb;const a=p.g.attributes.position.array;let x0=1e9,y0=1e9,z0=1e9,x1=-1e9,y1=-1e9,z1=-1e9;for(let i=0;i<a.length;i+=3){x0=Math.min(x0,a[i]);x1=Math.max(x1,a[i]);y0=Math.min(y0,a[i+1]);y1=Math.max(y1,a[i+1]);z0=Math.min(z0,a[i+2]);z1=Math.max(z1,a[i+2])}
   p._hb={c:[(x0+x1)/2,(y0+y1)/2,(z0+z1)/2],r:[(x1-x0)/2,(y1-y0)/2,(z1-z0)/2],top:y1};return p._hb}
 function hairVar(R,p,of){const st=hsNorm(of);if(st==='careca'||st==='raspado'||st==='medio')return null;if(st==='curto'&&R.P.some(q=>q.kind==='hairshort'))return null;if(st==='amarrado'&&R.P.some(q=>q.kind==='hairbun'))return null;if(st==='topete')return p.g;if(st==='curto'||st==='amarrado'||st==='liso'||st==='encaracolado')return p.g;
@@ -10990,6 +10991,149 @@ function mtWalkTick(dt){for(const w of MTW.slice()){if(w.wait>0){w.wait-=dt;cont
   if(d<0.3){w.path.shift();continue}const s=Math.min(d,2.6*dt);w.x+=dx/d*s;w.z+=dz/d*s;w.face=lerpA(w.face,Math.atan2(dx,dz),Math.min(1,dt*8));
   w.m.gy=gy(w.x,w.z);w.m.root.position.set(w.x,w.m.gy,w.z);w.m.root.rotation.y=w.face;animHuman(w.m,{spd:2.6,t:T})}}
 {const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(W3.on&&P){mtTick(dt);mtWalkTick(dt)}}catch(e){console.error(e)}return r}}
+
+/* =====================================================================
+   v77 A SURVIVOR CAN SAVE YOU: when you fall (zombies or anything else)
+   and a survivor is with you, you are not dead yet — the closest one
+   runs to you, kneels and gets you back on your feet with some life.
+   If nobody reaches you in time, or the dead start eating you, it is
+   over. Only works when survivors are with you.
+   ===================================================================== */
+function rvHelper(){let best=null,bd=55;for(const a of ALLY){if(a.st!=='ok'||(a.rd&&a.rd.role!=='go'))continue;const d=Math.hypot(a.x-P.x,a.z-P.z);if(d<bd){bd=d;best=a}}return best}
+function rvBody(){let bx=P.x,bz=P.z;try{if(PM&&PM.chest){PM.root.updateMatrixWorld(true);const q=new THREE.Vector3();PM.chest.getWorldPosition(q);bx=q.x;bz=q.z}}catch(e){}return[bx,bz]}
+function rvStart(){const a=rvHelper();if(!a)return false;P.dn={t:0,a,k:0,eat:0};a.rv=1;if(a.rd)a.rd=null;G.over=999;toast(`🆘 Você caiu! ${a.name} está correndo para te ajudar`);try{navigator.vibrate&&navigator.vibrate([200,80,200])}catch(e){}return true}
+function rvEnd(ok){const D=P.dn;if(!D)return;P.dn=null;if(D.a)D.a.rv=0;
+  if(ok){P.dead=false;P.deadT=0;G.over=0;P.hp=Math.round(P.max*0.35);P.stam=60;try{const S=sv();S.bleed=0;S.pain=0;if(S.hun!=null)S.hun=Math.max(S.hun,18);if(S.thi!=null)S.thi=Math.max(S.thi,18);S.cause=null}catch(e){}
+    for(const z of Z){z.eat=null;z.eatOn=0}G.eatOn=0;banner('DE PÉ DE NOVO!',`${D.a.name} te salvou · cuide da sua vida`);SFX.levelup&&SFX.levelup();save()}
+  else{G.over=0.6}}
+function rvTick(dt){const D=P.dn;if(!D)return;D.t+=dt;G.over=999;const a=D.a;
+  if(!a||a.st!=='ok'||ALLY.indexOf(a)<0){const b=rvHelper();if(b&&b!==a){if(a)a.rv=0;D.a=b;b.rv=1;D.k=0;toast(`🆘 ${b.name} está vindo te ajudar`)}else{rvEnd(false);return}}
+  if(Z.some(z=>z.eatOn&&!z.dead))D.eat+=dt;if(D.eat>6||D.t>45){toast('Ninguém chegou a tempo…');rvEnd(false);return}
+  const A=D.a,m=A.m,[bx,bz]=rvBody(),tx=bx+0.55,tz=bz+0.2,dx=tx-A.x,dz=tz-A.z,d=Math.hypot(dx,dz);
+  if(d>0.5){let gx=tx,gz=tz;if(D.wpT==null||T-D.wpT>1){D.wpT=T;try{D.wp=canSee(A.x,A.z,tx,tz)?null:navPath(A,tx,tz)}catch(e){D.wp=null}}
+    if(D.wp&&D.wp.length){const w=D.wp[0];if(Math.hypot(w[0]-A.x,w[1]-A.z)<0.5)D.wp.shift();else{gx=w[0];gz=w[1]}}
+    const ex=gx-A.x,ez=gz-A.z,ee=Math.hypot(ex,ez)||1,sp=Math.min(ee,6.2*dt);A.x+=ex/ee*sp;A.z+=ez/ee*sp;collide(A,0.33,false);A.face=Math.atan2(ex,ez);
+    if(D.t>14&&d>8){A.x=tx+1.5;A.z=tz+1.5}
+    if(m){m.root.visible=true;m.gy=gy(A.x,A.z);m.root.position.set(A.x,m.gy,A.z);m.root.rotation.set(0,A.face,0);animHuman(m,{spd:6,run:true,t:T})}return}
+  // kneel and help
+  D.k+=dt;A.face=Math.atan2(bx-A.x,bz-A.z);if(m){m.gy=gy(A.x,A.z);m.root.position.set(A.x,m.gy,A.z);m.root.rotation.set(0,A.face,0);if(m.gun)m.gun.visible=false;animHuman(m,{spd:0,t:T,crouch:0.46,lean:0.55,work:'plant',fz:[0.2,-0.14]})}
+  if(D.k>0.2&&!D.said){D.said=1;toast(`❤️ ${A.name} está te reanimando…`)}
+  if(D.k>=4.2){if(m&&m.gun)m.gun.visible=true;rvEnd(true)}}
+// falling with a survivor around does not end the game right away
+{const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(!W3.on||!P)return r;
+  if(!P.dead)P._dnc=0;else if(!P._dnc){P._dnc=1;if(!P.dn&&!P.drive&&ALLY.length&&(P.deadT||0)<1)rvStart()}
+  if(P.dn)rvTick(dt)}catch(e){console.error(e)}return r}}
+// the helper is not run by the normal brain while helping
+{const a3=allies3;allies3=function(dt){if(!ALLY.some(a=>a.rv))return a3(dt);const keep=ALLY;ALLY=ALLY.filter(a=>!a.rv);try{return a3(dt)}finally{ALLY=keep}}}
+
+/* =====================================================================
+   v77 NO DARK BLOB UNDER THE PEOPLE: the old round fake shadow under
+   every person and zombie is removed when the real shadows are on (it
+   showed as a dark stain following you, over the real shadow).
+   ===================================================================== */
+function noBlob(root){if(!root||!(typeof SUN!=='undefined'&&SUN&&SUN.castShadow))return;for(const c of root.children)if(c.geometry&&c.geometry.type==='CircleGeometry'&&c.material&&c.material.transparent)c.visible=false}
+{const mr=makeRemy;makeRemy=function(){const h=mr.apply(this,arguments);try{noBlob(h.root)}catch(e){}return h}}
+{const mz=makeZombie3;makeZombie3=function(t){const m=mz(t);try{if(typeof SUN!=='undefined'&&SUN&&SUN.castShadow){noBlob(m.root);m._sh=null}}catch(e){}return m}}
+{const mh=makeHuman;makeHuman=function(){const h=mh.apply(this,arguments);try{noBlob(h.root)}catch(e){}return h}}
+// the dense grass carpet only grew in a circle around you (a darker patch that followed you and
+// made the ground look like it was appearing and disappearing): the ground is now the same everywhere
+grassField3=function(){};
+{const ew=enterWorld3D;enterWorld3D=function(){const r=ew.apply(this,arguments);try{for(const m of GF.im)SC3.remove(m);GF.im.length=0}catch(e){}return r}}
+
+/* =====================================================================
+   v77 COMPUTERS: faster and no black screen
+   · the picture size is limited on big / Retina screens (it was drawing
+     up to 4× the pixels of a full-HD screen); integrated Intel graphics
+     get a lighter budget and smaller shadows.
+   · when the computer drops slow, the resolution goes down a bit more.
+   · if the graphics card resets the 3D (black screen with the HUD on
+     top), the game reloads itself lighter instead of staying black.
+   ===================================================================== */
+const PCGPU=(()=>{try{const c=document.createElement('canvas'),g=c.getContext('webgl2')||c.getContext('webgl');const d=g&&g.getExtension('WEBGL_debug_renderer_info');return d?String(g.getParameter(d.UNMASKED_RENDERER_WEBGL)):''}catch(e){return''}})();
+const PCPHONE=matchMedia('(pointer:coarse)').matches,PCINTEL=/Intel|Iris|UHD|HD Graphics/i.test(PCGPU);
+if(!PCPHONE)window.DSCMIN=0.7;
+{const bp=balPR;balPR=function(){let pr=bp();if(!PCPHONE){const px=Math.max(1,innerWidth*innerHeight),budget=PCINTEL?1.45e6:2.6e6;pr=Math.min(pr,Math.max(0.75,Math.sqrt(budget/px)*(typeof DSC!=='undefined'?DSC:1)))}return pr}}
+{const r0=resize3D;resize3D=function(){r0.apply(this,arguments);try{if(!PCPHONE&&PCINTEL&&SUN&&SUN.shadow.mapSize.x>1024){SUN.shadow.mapSize.set(1024,1024);if(SUN.shadow.map){SUN.shadow.map.dispose();SUN.shadow.map=null}}}catch(e){}}}
+{const hook=()=>{const cv=document.getElementById('gl');if(!cv){setTimeout(hook,800);return}cv.addEventListener('webglcontextlost',e=>{e.preventDefault();try{save()}catch(er){}
+    let ov=document.getElementById('glLost');if(!ov){ov=document.createElement('div');ov.id='glLost';ov.style.cssText='position:fixed;inset:0;z-index:95;background:#0b0f0e;display:grid;place-items:center;color:#ece6d3;font:800 14px/1.4 system-ui,sans-serif;letter-spacing:.12em;text-align:center';ov.textContent='AJUSTANDO O GRÁFICO PARA O SEU COMPUTADOR…';document.body.append(ov)}
+    setTimeout(()=>location.reload(),900)},false)};hook()}
+
+/* =====================================================================
+   v77 BUILD ANYWHERE: the build menu (🔨) works wherever you are — next
+   to a safe, out in the street, in the fields. Inside a house you can
+   place furniture in that house; outside, everything else (barricades,
+   fences, walls, wells, plantations, sheds...).
+   ===================================================================== */
+{const bc=bmCenter;bmCenter=function(x,z){const c=bc(x,z);if(c)return c;return{x,z,b:bldAt(x,z)||null,full:true,main:false,free:true}}}
+
+/* =====================================================================
+   v77 HELPERS CARRY THE PLANKS: when you cut a trunk into planks, a
+   survivor walking with you (or one who looks after the safe, if the
+   wood is near home) picks the stack up — you see the planks in his
+   arms — and carries it next to the house, where the wood is piled on
+   the ground as your stock. With a BARRACÃO built, it goes in the shed.
+   The stock beside the house counts as material for building.
+   ===================================================================== */
+const HAUL=[];let WSTK3=null,WSTKN=-1;
+function homeB(){try{const L=safes();if(L.length&&BLDS[L[0].bid])return BLDS[L[0].bid];if(SV.base)return baseBld()}catch(e){}return null}
+function stockSpot(){const b=homeB();if(!b)return null;if(SV.wstk&&SV.wstk.b===b.id)return SV.wstk;const d=b.doors&&b.doors[0];if(!d)return null;const sd=[-d.nz,d.nx];
+  for(const k of[2.8,-2.8,4.2,-4.2]){const x=d.x+d.nx*1.5+sd[0]*k,z=d.z+d.nz*1.5+sd[1]*k;if(!blocked(x,z,0.9)){SV.wstk={b:b.id,x,z,a:Math.atan2(sd[0],sd[1])};return SV.wstk}}return null}
+function shedB(){try{for(const b of builds())if(b.t==='barracao')return b}catch(e){}return null}
+// the wood stock on the ground (follows the planks you have stored)
+function stockDraw(){if(!SC3)return;const s=SV.wstk;const n=s?Math.min(48,sv().store.plank||0):0;if(n===WSTKN&&WSTK3)return;WSTKN=n;if(WSTK3){SC3.remove(WSTK3);WSTK3=null}if(!s||!n)return;
+  const g=new THREE.Group();let left=n,i=0;while(left>0){const k=Math.min(12,left);const m=new THREE.Mesh(pileGeo(k),MATV);m.position.set(0,0,(i-0.5)*0.85);m.castShadow=QH;g.add(m);left-=k;i++}
+  g.position.set(s.x,gy(s.x,s.z),s.z);g.rotation.y=s.a+Math.PI/2;SC3.add(g);WSTK3=g}
+// planks in the arms
+const CARRYG={};function carryGeo(){if(CARRYG.g)return CARRYG.g;const P0=[];for(let i=0;i<4;i++)P0.push(Bx(1.3,0.06,0.2,0,i*0.065,(i%2?0.03:-0.03),i%2?'#b08a5a':'#a07a4a'));return CARRYG.g=mergeParts(P0)}
+function carryOn(m,on){if(!m||!m.chest)return;if(on){if(!m._carry){const c=new THREE.Mesh(carryGeo(),MATV);c.position.set(0,0.16,0.3);c.rotation.set(0,0,0);c.castShadow=QH;m.chest.add(c);m._carry=c}m._carry.visible=true;if(m.gun)m.gun.visible=false}else if(m._carry){m._carry.visible=false;if(m.gun)m.gun.visible=true}}
+function walkTo(e,tx,tz,dt,sp,H){if(H.wpT==null||T-H.wpT>1){H.wpT=T;try{H.wp=canSee(e.x,e.z,tx,tz)?null:navPath(e,tx,tz)}catch(er){H.wp=null}}let gx=tx,gz=tz;
+  if(H.wp&&H.wp.length){const w=H.wp[0];if(Math.hypot(w[0]-e.x,w[1]-e.z)<0.5)H.wp.shift();else{gx=w[0];gz=w[1]}}const dx=gx-e.x,dz=gz-e.z,d=Math.hypot(dx,dz)||1,s=Math.min(d,sp*dt);e.x+=dx/d*s;e.z+=dz/d*s;collide(e,0.33,false);e.face=Math.atan2(dx,dz);return Math.hypot(tx-e.x,tz-e.z)}
+function deliver(n){const sh=shedB();if(sh&&typeof shed==='function'){const S=shed();S.plank=(S.plank||0)+n;try{buildBuilds3()}catch(e){}}else{const S=sv().store;S.plank=(S.plank||0)+n}save()}
+// pick the jobs
+function haulAssign(){const home=homeB();if(!home)return;const st=stockSpot();if(!st)return;const sh=shedB(),drop=sh?{x:sh.x+1.4,z:sh.z+1.4}:st;
+  for(const p of piles()){if(p.res||p.n<=0)continue;if(Math.hypot(p.x-drop.x,p.z-drop.z)>160)continue;
+    let best=null,bd=45;for(const a of ALLY){if(a.st!=='ok'||a.rd||a.rv||a.hl)continue;const d=Math.hypot(a.x-p.x,a.z-p.z);if(d<bd){bd=d;best=a}}
+    if(best){best.hl=1;p.res=1;HAUL.push({a:best,p,drop,s:'go'});toast(`🪵 ${best.name} vai levar as tábuas para ${sh?'o barracão':'perto da casa'}`);continue}
+    // a caretaker from the safe comes out if the wood is near home
+    const ct=SV.surv.find(v=>(v.job==='rest'||v.job==='patrulha')&&!v.hurt&&!v.hl);const hc=[(home.x0+home.x1)/2,(home.z0+home.z1)/2];
+    if(ct&&Math.hypot(p.x-hc[0],p.z-hc[1])<70){const d=home.doors[0];ct.hl=1;p.res=1;HAUL.push({v:ct,p,drop,s:'go',x:d.x+d.nx*1.2,z:d.z+d.nz*1.2,face:0,m:null});toast(`🪵 ${ct.name} saiu da safe para buscar as tábuas`)}}}
+function haulTick(dt){if((T*2|0)!==((T-dt)*2|0))haulAssign();
+  for(const H of HAUL.slice()){const e=H.a||H;if(H.a&&(H.a.st!=='ok'||ALLY.indexOf(H.a)<0)){end(H);continue}
+    if(!H.a&&!H.m){try{H.m=makeHuman(H.v.look||randLook(),null,null);SC3.add(H.m.root)}catch(er){end(H);continue}}
+    const m=H.a?H.a.m:H.m;let sp=H.s==='carry'?3.6:4.6;
+    if(H.s==='go'){if(H.p.n<=0||piles().indexOf(H.p)<0){end(H);continue}const d=walkTo(e,H.p.x,H.p.z,dt,sp,H);if(d<0.9){const k=Math.min(H.p.n,8);H.p.n-=k;H.n=k;if(H.p.n<=0){const i=piles().indexOf(H.p);if(i>=0)piles().splice(i,1)}else H.p.res=0;woodBuild();H.s='carry';H.wp=null;H.wpT=null;carryOn(m,true);if(AU.c&&Math.hypot(e.x-P.x,e.z-P.z)<25)sN(0.3,900,400,0.05,'bandpass',1.5)}}
+    else if(H.s==='carry'){const far=Math.hypot(e.x-P.x,e.z-P.z)>70;const d=walkTo(e,H.drop.x,H.drop.z,dt,far?sp*4:sp,H);if(d<1.1){deliver(H.n);carryOn(m,false);stockDraw();if(Math.hypot(e.x-P.x,e.z-P.z)<30)toast(`🪵 ${H.a?H.a.name:H.v.name} guardou ${H.n} tábuas`);H.s=H.a?'done':'home';H.wp=null;H.wpT=null}}
+    else if(H.s==='home'){const d0=homeB()&&homeB().doors[0];if(!d0){end(H);continue}const d=walkTo(e,d0.x-d0.nx*1.0,d0.z-d0.nz*1.0,dt,sp,H);if(d<0.6){end(H);continue}}
+    else{end(H);continue}
+    if(m){m.root.visible=true;m.gy=gy(e.x,e.z);m.root.position.set(e.x,m.gy,e.z);m.root.rotation.set(0,e.face||0,0);animHuman(m,{spd:sp,t:T,run:sp>4})}}
+  function end(H){const i=HAUL.indexOf(H);if(i>=0)HAUL.splice(i,1);if(H.a){H.a.hl=0;carryOn(H.a.m,false)}else{if(H.v)H.v.hl=0;if(H.m){SC3.remove(H.m.root);disposeChar(H.m)}}if(H.p&&H.p.n>0)H.p.res=0}}
+{const a3=allies3;allies3=function(dt){if(!ALLY.some(a=>a.hl))return a3(dt);const keep=ALLY;ALLY=ALLY.filter(a=>!a.hl);try{return a3(dt)}finally{ALLY=keep}}}
+{const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(W3.on&&P&&!P.dead){haulTick(dt);if((T|0)!==((T-dt)|0)){stockSpot();stockDraw()}}}catch(e){console.error(e)}return r}}
+{const ew=enterWorld3D;enterWorld3D=function(){const r=ew.apply(this,arguments);WSTKN=-1;WSTK3=null;try{for(const p of piles())p.res=0;for(const v of SV.surv)v.hl=0}catch(e){}return r}}
+
+/* =====================================================================
+   v77 ORGANIZAR SAFE: the survivors who stay to look after the safe
+   now also farm. Besides taking the bodies out, mopping the blood and
+   keeping things in order, they go to the plantation, water and tend it
+   (it grows faster), harvest what is ripe (into the storage) and plant
+   again — all by themselves.
+   ===================================================================== */
+PJOB.safe=['🏠','ORGANIZAR SAFE','Tira os corpos, limpa o sangue, arruma tudo, planta, cuida e colhe a plantação'];
+for(const o of RSOPT)if(o[0]==='safe'){o[2]='ORGANIZAR SAFE';o[3]='Fica na safe: limpa, arruma e cuida da plantação'}
+function farmNeed(b){const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2;let best=null,bs=-1;try{for(const f of builds()){if(f.t!=='plantacao'||f.busy)continue;if(Math.hypot(f.x-cx,f.z-cz)>45)continue;
+  const ripe=(f.g||0)>=1,dry=!(f.wat!=null&&T-f.wat<90&&T>=f.wat);const sc=ripe?2:dry?1:0;if(sc>bs&&sc>0){bs=sc;best=f}}}catch(e){}return best}
+{const ct=careTick;careTick=function(n,dt,b){const st=CARE[n.v.name];
+  if(st&&st.s==='farmgo'){const f=st.f;if(!f||builds().indexOf(f)<0){st.s='idle';st.t=1;if(f)f.busy=0;return null}n.spd=0;if(careWalk(n,dt,1.3)||Math.hypot(f.x-n.x,f.z-n.z)<1.3){st.s='farm';st.t=(f.g||0)>=1?4:3;n.face=Math.atan2(f.x-n.x,f.z-n.z)}return null}
+  if(st&&st.s==='farm'){const f=st.f;st.t-=dt;n.spd=0;if(st.t>0)return'farm';f.busy=0;
+    if((f.g||0)>=1){const S=sv().store;S.veg=(S.veg||0)+4;f.g=0;f.wat=T;if(P&&Math.hypot(P.x-n.x,P.z-n.z)<40)toast(`🥕 ${n.v.name} colheu 4 legumes e plantou de novo · estão no depósito`)}else f.wat=T;
+    try{buildBuilds3()}catch(e){}save();const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2;st.s='back';st.t=0.4;n.path=carePath(b,n.x,n.z,cx+rnd(-1,1),cz+rnd(-1,1));return null}
+  if(st&&st.s==='idle'&&st.t-dt<=0){const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2;if(!careCorpse(cx,cz,22)&&Math.random()<0.6){const f=farmNeed(b);if(f){f.busy=1;st.s='farmgo';st.f=f;n.path=carePath(b,n.x,n.z,f.x+0.9,f.z+0.3);return null}}}
+  return ct(n,dt,b)}}
+// kneeling at the plants
+{const pn=pNpcTick;pNpcTick=function(dt){const r=pn(dt);try{for(const n of PNPC){const st=CARE[n.v.name];if(st&&st.s==='farm'&&n.m){if(n.mop)n.mop.visible=false;animHuman(n.m,{spd:0,t:T+(n.seed||0),crouch:0.45,lean:0.5,work:'plant',fz:[0.2,-0.14]})}}}catch(e){}return r}}
+// tended plants grow faster
+{const pt=plTick;let acc=0;plTick=function(dt){pt(dt);acc+=dt;if(acc<1)return;const step=acc;acc=0;try{for(const f of builds()){if(f.t!=='plantacao'||(f.g||0)>=1)continue;if(f.wat!=null&&T-f.wat<120&&T>=f.wat)f.g=Math.min(1,(f.g||0)+step/PLGROW*0.6)}}catch(e){}}}
+{const ew=enterWorld3D;enterWorld3D=function(){const r=ew.apply(this,arguments);try{for(const f of builds())f.busy=0}catch(e){}return r}}
 
 start();
 
