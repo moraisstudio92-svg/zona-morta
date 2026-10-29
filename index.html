@@ -494,7 +494,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v71', NOTES='';
+const VERSION='v72', NOTES='';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -5153,11 +5153,13 @@ function genBld(o,r,ch){
 function houseRooms(rooms,r){const s=rooms.map((R,i)=>[i,(R.x1-R.x0)*(R.z1-R.z0)]).sort((a,b)=>b[1]-a[1]);const out=[];const order=['living','kitchen','bed','bath','bed','office'];s.forEach(([i],k)=>out[i]=order[k]||'bed');return out}
 // --- furniture: placed along room walls, away from doorways/doors
 function furnish(b,R,IN,r){const y0=0.27,W=R.x1-R.x0,D=R.z1-R.z0;
-  const clear=(x,z,rad)=>!b.portals.some(p=>p.t!=='win'&&Math.hypot(p.x-x,p.z-z)<rad+0.9);
+  // v72: a doorway keeps a free lane on both sides (no wardrobe or bed in front of a door)
+  const clear=(x,z,rad,hw,hd)=>{if(hw==null){hw=hd=rad}return!b.portals.some(p=>{if(p.t==='win')return false;const along=0.8,deep=1.35;
+    return p.nx?(Math.abs(x-p.x)<deep+hw&&Math.abs(z-p.z)<along+hd):(Math.abs(x-p.x)<along+hw&&Math.abs(z-p.z)<deep+hd)})};
   // put(w,d,along-wall side, fraction) -> center; side 'n','s','w','e'
   const spot=(side,f,fw,fd)=>{if(side==='n')return[R.x0+fw/2+(W-fw)*f,R.z0+fd/2+0.02,0];if(side==='s')return[R.x0+fw/2+(W-fw)*f,R.z1-fd/2-0.02,Math.PI];if(side==='w')return[R.x0+fd/2+0.02,R.z0+fw/2+(D-fw)*f,Math.PI/2];return[R.x1-fd/2-0.02,R.z0+fw/2+(D-fw)*f,-Math.PI/2]};
-  const tryPut=(fw,fd,fn,col,cont)=>{for(let k=0;k<8;k++){const side=['n','s','w','e'][Math.floor(r()*4)],f=r();if((side==='n'||side==='s')&&fw>W-0.3)continue;if((side==='w'||side==='e')&&fw>D-0.3)continue;
-      const[x,z,rot]=spot(side,f,fw,fd);if(!clear(x,z,Math.max(fw,fd)/2))continue;const ax=side==='w'||side==='e';const hw=(ax?fd:fw)/2,hd=(ax?fw:fd)/2;
+  const tryPut=(fw,fd,fn,col,cont)=>{for(let k=0;k<24;k++){const side=['n','s','w','e'][Math.floor(r()*4)],f=r();if((side==='n'||side==='s')&&fw>W-0.3)continue;if((side==='w'||side==='e')&&fw>D-0.3)continue;
+      const[x,z,rot]=spot(side,f,fw,fd);const ax=side==='w'||side==='e';const hw=(ax?fd:fw)/2,hd=(ax?fw:fd)/2;if(!clear(x,z,0,hw,hd))continue;
       if(b.rooms._occ&&b.rooms._occ.some(o=>Math.abs(o[0]-x)<o[2]+hw&&Math.abs(o[1]-z)<o[3]+hd))continue;(b.rooms._occ||(b.rooms._occ=[])).push([x,z,hw,hd]);
       const i0=IN.length;fn(x,z,rot);const fr={t:tryPut.cur,b,arr:IN,i0,i1:IN.length,x,z,rot,fd};FURN.push(fr);if(col)fr.col=addCol(x-hw,z-hd,x+hw,z+hd,'furn');
       if(cont){const c={b,x:x+Math.sin(rot)*(fd/2+0.55),z:z+Math.cos(rot)*(fd/2+0.55),fx:x,fz:z,t:cont,searched:false,items:null};CONTS.push(c);b.cont.push(c);fr.cont=c}return true}return false};
@@ -8939,7 +8941,7 @@ function makeSafe(b){if(zInside(b)){SFX.deny();toast('Ainda há zumbis aqui dent
   safeVis();SFX.levelup&&SFX.levelup();G.shake=2;banner('NOVA SAFE!',`${safes().length} safe${safes().length>1?'s':''} · dormir aqui é seguro · evolua pelo botão de ação`);save()}
 function renderSafe(body){const s=SAFEC;if(!s){closeSheet();return}$('sKick').textContent=`SAFE · NÍVEL ${s.lv} DE ${SAFE_LV.length}`;$('sTitle').textContent=SAFE_LV[s.lv-1].n;
   const row=(ic,t,d,b)=>{const r=el('div','irow');r.append(el('i','',ic));const tt=el('div','it');tt.append(el('b','',t),el('span','',d));r.append(tt);const ac=el('div','ia');if(b)ac.append(b);r.append(ac);body.append(r)};
-  row('😴','DORMIR','Aqui dentro você dorme sem risco',btn('DORMIR','buy alt',()=>sleepHere('bed')));
+  row('😴','DORMIR','Vai até a cama · aqui dentro você dorme sem risco',btn('DORMIR','buy alt',()=>(typeof cmdSleep==='function'?cmdSleep():sleepHere('bed'))));
   row('📦','DEPÓSITO','O mesmo depósito em todas as suas safes',btn('ABRIR','buy alt',()=>{shSel='store';GS=null;renderSheet()}));
   if(s.lv>=3)row('🔨','CONSTRUIR AQUI','Toque no 🔨 lá em cima perto desta safe',null);
   body.append(el('h4','sec','EVOLUIR'));
@@ -9512,7 +9514,7 @@ function rmKey(of){return of?(of.fem||of.model==='fem'?'fem':'remy'):null}
 function remyImg(u){return new Promise((ok,no)=>{const im=new Image();im.onload=()=>ok(im);im.onerror=no;im.src=u})}
 // clothes and hair become neutral (grey) so any colour from the creator can be applied; the skin keeps its detail and is tinted
 function remyTex(im,kind){const c=document.createElement('canvas'),w=c.width=im.width,h=c.height=im.height,x=c.getContext('2d');x.drawImage(im,0,0);let base=null;
-  if(kind!=='body'&&kind!=='eyes'){const d=x.getImageData(0,0,w,h),a=d.data;let sum=0,n=0;for(let i=0;i<a.length;i+=4){if(a[i+3]<30)continue;const l=0.3*a[i]+0.59*a[i+1]+0.11*a[i+2];sum+=l;n++}const mean=sum/Math.max(1,n)||128,k=200/mean;
+  if(kind!=='body'&&kind!=='eyes'&&kind[0]!=='z'){const d=x.getImageData(0,0,w,h),a=d.data;let sum=0,n=0;for(let i=0;i<a.length;i+=4){if(a[i+3]<30)continue;const l=0.3*a[i]+0.59*a[i+1]+0.11*a[i+2];sum+=l;n++}const mean=sum/Math.max(1,n)||128,k=200/mean;
     for(let i=0;i<a.length;i+=4){const l=(0.3*a[i]+0.59*a[i+1]+0.11*a[i+2])*k;const v=Math.min(255,l);a[i]=a[i+1]=a[i+2]=v}x.putImageData(d,0,0)}
   else if(kind==='body'){const d=x.getImageData(0,0,w,h).data;const S=[];for(let i=0;i<d.length;i+=4*37){const r=d[i],g=d[i+1],b=d[i+2];if(r>90&&r>g&&g>b&&r-b>30&&r-b<120)S.push([r,g,b])}S.sort((p,q)=>(p[0]+p[1]+p[2])-(q[0]+q[1]+q[2]));base=S.length?S[S.length>>1]:[200,150,120]}
   const t=new THREE.CanvasTexture(c);t.colorSpace=THREE.SRGBColorSpace;t.anisotropy=SOFTGL?1:4;t.flipY=true;t.needsUpdate=true;return{t,base}}
@@ -10535,6 +10537,178 @@ function grpBox(body){if(!ALLY.length)return;const ld=ALLY.reduce((q,a)=>q+a.loa
 for(const k of AMODE_K)if(!PJOB[k])PJOB[k]=[AMODE[k].ic,AMODE[k].n,'Vai com você · '+AMODE[k].d];
 {const ps=pSet;pSet=function(v,k){if(AMODE[k]&&!(k==='explore'||k==='defend'||k==='attack')){const r=ps(v,'defend');if(r){v.amode=k;save()}return r}return ps(v,k)}}
 {const sa=setAmode;setAmode=function(k){for(const v of SV.surv)if(v.job==='expedicao')v.amode=k;return sa(k)}}
+
+/* =====================================================================
+   v72 SLEEP · REST · NAP, each in its own place and with its own effect
+   · 😴 DORMIR: walks to the bed and lies down to sleep (no bed: the sofa,
+     nothing at all: the floor). Full night's sleep — sleep bar refilled,
+     life back, a lot of humour.
+   · 🛋 DESCANSAR: walks to the sofa and sits — fun, humour and a little
+     life and sleep, without passing the time.
+   · 💤 COCHILAR: walks to the sofa and lies down on it — a short nap
+     (about 1h30): some sleep and life back, little time lost.
+   ===================================================================== */
+// where to lie: bed (head to the headboard) or sofa (along the seat)
+function lieSpots(kind){if(!P)return[];const pb=bldAt(P.x,P.z),L=[];
+  for(const f of FURN){if(f.gone)continue;const isBed=f.t==='bed'||f.t==='hbed',isSofa=f.t==='sofa';if(!(kind==='bed'?isBed:isSofa))continue;
+    const d=Math.hypot(f.x-P.x,f.z-P.z);if(d>16||bldAt(f.x,f.z)!==pb)continue;const r=f.rot||0,sn=Math.sin(r),cs=Math.cos(r);
+    if(isBed){const s=(P.x-f.x)*cs-(P.z-f.z)*sn>=0?1:-1,w=f.t==='hbed'?0.62:0.95;L.push({kind:'bed',d,x:f.x+cs*w*s,z:f.z-sn*w*s,face:r+Math.PI/2*s+Math.PI,cx:f.x,cz:f.z,hx:-sn,hz:-cs,y:f.t==='hbed'?0.7:0.63})}
+    else L.push({kind:'sofa',d,x:f.x+sn*0.75,z:f.z+cs*0.75,face:r+Math.PI,cx:f.x+sn*0.06,cz:f.z+cs*0.06,hx:cs,hz:-sn,y:0.5})}
+  try{for(const b of builds()){const t=b.t,isBed=t==='cama'||t==='beliche',isSofa=t==='sofa';if(!(kind==='bed'?isBed:isSofa))continue;const d=Math.hypot(b.x-P.x,b.z-P.z);if(d>16||bldAt(b.x,b.z)!==pb)continue;
+    if(isBed){const ox=b.r?0:0.85,oz=b.r?0.85:0;L.push({kind:'bed',d,x:b.x+ox,z:b.z+oz,face:Math.atan2(-ox,-oz),cx:b.x,cz:b.z,hx:b.r?-1:0,hz:b.r?0:-1,y:0.55})}
+    else{const fx=b.r?1:0,fz=b.r?0:1;L.push({kind:'sofa',d,x:b.x+fx*0.75,z:b.z+fz*0.75,face:Math.atan2(-fx,-fz),cx:b.x+fx*0.05,cz:b.z+fz*0.05,hx:fz,hz:-fx,y:0.5})}}}catch(e){}
+  L.sort((a,b)=>a.d-b.d);return L}
+// walk there by itself, then do fn (the joystick cancels)
+function walkThen(s,fn,msg){closeSheet();if(Math.hypot(s.x-P.x,s.z-P.z)<0.35){fn();return}P.goSeat={s:{x:s.x,z:s.z,face:s.face,kind:s.kind,lieOnly:1},fn,t:0,st:0,lx:P.x,lz:P.z};if(msg)toast(msg)}
+// lying down (on the bed, the sofa or the floor)
+function lieDown(s,secs){P.lie={cx:s?s.cx:P.x,cz:s?s.cz:P.z,hx:s?s.hx:Math.sin(P.face),hz:s?s.hz:Math.cos(P.face),y:s?s.y:0.02,t:secs||6};P.vx=P.vz=0;if(s){P.face=s.face}}
+const _lieM=HAS3?new THREE.Matrix4():null,_lieX=HAS3?new THREE.Vector3():null,_lieY=HAS3?new THREE.Vector3():null,_lieZ=HAS3?new THREE.Vector3(0,1,0):null;
+{const pa=pAct;pAct=function(){if(P&&P.lie)return{pose:{spd:0,crouch:0,lean:0},tool:null};return pa()}}
+{const u0=update3D;update3D=function(dt){
+  // a seat walk that only wants to lie down must not sit on arrival
+  const r=u0(dt);try{if(!P||!PM)return r;const L=P.lie;
+    if(L){L.t-=dt;const jl=Math.hypot(JOY.x||0,JOY.y||0)+(IN.u||IN.d||IN.l||IN.r?1:0);if(L.t<=0||P.dead||P.drive||(jl>0.5&&L.t<L.free)){P.lie=null;PM.root.rotation.set(0,P.face,0);return r}
+      _lieY.set(L.hx,0,L.hz).normalize();_lieX.crossVectors(_lieY,_lieZ);_lieM.makeBasis(_lieX,_lieY,_lieZ);PM.root.quaternion.setFromRotationMatrix(_lieM);
+      const g=gy(L.cx,L.cz);PM.root.position.set(L.cx-_lieY.x*0.86,g+L.y+0.11,L.cz-_lieY.z*0.86);P.vx=P.vz=0}
+  }catch(e){console.error(e)}return r}}
+// a short nap on the sofa
+function napHere(){if(!W3.on||!P||P.dead)return;if(zSeeNear(20)){SFX.deny();toast('Não dá pra cochilar com zumbis por perto');return}
+  const S=needs(),hrs=1.5;const ov=$('sleepOv');$('slT').textContent='';$('slS').textContent='';ov.hidden=false;requestAnimationFrame(()=>requestAnimationFrame(()=>ov.classList.add('show')));
+  setTimeout(()=>{const t0=tod();let t1=t0+hrs;if(t1>=24)t1-=24;const crossed=(t0<6&&(t1>=6||t1<t0))||(t0>=6&&t1>=6&&t1<t0);SV.tod=t1;if(crossed)dawn3();const n=SV.tod>=19.5||SV.tod<5.5;SV.night=n;W3.night=n;W3.day=SV.day;
+    S.fat=Math.min(100,S.fat+24);S.hun=Math.max(0,S.hun-3);S.thi=Math.max(0,S.thi-4);S.fun=Math.min(100,S.fun+5);S.mood=Math.min(100,S.mood+6);P.hp=Math.min(P.max,P.hp+P.max*0.08);P.stam=100;
+    $('slT').textContent='1H30';$('slS').textContent='Cochilou no sofá · um pouco de sono e de vida';save();SFX.levelup&&SFX.levelup()},1300);
+  setTimeout(()=>{ov.classList.remove('show');setTimeout(()=>{ov.hidden=true},700)},4000)}
+// the three commands
+function cmdSleep(){if(!P||P.dead||!W3.on)return;if(zSeeNear(25)){SFX.deny();toast('Não dá pra dormir com zumbis por perto');return}
+  const b=lieSpots('bed')[0],s=b||lieSpots('sofa')[0];
+  if(!s){closeSheet();lieDown(null,7);P.lie.free=6.2;setTimeout(()=>{if(P.lie)sleepHere('ground')},700);return}
+  walkThen(s,()=>{lieDown(s,7);P.lie.free=6.2;setTimeout(()=>{if(P.lie)sleepHere(s.kind)},700)},s.kind==='bed'?'🛏 Indo para a cama…':'🛋 Sem cama · indo para o sofá…')}
+function cmdNap(){if(!P||P.dead||!W3.on)return;if(zSeeNear(20)){SFX.deny();toast('Não dá pra cochilar com zumbis por perto');return}
+  const s=lieSpots('sofa')[0]||lieSpots('bed')[0];
+  if(!s){closeSheet();lieDown(null,6);P.lie.free=5.2;setTimeout(()=>{if(P.lie)napHere()},700);return}
+  walkThen(s,()=>{lieDown(s,6);P.lie.free=5.2;setTimeout(()=>{if(P.lie)napHere()},700)},'💤 Indo cochilar no '+(s.kind==='sofa'?'sofá…':'colchão…'))}
+let SEATPREF=null;
+function cmdRest(){if(!P||P.dead||!W3.on)return;SEATPREF='sofa';try{startRelax('rest',null)}finally{SEATPREF=null}}
+// DESCANSAR prefers the sofa (the bed only if there is no sofa)
+{const sf=seatFind;seatFind=function(){const s=sf();if(SEATPREF!=='sofa'||!s||s.kind==='sofa')return s;const so=lieSpots('sofa')[0];if(so)return{x:so.x+(so.cx-so.x)*0.72,z:so.z+(so.cz-so.z)*0.72,face:so.face-Math.PI,d:so.d,kind:'sofa'};return s}}
+// arriving for a lie-down: do not sit
+{const ss=seatSit;seatSit=function(s){if(s&&s.lieOnly){P.x=s.x;P.z=s.z;P.vx=P.vz=0;P.face=s.face;return}return ss(s)}}
+// relaxing on the sofa also gives a little sleep
+{const r3=relax3;relax3=function(dt){const r=P&&P.relax;r3(dt);try{if(r&&r.kind==='rest'&&P.relax===r){const S=needs();S.fat=Math.min(100,S.fat+dt*0.45)}}catch(e){}}}
+// buttons: the 😊 panel, the bed/sofa sheet and the safe sheet
+{let done=false;const fix=()=>{const p=$('needsP');if(!p||done)return;const na=p.querySelector('.na');if(!na)return;done=true;na.innerHTML='';
+  const mk=(t,fn)=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.addEventListener('pointerdown',e=>e.stopPropagation());b.addEventListener('pointerup',e=>{e.stopPropagation();e.preventDefault();p.hidden=true;SFX.click&&SFX.click();fn()});b.addEventListener('click',e=>e.stopPropagation());na.append(b)};
+  mk('😴 DORMIR',cmdSleep);mk('🛋 DESCANSAR',cmdRest);mk('💤 COCHILAR',cmdNap)};
+  const nh=needsHUD;needsHUD=function(f){const r=nh(f);if(!done)try{fix()}catch(e){}return r}}
+{const rr=renderRest;renderRest=function(body){const f=RESTC;if(!f){closeSheet();return}const S=needs();$('sKick').textContent='DESCANSAR';$('sTitle').textContent=RESTF[f.t];
+  body.append(hint('Cada jeito de descansar recupera de uma forma'));
+  const row=(ic,t,d,b)=>{const r=el('div','irow');r.append(el('i','',ic));const tt=el('div','it');tt.append(el('b','',t),el('span','',d));r.append(tt);const ac=el('div','ia');ac.append(b);r.append(ac);body.append(r)};
+  const hrs=Math.round(clamp((100-S.fat)/11,2,8));
+  row('😴','DORMIR',`Deita na cama · recupera todo o sono e a vida · ${hrs} horas`,btn('DORMIR','buy alt',()=>cmdSleep()));
+  row('💤','COCHILAR','Deita no sofá · 1h30 · um pouco de sono e de vida',btn('COCHILAR','buy alt',()=>cmdNap()));
+  row('🛋','DESCANSAR','Senta no sofá · tira o tédio, melhora o humor e cura um pouco',btn('DESCANSAR','buy alt',()=>cmdRest()));
+  const bk=Object.keys(sv().inv).filter(k=>ITEMS[k]&&ITEMS[k].book&&sv().inv[k]>0);
+  if(bk.length)for(const k of bk)row('📘',ITEMS[k].n,'Treina a habilidade · tira o tédio',btn('LER','buy alt',()=>{closeSheet();startRead(k)}));
+  else row('📰','LER UMA REVISTA','Passa o tempo · tira o tédio',btn('LER','buy alt',()=>startRelax('mag',f)));
+  if(DIS[f.t])row('🔧','DESMONTAR',`Rende ${Object.entries(DIS[f.t].m).map(([k,n])=>ITEMS[k].ic+'×'+n).join(' ')}`,btn('DESMONTAR','ghost',()=>{closeSheet();openDis(f)}))}}
+// the walk to the bed / sofa goes through the doors (room to room), not straight into the wall
+{const u0=update3D;update3D=function(dt){const g=P&&P.goSeat;if(!g||!W3.on)return u0(dt);
+  if(JOY.id!=null||IN.u||IN.d||IN.l||IN.r||P.dead||P.drive){P.goSeat=null;JOY.x=JOY.y=0;return u0(dt)}
+  const end=()=>{JOY.x=JOY.y=0;JOY.sx=JOY.sy=0;P.goSeat=null;const d=Math.hypot(g.s.x-P.x,g.s.z-P.z);if(d<2.5)seatSit(g.s);else P.seat={ground:1};g.fn()};
+  g.t+=dt;let tx=g.s.x,tz=g.s.z;const d=Math.hypot(tx-P.x,tz-P.z);
+  if(d<0.3||g.t>16){end();return u0(dt)}
+  if(g.wpT==null||T-g.wpT>1){g.wpT=T;try{g.wp=canSee(P.x,P.z,tx,tz)?null:navPath(P,tx,tz)}catch(e){g.wp=null}}
+  if(g.wp&&g.wp.length){const w=g.wp[0];if(Math.hypot(w[0]-P.x,w[1]-P.z)<0.45)g.wp.shift();else{tx=w[0];tz=w[1]}}
+  const dx=tx-P.x,dz=tz-P.z,dd=Math.hypot(dx,dz)||1,mx=dx/dd,mz=dz/dd,s=Math.sin(CY),c=Math.cos(CY),k=d<1?0.45:0.8;JOY.x=(c*mx-s*mz)*k;JOY.y=(-s*mx-c*mz)*k;
+  g.st=(g.st||0)+dt;if(g.st>2.2){if(Math.hypot(P.x-g.lx,P.z-g.lz)<0.25){end();return u0(dt)}g.st=0;g.lx=P.x;g.lz=P.z}
+  P.goSeat=null;try{return u0(dt)}finally{if(!P.goSeat)P.goSeat=g}}}
+
+/* =====================================================================
+   v72 FREE DOORWAYS: furniture is laid out again so no wardrobe, bed or
+   shelf stands in front of a door (inside or outside doors). The
+   pieces you had taken apart in the old layout come back once.
+   ===================================================================== */
+{const dr=disRestore;disRestore=function(){try{if(SV&&SV.fgen!==72){SV.dis={};SV.disp={};SV.fgen=72}}catch(e){}return dr.apply(this,arguments)}}
+
+/* =====================================================================
+   v72 EVERYONE CLIMBS OVER: survivors at your side and the zombies hop
+   over what is in the way, like you do.
+   · fences (rural, lot, gates, the wooden CERCA you build), brick walls
+     (MURO, slower), parked cars and wrecks (over the hood), open or
+     broken windows.
+   · survivors jump when you are on the other side; zombies jump when
+     they are after someone. Brutes and bosses are too heavy to climb.
+   · the Safe House perimeter fence still has to be broken at the gate.
+   ===================================================================== */
+function ovH(b){if(!b)return 0;const t=b.tag;if(t==='car')return 1.3;if(t==='rfence')return 1.1;if(t==='lfence')return 1.0;if(t==='pgate')return b.ref&&b.ref.open>0.55?0:1.2;
+  if(t==='bdef'&&b.ref){if(b.ref.t==='cerca')return 1.3;if(b.ref.t==='muro')return 1.7}return 0}
+// which climbable piece is touching e (looked up before the normal collision)
+function ovTouch(e,r){let best=null,bd=1e9;const gx0=Math.floor((e.x-r-1)/CG),gx1=Math.floor((e.x+r+1)/CG),gz0=Math.floor((e.z-r-1)/CG),gz1=Math.floor((e.z+r+1)/CG);
+  for(let gx=gx0;gx<=gx1;gx++)for(let gz=gz0;gz<=gz1;gz++){const L=CGRID.get(ck(gx,gz));if(!L)continue;for(const b of L){const H=ovH(b);if(!H)continue;const th=Math.min(b.x1-b.x0,b.z1-b.z0);if(th>3.4)continue;
+    const cx=clamp(e.x,b.x0,b.x1),cz=clamp(e.z,b.z0,b.z1),d=Math.hypot(e.x-cx,e.z-cz);if(d<r+0.08&&d<bd){bd=d;best=b}}}return best}
+{const c0=collide;collide=function(e,r,zombie){if(e&&e.ov)return;if(e&&e!==P&&(zombie||ALLY.indexOf(e)>=0)){try{const b=ovTouch(e,r||0.3);if(b){e.ovB=b;e.ovT=T}}catch(err){}}return c0(e,r,zombie)}}
+// start a hop across the thin side of the piece
+function ovStart(e,b,slow){const w=b.x1-b.x0,d=b.z1-b.z0,H=ovH(b),acrossX=w<d,th=Math.min(w,d);let x0=e.x,z0=e.z,x1=e.x,z1=e.z;
+  if(acrossX){const s=e.x<(b.x0+b.x1)/2?-1:1;x0=s<0?b.x0-0.35:b.x1+0.35;x1=s<0?b.x1+0.45:b.x0-0.45;z0=z1=clamp(e.z,b.z0+0.1,b.z1-0.1)}
+  else{const s=e.z<(b.z0+b.z1)/2?-1:1;z0=s<0?b.z0-0.35:b.z1+0.35;z1=s<0?b.z1+0.45:b.z0-0.45;x0=x1=clamp(e.x,b.x0+0.1,b.x1-0.1)}
+  if(blocked(x1,z1,0.3))return false;const dur=(0.85+th*0.3+(H>1.5?0.7:0))*(slow||1);
+  e.ov={x0,z0,x1,z1,t:0,dur,H,face:Math.atan2(x1-x0,z1-z0)};e.face=e.ov.face;e.vx=e.vz=0;
+  if(AU.c&&P&&Math.hypot(e.x-P.x,e.z-P.z)<22){const t=AU.c.currentTime,v=clamp(1-Math.hypot(e.x-P.x,e.z-P.z)/22,0.1,1);anz(t,0.25,800,400,0.05*v,'bandpass',2);thump(t+dur*0.85,b.tag==='car'?140:100,45,0.08,0.25*v)}return true}
+function ovTick(e,dt,m){const V=e.ov;V.t+=dt;const k=clamp(V.t/V.dur,0,1),kk=k*k*(3-2*k);e.x=lerp(V.x0,V.x1,kk);e.z=lerp(V.z0,V.z1,kk);e.vx=e.vz=0;e.face=V.face;
+  const h=Math.sin(Math.min(1,k*1.08)*Math.PI)*(V.H*0.82);if(m){m.root.position.set(e.x,(m.gy!=null?m.gy:gy(e.x,e.z))+h,e.z);m.root.rotation.y=V.face}if(k>=1)e.ov=null}
+// is the goal on the other side of the piece?
+function ovAcross(b,e,tx,tz){const w=b.x1-b.x0,d=b.z1-b.z0;if(w<d){const c=(b.x0+b.x1)/2;return(e.x-c)*(tx-c)<0}const c=(b.z0+b.z1)/2;return(e.z-c)*(tz-c)<0}
+{const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(!W3.on||!P)return r;
+  // zombies
+  for(const z of Z){if(z.dead){z.ov=null;continue}if(z.ov){ovTick(z,dt,z.m);z.state='walk';continue}
+    if(z.type==='brute'||z.type==='boss'||z.seq||z.vault||z.down>0)continue;const b=z.ovB;if(!b||T-(z.ovT||-9)>0.15){z.ovP=0;continue}
+    if(b.tag==='rfence'||b.tag==='lfence')continue;// those already have their own climb
+    if(!(z.see||z.aggro>0||z.alert>0))continue;const t=z.see?P:(z.lx!=null?{x:z.lx,z:z.lz}:P);if(!ovAcross(b,z,t.x,t.z)){z.ovP=0;continue}
+    z.ovP=(z.ovP||0)+dt;if(z.ovP>(b.tag==='bdef'&&b.ref&&b.ref.t==='muro'?1.6:0.6)){z.ovP=0;ovStart(z,b,z.type==='runner'?0.8:1.25)}}
+  // survivors at your side
+  for(const a of ALLY){if(a.st!=='ok'){a.ov=null;a.vault=null;continue}
+    if(a.ov){ovTick(a,dt,a.m);continue}
+    if(a.vault){vaultTick(a,dt,a.m);if(a.m&&a.vault)a.m.root.rotation.y=a.vault.face;continue}
+    const dP=Math.hypot(P.x-a.x,P.z-a.z);if(dP<1.8||P.drive){a.ovP=0;continue}
+    const b=a.ovB;if(b&&T-(a.ovT||-9)<0.15&&ovAcross(b,a,P.x,P.z)){a.ovP=(a.ovP||0)+dt;if(a.ovP>0.35){a.ovP=0;ovStart(a,b,0.8)}continue}
+    const w=a.winRef;if(w&&T-(a.wHitT||-9)<0.15&&!w.barr&&(w.broken||w.open)){const sa=(a.x-w.x)*w.nx+(a.z-w.z)*w.nz,sp=(P.x-w.x)*w.nx+(P.z-w.z)*w.nz;if(sa*sp<0){a.wpP=(a.wpP||0)+dt;if(a.wpP>0.35){a.wpP=0;vaultStart(a,w,0.95);a.face=a.vault.face}}continue}
+    a.ovP=0;a.wpP=0}
+}catch(e){console.error(e)}return r}}
+
+/* =====================================================================
+   v72 POLICE ZOMBIES: the riot cop the player sent (realistic, with its
+   own textures) walks the streets as a zombie. Around police stations
+   most of the dead are cops; elsewhere one shows up now and then.
+   Searching a dead cop usually gives ammunition and often a gun.
+   ===================================================================== */
+const ZPOOLC=[];let COPW=0,POLB=null,COPFORCE=0;
+function polNear(x,z){if(!POLB)POLB=BLDS.filter(b=>b.kind==='police');let d=1e9;for(const b of POLB){d=Math.min(d,Math.hypot((b.x0+b.x1)/2-x,(b.z0+b.z1)/2-z))}return d}
+function makeCopZ(type){const R=RMOD.cop;const root=new THREE.Group();root.rotation.order='YXZ';root.scale.setScalar(ZT[type].s*0.9*0.87);
+  const shadow=new THREE.Mesh(new THREE.CircleGeometry(0.42,12),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:0.32,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=0.03;root.add(shadow);
+  const h={root,ph:0,lean:0,boss:false,vr:2,cop:1,remy:1,tilt:rnd(-0.35,0.35),arm:rnd(0,1),G:{sw:R.sw,headY:0.6},R,rcy:R.cy,mats:[]};
+  const B=()=>new THREE.Bone();const pelvis=B();pelvis.position.y=RIG.hip;root.add(pelvis);const chest=B();chest.position.y=R.cy;pelvis.add(chest);const head=B();head.position.set(0,0.63,0);chest.add(head);
+  h.pelvis=pelvis;h.chest=chest;h.head=head;const bones=[pelvis,chest,head];
+  for(const s of['L','R']){const ua=B(),fa=B();chest.add(ua,fa);h['ua'+s]=ua;h['fa'+s]=fa;bones.push(ua,fa)}
+  for(const s of['L','R']){const th=B(),sh=B(),ft=B();pelvis.add(th,sh,ft);h['th'+s]=th;h['sh'+s]=sh;h['ft'+s]=ft;bones.push(th,sh,ft)}
+  for(const s of['L','R']){const ha=B();chest.add(ha);h['ha'+s]=ha;bones.push(ha)}
+  const sk=new THREE.Skeleton(bones,R.inv.map(m=>m.clone()));let big=0;
+  for(const p of R.P){const m=new THREE.MeshLambertMaterial({map:p.map,alphaTest:p.alpha?0.4:0,side:p.alpha?THREE.DoubleSide:THREE.FrontSide,emissive:0x000000});h.mats.push(m);
+    const sm=new THREE.SkinnedMesh(p.g,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm);const n=p.g.attributes.position.count;if(n>big){big=n;h.mat=m;h.body=sm}}
+  return h}
+// the spawn decides: near a police station most are cops
+{const sp=spawnZ3;spawnZ3=function(type,x,z,zz,m){COPW=COPFORCE&&RMOD.cop?1:0;try{if(!COPW&&RMOD.cop&&(type==='walker'||type==='runner')){const d=polNear(x,z);COPW=Math.random()<(d<45?0.72:d<90?0.2:0.03)?1:0}}catch(e){}try{return sp(type,x,z,zz,m)}finally{COPW=0}}}
+{const mz=makeZombie3;makeZombie3=function(type){if(COPW&&RMOD.cop){const m=ZPOOLC.pop();if(m){m.root.rotation.set(0,0,0);m.root.position.set(0,0,0);m.head.scale.setScalar(1);for(const q of m.mats)q.emissive.setRGB(0,0,0);m.root.visible=true;m.shOn=undefined;return m}return makeCopZ(type)}return mz(type)}}
+{const fz=freeZombie3;freeZombie3=function(m,type){if(m&&m.cop){SC3.remove(m.root);if(ZPOOLC.length<30)ZPOOLC.push(m);else{try{for(const q of m.mats)q.dispose();m.body.skeleton.dispose()}catch(e){}}return}return fz(m,type)}}
+// the flash when hit shows on the whole body; the chest sits where the model wants it
+{const az=animZombie;animZombie=function(m,z,dt){const r=az(m,z,dt);if(m&&m.cop){m.chest.position.y=m.rcy;const e=m.mat.emissive;for(const q of m.mats)if(q!==m.mat)q.emissive.copy(e)}return r}}
+{const u0=update3D;update3D=function(dt){const r=u0(dt);try{for(const z of Z){const m=z.m;if(m&&m.cop&&m.root.visible){m.chest.position.y=m.rcy;handFree(m,'L');handFree(m,'R')}}}catch(e){}return r}}
+// a dead cop: police clothes, usually ammo, often a gun
+{const cl0=corpseLoot;corpseLoot=function(z){if(!(z&&z.m&&z.m.cop))return cl0(z);const out=cl0(z).filter(e=>e.k!=='ammo'&&e.k!=='gun');
+  if(Math.random()<0.85)out.push(ammoBox('p'));if(Math.random()<0.35)out.push(ammoBox(Math.random()<0.5?'s':'r'));
+  if(Math.random()<0.55){let id='pistol';try{id=gunByZone(Math.max(1,z.zz||1),true)||'pistol'}catch(e){}out.push({k:'gun',id})}
+  if(Math.random()<0.3)out.push({k:'item',id:pick(['bandage','pain']),n:1});return out}}
+// load the cop when the world opens
+{const ew=enterWorld3D;enterWorld3D=function(){const r=ew.apply(this,arguments);POLB=null;setTimeout(()=>{try{remyLoad('cop')}catch(e){}},3500);return r}}
 
 start();
 
