@@ -494,7 +494,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v73', NOTES='';
+const VERSION='v74', NOTES='';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -10291,7 +10291,7 @@ pNpcTick=function(dt){const b=homeSafe();const list=b?SV.surv.filter(v=>v.job===
    · some zombies lie on the streets like corpses; get close (or make
      noise near them) and they rise (Zombie Stand Up) and come for you.
    ===================================================================== */
-const ZS={stumble:{c:'stumble',a:1.0,b:3.0,sp:1.15},die:{c:'stumble',a:1.45,b:3.4,sp:1.2},getup:{c:'getup',a:0.45,b:4.1,sp:1.35},zrise:{c:'zrise',a:1.15,b:3.05,sp:1.1}};
+const ZS={stumble:{c:'stumble',a:1.0,b:3.4,sp:1.15},die:{c:'stumble',a:1.45,b:3.4,sp:1.2},getup:{c:'getup',a:0.45,b:4.1,sp:1.35},zrise:{c:'zrise',a:1.15,b:3.05,sp:1.1}};
 const _zsP=new Float32Array(47),_zsB=new Float32Array(47);
 function zsHead(k){const c=ZS[k];zmSample(c.c,c.a,_zsB);const x0=_zsB[0],z0=_zsB[2];zmSample(c.c,c.b,_zsB);return Math.atan2(_zsB[0]-x0,_zsB[2]-z0)}
 let ZSH=null;function zsH(k){if(!ZSH)ZSH={stumble:zsHead('stumble'),die:zsHead('die')};return ZSH[k]||0}
@@ -10323,7 +10323,7 @@ function zsDown(z,dt){const S=z.seq;z.vx=z.vz=0;z.state='down';z.down=Math.max(z
 // death while standing → stumble and fall dead; death while lying → stays as it lies
 {const h0=hurtZ3;hurtZ3=function(z,dmg,head,dx,dz){const was=z&&z.dead;if(z&&z.seq&&z.seq.hold)z.seq.wake=1;h0(z,dmg,head,dx,dz);try{if(!z||was||!z.dead||z.type==='boss'||!z.m||!z.m.pelvis)return;
   if(z.seq){const S=z.seq;z.seq=null;if(S.k==='lie'||(S.k==='zrise'&&S.hold))z.dseq={done:1};else if(S.k==='stumble')z.dseq=S;else{zsStart(z,'die');z.dseq=z.seq;z.seq=null}return}if(z.air||z.krg||z.down>0)return;
-  if(z.rg){const i=RG.active.indexOf(z);if(i>=0)RG.active.splice(i,1);z.rg=null}const l=Math.hypot(dx||0,dz||0);const hd=l>0.01?Math.atan2(dx,dz):(z.face||0)+Math.PI;
+  if(z.crawl||z.lie)return;if(z.rg){const i=RG.active.indexOf(z);if(i>=0)RG.active.splice(i,1);z.rg=null}const l=Math.hypot(dx||0,dz||0);const hd=l>0.01?Math.atan2(dx,dz):(z.face||0)+Math.PI;
   z.face=hd-zsH('die');zsStart(z,'die');z.dseq=z.seq;z.seq=null}catch(e){console.error(e)}}}
 {const az=animZombie;animZombie=function(m,z,dt){if(z&&z.dead&&z.dseq){if(z.dseq.done)return;try{if(zsStep(z,z.dseq,dt||0.016)){z.dseq={done:1};if(m._sh===undefined)m._sh=m.root.children.find(c=>c.geometry&&c.geometry.type==='CircleGeometry')||null;if(m._sh)m._sh.visible=false;
     if(AU.c&&P){const d=Math.hypot(z.x-P.x,z.z-P.z);if(d<30){const v=clamp(1-d/30,0.15,1),t=AU.c.currentTime;thump(t,95,38,0.16,0.4*v);anz(t,0.12,700,200,0.16*v,'lowpass',1.2)}}}}catch(e){console.error(e);z.dseq=null}return}
@@ -10806,6 +10806,45 @@ function renderWinM(body){const w=WINC;if(!w){closeSheet();return}$('sKick').tex
   if(!w.barr)row('🪵','PREGAR TÁBUAS','2 tábuas + 1 caixa de pregos · os zumbis precisam quebrar para entrar',btn('PREGAR',hasMat({plank:2,nails:1})?'buy alt':'ghost',()=>wbNail(w)));
   else row('🔨','TIRAR AS TÁBUAS','Libera a janela · você recupera 1 tábua',btn('TIRAR','buy alt',()=>wbRemove(w)))}
 {const rs0=renderSheet;renderSheet=function(){if(shSel==='winm'){const body=$('sBody');body.innerHTML='';renderWinM(body);return}return rs0()}}
+
+/* =====================================================================
+   v74 YOU CLIMB CARS, PICKUPS AND FENCES LIKE WALLS AND GATES: push the
+   joystick against a parked car, pickup, van, wreck, any fence, the
+   wooden CERCA or the brick MURO and the survivor climbs over with the
+   same climbing movement (hands on top, legs over, down the other side).
+   ===================================================================== */
+{const ch=climbH;climbH=function(b){const h=ch(b);if(h)return h;if(!b)return 0;if(b.tag==='car')return 1.2;if(b.tag==='fence')return 1.45;if(b.tag==='bdef'&&b.ref&&b.ref.t==='muro')return 1.7;return 0}}
+// cars that can be driven also count (their box on the ground)
+const _ccb=HAS3?new THREE.Box3():null;
+function vehBoxes(){const out=[];for(const v of VEH){if(!v.m||v.t==='moto'||P.drive===v||Math.abs(v.x-P.x)>5||Math.abs(v.z-P.z)>5)continue;if(!v._bb||v._bx!==v.x||v._bz!==v.z||v._br!==v.rot){v.m.updateMatrixWorld(true);_ccb.setFromObject(v.m);v._bb={x0:_ccb.min.x,x1:_ccb.max.x,z0:_ccb.min.z,z1:_ccb.max.z,tag:'car',veh:v};v._bx=v.x;v._bz=v.z;v._br=v.rot}out.push(v._bb)}return out}
+climbFind=function(){const jx=(JOY.sx||JOY.x||0)+((IN.r?1:0)-(IN.l?1:0)),jy=(JOY.sy||JOY.y||0)+((IN.u?1:0)-(IN.d?1:0)),jl=Math.hypot(jx,jy);if(jl<0.5)return null;
+  const s=Math.sin(CY),c=Math.cos(CY),mx=(jx*c+jy*-s)/jl,mz=(jx*-s+jy*-c)/jl;let best=null;const L=[];
+  for(let gx=Math.floor((P.x-1)/CG);gx<=Math.floor((P.x+1)/CG);gx++)for(let gz=Math.floor((P.z-1)/CG);gz<=Math.floor((P.z+1)/CG);gz++)for(const b of(CGRID.get(ck(gx,gz))||[]))L.push(b);
+  for(const b of vehBoxes())L.push(b);
+  for(const b of L){const H=climbH(b);if(!H)continue;const w=b.x1-b.x0,d=b.z1-b.z0,th=Math.min(w,d);if(th>(b.tag==='car'?3.4:0.6))continue;const alongX=w>d;
+    const nx=alongX?0:1,nz=alongX?1:0,cx=clamp(P.x,b.x0,b.x1),cz=clamp(P.z,b.z0,b.z1),dist=Math.hypot(P.x-cx,P.z-cz);if(dist>0.62)continue;
+    if(alongX&&(P.x<b.x0+0.2||P.x>b.x1-0.2))continue;if(!alongX&&(P.z<b.z0+0.2||P.z>b.z1-0.2))continue;
+    const side=alongX?Math.sign(P.z-(b.z0+b.z1)/2)||1:Math.sign(P.x-(b.x0+b.x1)/2)||1,dot=-(mx*nx+mz*nz)*side;if(dot<0.7)continue;
+    const px=alongX?P.x:(b.x0+b.x1)/2,pz=alongX?(b.z0+b.z1)/2:P.z,K=Math.max(1,(th+0.75)/1.21),fx=-nx*side,fz=-nz*side;
+    if(th>0.6&&blocked(px+fx*(th/2+0.45),pz+fz*(th/2+0.45),0.28))continue;
+    if(!best||dist<best.dist)best={b,H,dist,fx,fz,px,pz,th,K}}return best};
+{const cs=climbStart;climbStart=function(c){cs(c);if(P.clb){P.clb.K=c.K||1;P.clb.th=c.th||0.1;if((c.K||1)>1.05){P.clb.dur*=1+(c.K-1)*0.45;P.climb=P.clb.dur+0.1}}}}
+// while climbing nothing pushes you back (you go over it)
+{const c0=collide;collide=function(e,r,zombie){if(e===P&&P.clb)return;return c0(e,r,zombie)}}
+climbPose=function(dt){const C=P.clb;if(!C||!PM)return;C.u+=dt/C.dur;const u=clamp(C.u,0,1),H=C.H,g0=gy(C.px,C.pz),K=C.K||1,TH=(C.th||0.1)/2;
+  const rt=kf(CLK.root,u),rs=rt[0],ry=rt[1]*H;P.x=C.px+C.fx*rs*K;P.z=C.pz+C.fz*rs*K;P.vx=P.vz=0;P.face=C.face;
+  const h=PM;h.root.position.set(P.x,g0+ry,P.z);h.root.rotation.set(0,C.face,0);
+  const pl=kf(CLK.pel,u);h.pelvis.position.set(0,RIG.hip+pl[0],0);h.pelvis.rotation.set(pl[1],0,0);h.chest.rotation.set(kf(CLK.chest,u)[0],0,0);h.head.rotation.set(-0.25,0,0);
+  if(h.gun)h.gun.visible=false;h.root.updateMatrixWorld(true);
+  // hands on the rail
+  const lat=C.fz,latz=-C.fx;const hk=u<0.12?u/0.12:u>0.84?Math.max(0,1-(u-0.84)/0.1):1;
+  for(const[s,x]of[['L',-1],['R',1]]){const hz=clamp(rs*K+0.42,-TH,TH),wx=C.px+C.fx*hz+lat*x*0.24,wz=C.pz+C.fz*hz+latz*x*0.24;_clV.set(wx,g0+H+0.03,wz);h.chest.worldToLocal(_clV);
+    const rest=_gv2.set(x*0.18,0.05,0.12),T2=_hT.copy(rest).lerp(_clV,hk);_gv.set(x*h.G.sw,RIG.shY-0.02,0);_hP.set(x*0.6,-0.6,-0.6);ik3(h['ua'+s],h['fa'+s],_gv,T2,RIG.ua,RIG.fa+0.04,_hP)}
+  // feet
+  for(const[s,x,K]of[['L',-1,CLK.fL],['R',1,CLK.fR]]){const f=kf(K,u),wx=C.px+C.fx*f[0]*K+lat*x*0.1,wz=C.pz+C.fz*f[0]*K+latz*x*0.1;_clV.set(wx,gy(wx,wz)*(f[1]?0:1)+(f[1]?g0+f[1]*H:0)+RIG.ankle,wz);h.pelvis.worldToLocal(_clV);
+    _hS.set(x*0.1,-0.02,0);_hP.set(0,0.2,1);ik3(h['th'+s],h['sh'+s],_hS,_clV,RIG.thigh,RIG.shin,_hP);const ft=h['ft'+s];ft.position.copy(_clV);ft.rotation.set(f[1]>0.2?-0.5:0,0,0)}
+  if(!C.snd&&u>0.88){C.snd=1;if(AU.c){const t=AU.c.currentTime;thump(t,100,45,0.08,0.3);anz(t,0.08,600,200,0.08,'lowpass',1)}noise3(P.x,P.z,P.crouch?3:7)}
+  if(u>=1){P.clb=null;P.climb=0;if(h.gun&&!h._hidG)h.gun.visible=true}}
 
 start();
 
