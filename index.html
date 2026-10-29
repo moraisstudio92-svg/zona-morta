@@ -494,7 +494,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v75', NOTES='';
+const VERSION='v76', NOTES='';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -4562,8 +4562,8 @@ let ALLY=[],ALLY_SIG='';
 const AMODE={cover:{n:'COBERTURA',ic:'🛡',d:'fica atrás de você e atira em quem te ameaça'},collect:{n:'COLETAR',ic:'🎒',d:'pega itens e abre baús, guarda tudo na mochila'},explore:{n:'EXPLORAR',ic:'🧭',d:'vai na frente procurando baús e sobreviventes'},
   defend:{n:'DEFENDER',ic:'🤝',d:'gruda em você e segura quem chega perto'},attack:{n:'ATACAR',ic:'⚔',d:'parte pra cima dos zumbis'},watch:{n:'VIGIAR',ic:'👁',d:'fica no lugar e apita quando vê zumbis'}};
 const AMODE_K=['cover','collect','explore','defend','attack','watch'];
-function allyCap(){const l=SV.lvl||1;return l>=18?3:l>=10?2:l>=4?1:0}
-function allyNext(){const l=SV.lvl||1;return l<4?4:l<10?10:l<18?18:0}
+function allyCap(){return 8}
+function allyNext(){return 0}
 function allyWid(){const l=SV.lvl||1;return l>=16?'m4':l>=12?'ak':l>=7?'smg':'pistol'}
 function allyGun(id){return{pistol:{dmg:15,rate:0.5},smg:{dmg:10,rate:0.15},ak:{dmg:25,rate:0.3},m4:{dmg:30,rate:0.24}}[id]}
 function amode(){return SV.amode||'cover'}
@@ -9784,7 +9784,7 @@ let ALLYLV=0;
 let PPLSEL=null;
 function renderPeople(body){$('sKick').textContent='SOBREVIVENTES';$('sTitle').textContent=`QUEM ESTÁ COM VOCÊ (${SV.surv.length})`;
   if(!SV.surv.length){body.append(hint('Ninguém ainda. Procure pedidos de SOCORRO pelo mapa e resgate sobreviventes.'));return}
-  const where=v=>{const r=pRole(v);if(r==='ferido')return'🤕 Ferido · descansando na safe';if(v.job==='expedicao'){const a=ALLY.find(q=>q.v===v);return`${PJOB[r][0]} Com você · ${PJOB[r][1].toLowerCase()}${a?'':' (vai aparecer do seu lado)'}`}return`${PJOB[r][0]} Na safe · ${PJOB[r][1].toLowerCase()}`};
+  const where=v=>{const r=pRole(v);if(r==='ferido')return'🤕 Ferido · descansando na safe';if(v.job==='materiais'){const k=v.trip?Math.max(0,Math.ceil((v.trip.dur-v.trip.t)/60)):0;return`🧰 Fora · buscando materiais${k?` · volta em ~${k} min`:''}`}if(v.job==='expedicao'){const a=ALLY.find(q=>q.v===v);return`${PJOB[r][0]} Com você · ${PJOB[r][1].toLowerCase()}${a?'':' (vai aparecer do seu lado)'}`}return`${PJOB[r][0]} Na safe · ${PJOB[r][1].toLowerCase()}`};
   for(const v of SV.surv){const r=el('div','irow');r.append(el('i','',v.look&&v.look.fem?'👩':'👨'));const tt=el('div','it');const lv=pLv(v),pc=Math.round((v.xp||0)/pNeed(v)*100);tt.append(el('b','',`${v.name.toUpperCase()} · NÍVEL ${lv}`),el('span','',`${where(v)} · ${lv<10?pc+'% pro próximo':'nível máximo'}`));r.append(tt);
     const ac=el('div','ia');ac.append(btn(PPLSEL===v?'FECHAR':'MUDAR','ghost',()=>{PPLSEL=PPLSEL===v?null:v;renderSheet()}));r.append(ac);body.append(r);
     if(PPLSEL===v){const w=el('div','chs');for(const k of Object.keys(PJOB)){const on=pRole(v)===k;w.append(btn(`${PJOB[k][0]} ${PJOB[k][1]}`,'chip'+(on?' on':''),()=>{if(pSet(v,k)){toast(`${v.name}: ${PJOB[k][1].toLowerCase()}`);PPLSEL=null}renderSheet()}))}body.append(w);
@@ -10867,8 +10867,8 @@ function cvFind(cx,cz,n){let best=null,bd=75;for(const v of VEH){if(!cvFree(v)||
   for(const v of motos){if(left<=0)break;out.push({v,n:Math.min(2,left)});left-=2}return out}
 function cvBoard(a,v,role,seat){a.rd={v,role,seat,t:0};if(a.m&&a.m.gun)a.m.gun.visible=false}
 function cvStart(){const L=P.drive;CVY.lead=L;CVY.list=[];const A=cvAlive();if(!A.length)return;let rest=A.slice();
-  if(L.t==='moto'){if(A.length===1){cvBoard(A[0],L,'back',1);toast(`🏍 ${A[0].name} subiu na garupa`);return}}
-  else{const n=Math.min(3,rest.length);for(let i=0;i<n;i++)cvBoard(rest[i],L,'in',i+1);rest=rest.slice(n);if(n)toast(n>1?`🚗 ${n} sobreviventes entraram no carro`:`🚗 ${A[0].name} entrou no carro`)}
+  if(L.t==='moto'){if(A.length===1){A[0].rd={v:L,role:'go',seat:1,t:0};toast(`🏍 ${A[0].name} vai subir na garupa`);return}}
+  else{const n=Math.min(3,rest.length);for(let i=0;i<n;i++)rest[i].rd={v:L,role:'go',seat:i+1,t:0};rest=rest.slice(n);if(n)toast(n>1?`🚗 ${n} sobreviventes vão entrar no carro`:`🚗 ${A[0].name} vai entrar no carro`)}
   if(!rest.length)return;const cx=rest.reduce((s,a)=>s+a.x,0)/rest.length,cz=rest.reduce((s,a)=>s+a.z,0)/rest.length;const G=cvFind(cx,cz,rest.length);
   if(!G.length){toast('Sem carro por perto · os sobreviventes vão a pé');return}
   let k=0;for(const g of G){g.v.cvy={k:CVY.list.length,go:0};CVY.list.push(g.v);for(let s=0;s<g.n&&k<rest.length;s++,k++){const a=rest[k];a.rd={v:g.v,role:'go',seat:s,t:0}}}
@@ -10877,13 +10877,17 @@ function cvStop(){const L=CVY.lead;for(const a of ALLY){const r=a.rd;if(!r)conti
     if(r.role!=='go'){const k=(r.seat%2?1:-1),d=v.t==='moto'?1.2:1.9;let x=v.x+sd[0]*d*k-f[0]*(r.seat>1?1:0),z=v.z+sd[1]*d*k-f[1]*(r.seat>1?1:0);if(blocked(x,z,0.35)){x=v.x-sd[0]*d*k;z=v.z-sd[1]*d*k}a.x=x;a.z=z}
     a.rd=null;if(a.m){a.m.root.visible=true;a.m.root.rotation.set(0,a.face||0,0);if(a.m.gun)a.m.gun.visible=true}}
   for(const v of CVY.list){v.sp=0;v.cvy=null;try{v.m.rotation.x=0}catch(e){}}CVY.list=[];CVY.lead=null;try{vehSave()}catch(e){}}
-// riding poses
-function cvSeatPose(a,v){const m=a.m,r=a.rd;if(!m)return;const M=v.m.userData.M,f=[Math.cos(v.rot),-Math.sin(v.rot)];a.x=v.x;a.z=v.z;a.face=cvFace(v);
-  if(v.t==='car'){m.root.visible=false;m.root.position.set(v.x,gy(v.x,v.z),v.z);return}
-  m.root.visible=true;const back=r.role==='back'||(r.role==='ride'&&r.seat===1),sx0=M.seat[0]-(back?0.33:0),sy=M.seat[1]+(back?0.16:0);
-  m.root.position.set(v.x+f[0]*sx0,v.m.position.y+M.peg,v.z+f[1]*sx0);m.root.rotation.order='YXZ';m.root.rotation.set(0,a.face,0);
-  const crouch=Math.max(0,M.peg+RIG.hip-(sy-0.06));
-  if(back)animHuman(m,{spd:0,t:T,crouch,lean:0.12,fz:[0.3,0.3]});else animHuman(m,{spd:0,t:T,crouch,lean:M.cross?0.42:0.32,fz:[0.24,0.24],ride:[M.bar[2]-0.04,0.14+(M.cross?0.1:0),0.5-M.seat[0]*0.2]});if(m.gun)m.gun.visible=false}
+// riding poses: the seat follows the vehicle exactly (turns, leaning into curves)
+const _sv=HAS3?new THREE.Vector3():null,_sq90=HAS3?new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0,1,0),Math.PI/2):null;
+function seatXf(v,sx,root){v.m.updateMatrixWorld();const M=v.m.userData.M;_sv.set(sx,M.peg,0).applyMatrix4(v.m.matrixWorld);root.position.copy(_sv);root.quaternion.copy(v.m.quaternion).multiply(_sq90)}
+function cvSeatPose(a,v,dt){const m=a.m,r=a.rd;if(!m)return;const M=v.m.userData.M;a.x=v.x;a.z=v.z;a.face=cvFace(v);r.mt=Math.min(1,(r.mt==null?1:r.mt)+dt/0.6);const k=r.mt,kk=k*k*(3-2*k);
+  if(v.t==='car'){if(k>=1){m.root.visible=false;m.root.position.set(v.x,gy(v.x,v.z),v.z);return}
+    m.root.visible=true;const f=[Math.cos(v.rot),-Math.sin(v.rot)],sd=[-f[1],f[0]];const tx=v.x+sd[0]*0.9,tz=v.z+sd[1]*0.9;m.root.position.set(lerp(r.sx,tx,kk),gy(v.x,v.z),lerp(r.sz,tz,kk));m.root.rotation.set(0,Math.atan2(tx-r.sx,tz-r.sz)||a.face,0);animHuman(m,{spd:0,t:T,crouch:0.45*kk,lean:0.3*kk});return}
+  m.root.visible=true;const back=r.seat>=1,sx0=M.seat[0]-(back?0.33:0),sy=M.seat[1]+(back?0.16:0);
+  seatXf(v,sx0,m.root);
+  if(k<1){const px=m.root.position.x,pz=m.root.position.z,py=m.root.position.y;m.root.position.set(lerp(r.sx,px,kk),lerp(gy(r.sx,r.sz),py,kk)+Math.sin(kk*Math.PI)*0.18,lerp(r.sz,pz,kk))}
+  const crouch=Math.max(0,M.peg+RIG.hip-(sy-0.06))*kk;
+  if(back)animHuman(m,{spd:0,t:T,crouch,lean:0.12*kk,fz:[0.3*kk,0.3*kk]});else animHuman(m,{spd:0,t:T,crouch,lean:(M.cross?0.42:0.32)*kk,fz:[0.24*kk,0.24*kk],ride:[M.bar[2]-0.04,0.14+(M.cross?0.1:0),0.5-M.seat[0]*0.2]});if(m.gun)m.gun.visible=false}
 // the following vehicles
 function cvDrive(v,dt){const L=CVY.lead;if(!L)return;const lf=[Math.cos(L.rot),-Math.sin(L.rot)],k=v.cvy.k,back=7+k*6.5;const tx=L.x-lf[0]*back,tz=L.z-lf[1]*back;let dx=tx-v.x,dz=tz-v.z,d=Math.hypot(dx,dz);
   const C=VCFG[v.k]||VCFG[v.t];
@@ -10895,13 +10899,14 @@ function cvDrive(v,dt){const L=CVY.lead;if(!L)return;const lf=[Math.cos(L.rot),-
   const f=[Math.cos(v.rot),-Math.sin(v.rot)];const ox=v.x,oz=v.z;v.x+=f[0]*v.sp*dt;v.z+=f[1]*v.sp*dt;
   for(const o of v.t==='car'?[C.off,-C.off]:[0]){const e={x:v.x+f[0]*o,z:v.z+f[1]*o};const ex=e.x,ez=e.z;collide(e,C.r,false);if(e.x!==ex||e.z!==ez){v.x+=e.x-ex;v.z+=e.z-ez}}
   const moved=Math.hypot(v.x-ox,v.z-oz);if(ts>3&&moved<dt*1.2)v.cvy.stk=(v.cvy.stk||0)+dt;else v.cvy.stk=Math.max(0,(v.cvy.stk||0)-dt);
-  v.m.position.set(v.x,gy(v.x,v.z),v.z);v.m.rotation.y=v.rot;if(v.t==='moto')v.m.rotation.x=0}
+  {let dr=v.rot-(v.cvy.r0==null?v.rot:v.cvy.r0);while(dr>Math.PI)dr-=TAU;while(dr<-Math.PI)dr+=TAU;v.cvy.r0=v.rot;v.lean=lerp(v.lean||0,v.t==='moto'?clamp(-(dt>0?dr/dt:0)*v.sp*0.03,-0.34,0.34):0,Math.min(1,dt*6))}
+  v.m.position.set(v.x,gy(v.x,v.z),v.z);v.m.rotation.y=v.rot;if(v.t==='moto'){v.m.rotation.z=0;v.m.rotation.x=v.lean}}
 // the survivors on foot run to their vehicle
 function cvGo(a,dt){const r=a.rd,v=r.v,m=a.m;r.t+=dt;const f=[Math.cos(v.rot),-Math.sin(v.rot)],sd=[-f[1],f[0]];const tx=v.x+sd[0]*(v.t==='car'?1.5:0.9),tz=v.z+sd[1]*(v.t==='car'?1.5:0.9);
   let gx=tx,gz=tz;if(r.wpT==null||T-r.wpT>1){r.wpT=T;try{r.wp=canSee(a.x,a.z,tx,tz)?null:navPath(a,tx,tz)}catch(e){r.wp=null}}
   if(r.wp&&r.wp.length){const w=r.wp[0];if(Math.hypot(w[0]-a.x,w[1]-a.z)<0.5)r.wp.shift();else{gx=w[0];gz=w[1]}}
   const d=Math.hypot(tx-a.x,tz-a.z),dx=gx-a.x,dz=gz-a.z,dd=Math.hypot(dx,dz)||1;
-  if(d<0.9||r.t>13){r.role=r.seat===0?'drive':'ride';if(m&&m.gun)m.gun.visible=false;SFX.thud&&Math.hypot(v.x-P.x,v.z-P.z)<25&&SFX.thud();return}
+  if(d<0.9||r.t>13||(v===P.drive&&Math.abs(v.sp)>4&&r.t>1.5)){r.role=r.seat===0?'drive':'ride';r.mt=d<1.6?0:1;r.sx=a.x;r.sz=a.z;if(m&&m.gun)m.gun.visible=false;SFX.thud&&Math.hypot(v.x-P.x,v.z-P.z)<25&&SFX.thud();return}
   const sp=Math.min(dd,5.6*dt);a.x+=dx/dd*sp;a.z+=dz/dd*sp;collide(a,0.33,false);a.face=Math.atan2(dx,dz);
   if(m){m.root.visible=true;m.gy=gy(a.x,a.z);m.root.position.set(a.x,m.gy,a.z);m.root.rotation.set(0,a.face,0);animHuman(m,{spd:5.6,run:true,t:T})}}
 // survivors riding are not run by the on-foot brain and cannot be hurt
@@ -10910,8 +10915,81 @@ function cvGo(a,dt){const r=a.rd,v=r.v,m=a.m;r.t+=dt;const f=[Math.cos(v.rot),-M
 {const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(!W3.on||!P)return r;
   if(P.drive&&!P.dead){if(CVY.lead!==P.drive){if(CVY.lead)cvStop();cvStart()}
     for(const v of CVY.list){if(!v.cvy)continue;const crew=ALLY.filter(a=>a.rd&&a.rd.v===v);const ready=crew.length&&crew.every(a=>a.rd.role!=='go');if(ready)cvDrive(v,dt);else{v.sp=0}}
-    for(const a of ALLY){const q=a.rd;if(!q)continue;if(a.st!=='ok'){a.rd=null;continue}if(q.role==='go')cvGo(a,dt);else cvSeatPose(a,q.v)}}
+    for(const a of ALLY){const q=a.rd;if(!q)continue;if(a.st!=='ok'){a.rd=null;continue}if(q.role==='go')cvGo(a,dt);else cvSeatPose(a,q.v,dt)}
+    // you on the motorbike: the seat follows the bike exactly
+    const v=P.drive;if(v.t==='moto'&&PM&&v.m&&v.m.userData.M){seatXf(v,v.m.userData.M.seat[0],PM.root)}}
   else if(CVY.lead)cvStop()}catch(e){console.error(e)}return r}}
+
+/* =====================================================================
+   v76 DRIVING: the stick only chooses the direction; the FIRE button
+   is the accelerator (on PC: left click or space). Pull the stick back
+   to brake, keep pulling with the accelerator to reverse. Motorbikes
+   lean into the curves (the rider and the one on the back lean too).
+   ===================================================================== */
+function driveCore(dt){const v=P.drive,C=vcfg(v);const rot0=v.rot;
+  {const kk=1-Math.exp(-dt*20);JOY.sx=lerp(JOY.sx||0,JOY.x,kk);JOY.sy=lerp(JOY.sy||0,JOY.y,kk)}
+  let jx=JOY.sx+((IN.r?1:0)-(IN.l?1:0)),jy=JOY.sy+((IN.u?1:0)-(IN.d?1:0));const jl=Math.min(1,Math.hypot(jx,jy));const s=Math.sin(CY),c=Math.cos(CY),mx=jx*c+jy*-s,mz=jx*-s+jy*-c;
+  // v76: the stick only steers; the FIRE button is the throttle (stick pulled back = brake, then reverse)
+  const gas=!!IN.fire&&v.hp>0;let thr=gas?1:0;
+  if(jl>0.15&&v.hp>0){const want=Math.atan2(-mz,mx);const df=((want-v.rot+Math.PI)%TAU+TAU)%TAU-Math.PI,tr=C.turn*dt*clamp(Math.abs(v.sp)/5,0.35,1);
+    if(Math.abs(df)<2.2){if(Math.abs(v.sp)>0.3||gas)v.rot+=clamp(df,-tr,tr)*(v.sp<-0.3?-1:1)}
+    else if(v.sp>1){thr=-1.8}else if(gas){thr=-0.7;const df2=((want+Math.PI-v.rot+Math.PI)%TAU+TAU)%TAU-Math.PI;v.rot+=clamp(df2,-tr,tr)}}
+  if(v.fuel<=0&&thr>0){thr=0;if(!v.fuelMsg){v.fuelMsg=1;toast('⛽ Acabou a gasolina')}}else v.fuelMsg=0;
+  const boost=IN.run?1.25:1,offr=v.x<RURALX&&!bldAt(v.x,v.z)?(onDirt(v.x,v.z)?(C.road+C.offr)/2:C.offr):C.road;v.sp+=thr*C.acc*boost*dt*Math.max(0.6,offr);v.sp*=Math.exp(-dt*(thr?0.25:0.9)+(Math.abs(v.sp)>C.max*boost*offr?-dt*1.5:0));v.sp=clamp(v.sp,-5,C.max*boost*Math.max(offr,0.5)+2);if(Math.abs(v.sp)<0.05&&!thr)v.sp=0;
+  v.fuel=Math.max(0,v.fuel-Math.abs(v.sp)*dt*(v.t==='moto'?0.012:0.02));
+  const f=[Math.cos(v.rot),-Math.sin(v.rot)];v.x+=f[0]*v.sp*dt;v.z+=f[1]*v.sp*dt;
+  // collisions with the world (two circles for cars)
+  let push=0;for(const o of v.t==='car'?[C.off,-C.off]:[0]){const e={x:v.x+f[0]*o,z:v.z+f[1]*o};const ox=e.x,oz=e.z;collide(e,C.r,false);const dx=e.x-ox,dz=e.z-oz;if(dx||dz){v.x+=dx;v.z+=dz;push=Math.max(push,Math.hypot(dx,dz))}}
+  if(push>0.02&&Math.abs(v.sp)>3){const hit=Math.abs(v.sp);v.hp-=hit*0.6+hit*hit*0.09;v.crashT=T;v.sp*=-0.25;G.shake=Math.max(G.shake,Math.min(10,hit*0.6));if(AU.c){thump(AU.c.currentTime,80,35,0.25,Math.min(0.7,hit*0.05));for(let i=0;i<4;i++)metal(AU.c.currentTime+i*0.02,rnd(1500,3500),0.05,0.15)}noise3(v.x,v.z,30);if(v.hp<0)v.hp=0}
+  // running zombies over
+  if(Math.abs(v.sp)>2.5)for(const z of Z){if(z.dead)continue;const d=Math.hypot(z.x-v.x,z.z-v.z);if(d<(v.t==='car'?2.0:1.1)){const dmg=Math.abs(v.sp)*(v.t==='car'?14:9);if(z.air)continue;zKnock(z,f[0]*Math.sign(v.sp),f[1]*Math.sign(v.sp),Math.abs(v.sp)*0.75,1.5+Math.abs(v.sp)*0.3);hurtZ3(z,dmg,false,f[0],f[1]);v.bump=0.08;v.hp-=z.type==='brute'?4:1.2;v.sp*=z.type==='brute'?0.55:0.9;G.shake=Math.max(G.shake,3);blood3(z.x,0.8,z.z,QH?14:6,f[0],f[1],1.2)}}
+  {let dr=v.rot-rot0;while(dr>Math.PI)dr-=TAU;while(dr<-Math.PI)dr+=TAU;const yaw=dt>0?dr/dt:0;v.lean=lerp(v.lean||0,v.t==='moto'?clamp(-yaw*v.sp*0.03,-0.34,0.34):0,Math.min(1,dt*5))}
+  v.m.position.set(v.x,gy(v.x,v.z),v.z);v.m.rotation.y=v.rot;v.m.rotation.z=v.t==='moto'?v.lean:0;
+  P.x=v.x;P.z=v.z;P.vx=0;P.vz=0;P.mv=0;P.face=Math.atan2(f[0],f[1]);P.stam=Math.min(100,P.stam+10*dt);
+  v.nT=(v.nT||0)-dt;if(v.nT<=0){v.nT=0.6;if(Math.abs(v.sp)>1)noise3(v.x,v.z,C.noise+Math.abs(v.sp))}
+  engineSet(v,thr);if(SKY.dark>0.5){FLASHL.intensity=120;FLASHL.position.set(v.x+f[0]*2,1.1,v.z+f[1]*2);FLASHL.target.position.set(v.x+f[0]*14,0.2,v.z+f[1]*14);FLASHL.target.updateMatrixWorld()}}
+drive3=function(dt){const v=P.drive;DRV=v;const hp0=v.hp;try{driveCore(dt)}finally{DRV=null}
+  if(v.hp<hp0)v.dmgd=1;const C=vcfg(v),k=clamp(v.hp/v.max,0,1),cap=C.max*(0.5+0.5*k)*(IN.run?1.25:1);if(v.sp>cap)v.sp=lerp(v.sp,cap,Math.min(1,dt*3))};
+// the fire button shows ACELERAR while you drive
+{const st=document.createElement('style');st.textContent='html.driving #bFire{position:relative}html.driving #bFire::after{content:"ACELERAR";position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);font:800 10px/1 "Barlow Condensed","Arial Narrow",sans-serif;letter-spacing:.12em;color:#ece6d3;text-shadow:0 1px 2px #000;white-space:nowrap;pointer-events:none}';document.head.append(st)}
+setInterval(()=>{try{document.documentElement.classList.toggle('driving',!!(P&&P.drive&&W3.on))}catch(e){}},250);
+
+/* =====================================================================
+   v76 · BUSCAR MATERIAIS: a survivor can be sent out to fetch building
+   material (planks, nails and screws, scrap, electronic parts). Pick
+   the job in 👥 SOBREVIVENTES and he walks out of the safe; every trip
+   (about 2 minutes) he comes back, drops everything in the storage and
+   goes out again, until you give him another job. Sometimes he comes
+   back hurt and rests a day.
+   · zombies no longer make the strange moaning noises
+   ===================================================================== */
+{const zv0=SFX.zv;SFX.zv=function(){if(typeof W3!=='undefined'&&W3.on)return;return zv0.apply(this,arguments)}}
+{const g0=SFX.groan;SFX.groan=function(){if(typeof W3!=='undefined'&&W3.on)return;return g0.apply(this,arguments)}}
+PJOB.materiais=['🧰','BUSCAR MATERIAIS','Sai da safe e volta com tábuas, pregos, parafusos e sucata para construir'];
+const MTRIP=120;
+function mtHome(){try{const L=safes();if(L.length&&BLDS[L[0].bid])return BLDS[L[0].bid];if(SV.base)return baseBld()}catch(e){}return null}
+{const pr=pRole;pRole=function(v){if(v&&v.job==='materiais'&&!v.hurt)return'materiais';return pr(v)}}
+{const ps=pSet;pSet=function(v,k){if(k!=='materiais')return ps(v,k);if(!mtHome()){SFX.deny();toast('Precisa de uma safe para guardar os materiais');return false}
+  v.job='materiais';v.amode=null;v.trip={t:0,dur:MTRIP*(0.85+Math.random()*0.3)};try{setupAllies3(true);setupYard3(true)}catch(e){}mtWalk(v,true);save();return true}}
+RSOPT.push(['materiais','🧰','BUSCAR MATERIAIS','Sai para buscar tábuas, pregos e sucata para construir']);
+{const rs=rescueSet;rescueSet=function(v,k){if(k==='materiais'){if(pSet(v,'materiais'))toast(`🧰 ${v.name} foi buscar materiais`);return}return rs(v,k)}}
+// what one trip brings (more with level)
+function mtLoot(v){const lv=typeof pLv==='function'?pLv(v):1,m=1+lv*0.12,o={};const add=(k,n)=>{n=Math.round(n);if(n>0)o[k]=(o[k]||0)+n};
+  add('plank',rnd(2,4.5)*m);add('nails',rnd(0.6,2.2)*m);add('scrap',rnd(0.8,3)*m);if(Math.random()<0.35*m)add('eletr',1);if(Math.random()<0.25)add('log',rnd(1,2.5));return o}
+function mtTick(dt){if(!SV.surv)return;for(const v of SV.surv){if(v.job!=='materiais'||v.hurt)continue;const t=v.trip||(v.trip={t:0,dur:MTRIP});t.t+=dt;if(t.t<t.dur)continue;
+  const L=mtLoot(v),S=sv().store;for(const k in L){if(!ITEMS[k])continue;S[k]=(S[k]||0)+L[k]}const txt=Object.entries(L).filter(([k])=>ITEMS[k]).map(([k,n])=>`${ITEMS[k].ic}×${n}`).join(' ');
+  if(Math.random()<0.06){v.hurt=1;toast(`🤕 ${v.name} voltou ferido, mas trouxe: ${txt}`)}else toast(`🧰 ${v.name} voltou com ${txt} · está no depósito`);
+  try{v.xp=(v.xp||0)+12}catch(e){}v.trip={t:0,dur:MTRIP*(0.85+Math.random()*0.3)};mtWalk(v,false);mtWalk(v,true,6);save()}}
+// you see them go out of the safe (and come back)
+let MTW=[];
+function mtWalk(v,out,delay){const b=mtHome();if(!b||!P||!SC3)return;const d=b.doors&&b.doors[0];if(!d)return;const cx=(b.x0+b.x1)/2,cz=(b.z0+b.z1)/2;if(Math.hypot(cx-P.x,cz-P.z)>60)return;
+  const ins=[d.x-d.nx*1.2,d.z-d.nz*1.2],door=[d.x+d.nx*1.5,d.z+d.nz*1.5],a=Math.random()*TAU,far=[door[0]+d.nx*22+Math.cos(a)*8,door[1]+d.nz*22+Math.sin(a)*8];
+  const path=out?[ins,door,far]:[far,door,ins];MTW.push({v,path:path.slice(1),x:path[0][0],z:path[0][1],face:0,m:null,wait:delay||0})}
+function mtWalkTick(dt){for(const w of MTW.slice()){if(w.wait>0){w.wait-=dt;continue}if(!w.m){try{w.m=makeHuman(w.v.look||randLook(),null,null);w.m.root.position.set(w.x,gy(w.x,w.z),w.z);SC3.add(w.m.root)}catch(e){MTW.splice(MTW.indexOf(w),1);continue}}
+  const p=w.path[0];if(!p){SC3.remove(w.m.root);disposeChar(w.m);MTW.splice(MTW.indexOf(w),1);continue}const dx=p[0]-w.x,dz=p[1]-w.z,d=Math.hypot(dx,dz);
+  if(d<0.3){w.path.shift();continue}const s=Math.min(d,2.6*dt);w.x+=dx/d*s;w.z+=dz/d*s;w.face=lerpA(w.face,Math.atan2(dx,dz),Math.min(1,dt*8));
+  w.m.gy=gy(w.x,w.z);w.m.root.position.set(w.x,w.m.gy,w.z);w.m.root.rotation.y=w.face;animHuman(w.m,{spd:2.6,t:T})}}
+{const u0=update3D;update3D=function(dt){const r=u0(dt);try{if(W3.on&&P){mtTick(dt);mtWalkTick(dt)}}catch(e){console.error(e)}return r}}
 
 start();
 
