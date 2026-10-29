@@ -494,7 +494,7 @@ const $=id=>document.getElementById(id);
 const rnd=(a,b)=>a+Math.random()*(b-a), clamp=(v,a,b)=>v<a?a:v>b?b:v, lerp=(a,b,t)=>a+(b-a)*t;
 const easeOut=t=>1-(1-t)*(1-t);
 function mulberry(s){return()=>{s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
-const VERSION='v69', NOTES='';
+const VERSION='v70', NOTES='';
 
 let W=0,H=0,DPR=1,S=1,VW=760,VH=540,OY=0,PR=1,ST=0,SB=540;
 const GROUND=440, LEVEL=16000, HOR=250, FOC=380, ZN=120, CAMH=60;
@@ -9535,9 +9535,9 @@ function remyParse(j,buf,ims){const P=[];let skinBase=null;
 // colours from the creator: hair, top, pants, shoes and skin tone
 const _rc=HAS3?new THREE.Color():null;
 function remyTint(kind,of,R){const c=new THREE.Color(1,1,1);of=of||{};
-  if(kind==='hair')c.set(of.hair||'#6a4a2a');else if(kind==='tops')c.set(of.top||'#5a6066');else if(kind==='bottoms')c.set(of.pants||'#4a4a4e');else if(kind==='shoes')c.set(of.shoeCol||'#e8e6e0');
+  if(kind==='hair'||kind==='hairmed')c.set(of.hair||'#6a4a2a');else if(kind==='tops')c.set(of.top||'#5a6066');else if(kind==='bottoms')c.set(of.pants||'#4a4a4e');else if(kind==='shoes')c.set(of.shoeCol||'#e8e6e0');
   else if(kind==='body'&&of.skin){_rc.set(of.skin);const b=new THREE.Color(R.skinBase[0]/255,R.skinBase[1]/255,R.skinBase[2]/255).convertSRGBToLinear();c.setRGB(Math.min(1.6,_rc.r/Math.max(0.02,b.r)),Math.min(1.6,_rc.g/Math.max(0.02,b.g)),Math.min(1.6,_rc.b/Math.max(0.02,b.b)))}
-  if(kind==='hair'||kind==='tops'||kind==='bottoms'||kind==='shoes'){c.multiplyScalar(1.15)}return c}
+  if(kind==='hair'||kind==='hairmed'||kind==='tops'||kind==='bottoms'||kind==='shoes'){c.multiplyScalar(1.15)}return c}
 function makeRemy(of,wid,acc,R){R=R||REMY;const root=new THREE.Group();root.rotation.order='YXZ';const h={root,wid,ph:0,G:{sw:R.sw},lean:0,twist:0,aimS:0,rel:-1,dg:0,remy:1,rcy:R.cy};
   const B=()=>new THREE.Bone();const pelvis=B();pelvis.position.y=RIG.hip;root.add(pelvis);const chest=B();chest.position.y=R.cy;pelvis.add(chest);const head=B();head.position.set(0,0.63,0);chest.add(head);
   h.pelvis=pelvis;h.chest=chest;h.head=head;const bones=[pelvis,chest,head];
@@ -9545,7 +9545,7 @@ function makeRemy(of,wid,acc,R){R=R||REMY;const root=new THREE.Group();root.rota
   for(const s of['L','R']){const th=B(),sh=B(),ft=B();pelvis.add(th,sh,ft);h['th'+s]=th;h['sh'+s]=sh;h['ft'+s]=ft;bones.push(th,sh,ft)}
   if(R.inv.length>13){for(const s of['L','R']){const ha=B();chest.add(ha);h['ha'+s]=ha;bones.push(ha)}h.R=R}
   const sk=new THREE.Skeleton(bones,R.inv.map(m=>m.clone()));h.mat=new THREE.MeshLambertMaterial({vertexColors:true});h.mats=[];
-  for(const p of R.P){const m=new THREE.MeshLambertMaterial({map:p.map,alphaTest:p.alpha?0.12:0,transparent:!!p.alpha,depthWrite:!p.alpha,side:p.alpha?THREE.DoubleSide:THREE.FrontSide});m.color.copy(remyTint(p.kind,of,R));h.mats.push(m);const gg=p.kind==='hair'&&typeof hairVar==='function'?hairVar(R,p,of):p.g;if(!gg)continue;const sm=new THREE.SkinnedMesh(gg,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm);if(!h.body)h.body=sm}
+  for(const p of R.P){const m=new THREE.MeshLambertMaterial({map:p.map,alphaTest:p.alpha?0.12:0,transparent:!!p.alpha,depthWrite:!p.alpha,side:p.alpha||p.kind==='hairmed'?THREE.DoubleSide:THREE.FrontSide});m.color.copy(remyTint(p.kind,of,R));h.mats.push(m);const gg=p.kind==='hairmed'?(typeof hsNorm==='function'&&hsNorm(of)==='medio'?p.g:null):p.kind==='hair'&&typeof hairVar==='function'?hairVar(R,p,of):p.g;if(!gg)continue;const sm=new THREE.SkinnedMesh(gg,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm);if(!h.body)h.body=sm}
   if(typeof hairExtra==='function')for(const g of hairExtra(R,of)){const m=new THREE.MeshLambertMaterial({color:remyTint('hair',of,R).multiplyScalar(0.82),map:typeof hairTex==='function'?hairTex():null,side:THREE.DoubleSide});h.mats.push(m);const sm=new THREE.SkinnedMesh(g,m);sm.bind(sk,new THREE.Matrix4());sm.castShadow=QH;sm.frustumCulled=false;root.add(sm)}
   if(wid){h.melee=!!MELEE[wid];h.gun=new THREE.Mesh(weaponGeo(wid,acc),h.mat);h.gun.castShadow=QH;h.chest.add(h.gun)}
   const shadow=new THREE.Mesh(new THREE.CircleGeometry(0.42,14),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:0.32,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=0.03;root.add(shadow);
@@ -10447,13 +10447,14 @@ function logTick(dt){for(const m of WLOG){const L=m.userData.L;if(L&&L.show&&!m.
    v67 HAIR STYLES for the realistic people
    men: CURTO · TOPETE · RASPADO · CARECA
    women: AMARRADO · LISO (long, down the back) · ENCARACOLADO (curls)
+   v70: MÉDIO for both (the real hair model the player sent, fitted to each head)
    ===================================================================== */
-const HSTY={m:[['curto','CURTO'],['topete','TOPETE'],['raspado','RASPADO'],['careca','CARECA']],f:[['amarrado','AMARRADO'],['liso','LISO'],['encaracolado','ENCARACOLADO']]};
+const HSTY={m:[['medio','MÉDIO'],['curto','CURTO'],['topete','TOPETE'],['raspado','RASPADO'],['careca','CARECA']],f:[['medio','MÉDIO'],['amarrado','AMARRADO'],['liso','LISO'],['encaracolado','ENCARACOLADO']]};
 function hsNorm(L){const f=!!(L&&L.fem),s=L&&L.hairStyle,ok=(f?HSTY.f:HSTY.m).map(x=>x[0]);if(ok.includes(s))return s;
-  const map=f?{pony:'amarrado',bun:'amarrado',curly:'encaracolado',long:'liso',side:'liso',bob:'liso'}:{quiff:'topete',buzz:'raspado',bald:'careca',short:'curto',messy:'curto',curly:'curto',mohawk:'topete'};return map[s]||(f?'amarrado':'curto')}
+  const map=f?{pony:'amarrado',bun:'amarrado',curly:'encaracolado',long:'liso',side:'medio',bob:'medio'}:{quiff:'topete',buzz:'raspado',bald:'careca',short:'curto',messy:'medio',curly:'curto',mohawk:'topete'};return map[s]||(f?'amarrado':'curto')}
 function hairBox(R,p){if(p._hb)return p._hb;const a=p.g.attributes.position.array;let x0=1e9,y0=1e9,z0=1e9,x1=-1e9,y1=-1e9,z1=-1e9;for(let i=0;i<a.length;i+=3){x0=Math.min(x0,a[i]);x1=Math.max(x1,a[i]);y0=Math.min(y0,a[i+1]);y1=Math.max(y1,a[i+1]);z0=Math.min(z0,a[i+2]);z1=Math.max(z1,a[i+2])}
   p._hb={c:[(x0+x1)/2,(y0+y1)/2,(z0+z1)/2],r:[(x1-x0)/2,(y1-y0)/2,(z1-z0)/2],top:y1};return p._hb}
-function hairVar(R,p,of){const st=hsNorm(of);if(st==='careca'||st==='raspado')return null;if(st==='topete')return p.g;if(st==='curto'||st==='amarrado'||st==='liso'||st==='encaracolado')return p.g;
+function hairVar(R,p,of){const st=hsNorm(of);if(st==='careca'||st==='raspado'||st==='medio')return null;if(st==='topete')return p.g;if(st==='curto'||st==='amarrado'||st==='liso'||st==='encaracolado')return p.g;
   R._hv=R._hv||{};if(R._hv[st])return R._hv[st];const g=p.g.clone(),a=g.attributes.position.array,B=hairBox(R,p),c=B.c,r=B.r;
   for(let i=0;i<a.length;i+=3){let x=a[i],y=a[i+1],z=a[i+2];
     if(st==='raspado'){x=c[0]+(x-c[0])*0.95;y=c[1]+(y-c[1])*0.95-0.004;z=c[2]+(z-c[2])*0.95}
@@ -10468,7 +10469,7 @@ function hairCap(R){if(R._cap!==undefined)return R._cap;const bp=R.P.find(p=>p.k
   let top=-1e9;for(let i=1;i<a.length;i+=3)top=Math.max(top,a[i]);let x0=1e9,x1=-1e9,zb=1e9,zf=-1e9;for(let i=0;i<a.length;i+=3){const y=a[i+1];if(y<top-0.1)continue;x0=Math.min(x0,a[i]);x1=Math.max(x1,a[i]);zb=Math.min(zb,a[i+2]);if(y>top-0.05)zf=Math.max(zf,a[i+2])}
   const rx=(x1-x0)/2+0.014,rz=(zf-zb)/2+0.016,ry=0.118,cx=(x0+x1)/2,cz=(zf+zb)/2-0.006,cy=top-ry+0.013;
   const g=new THREE.SphereGeometry(1,24,12,0,Math.PI*2,0,1.5);g.scale(rx,ry,rz);g.rotateX(-0.18);g.translate(cx,cy,cz);R._cap=hairSkinned([{g,c:null,m:null}]);return R._cap}
-function hairExtra(R,of){const st=hsNorm(of);if(st==='careca')return[];const cap=st==='raspado'?null:hairCap(R),out=cap?[cap]:[];if(st!=='liso'&&st!=='encaracolado'&&st!=='raspado'&&st!=='topete')return out;R._hx=R._hx||{};if(R._hx[st])return out.concat([R._hx[st]]);const hp=R.P.find(p=>p.kind==='hair');if(!hp)return out;
+function hairExtra(R,of){const st=hsNorm(of);if(st==='careca'||st==='medio')return[];const cap=st==='raspado'?null:hairCap(R),out=cap?[cap]:[];if(st!=='liso'&&st!=='encaracolado'&&st!=='raspado'&&st!=='topete')return out;R._hx=R._hx||{};if(R._hx[st])return out.concat([R._hx[st]]);const hp=R.P.find(p=>p.kind==='hair');if(!hp)return out;
   const B=hairBox(R,hp),c=B.c,r=B.r,P0=[];
   if(st==='liso'){// long straight hair down the back and sides
     const N=20,M=10,pos=[],idx=[],uvs=[];for(let j=0;j<=M;j++){const t=j/M,y=c[1]+r[1]*0.55-t*(r[1]*1.05+0.26),fl=1.04+0.22*t*t;
@@ -10491,6 +10492,8 @@ function hairExtra(R,of){const st=hsNorm(of);if(st==='careca')return[];const cap
 // a strand texture for the hair base, long hair and curls (tinted by the chosen colour)
 let HAIRTEX=null;function hairTex(){if(HAIRTEX)return HAIRTEX;HAIRTEX=canvasTex(256,256,(x,w,h)=>{x.fillStyle='#bdbdbd';x.fillRect(0,0,w,h);for(let i=0;i<2600;i++){const px=Math.random()*w,py=Math.random()*h,l=20+Math.random()*60,g=Math.floor(120+Math.random()*135);
   x.strokeStyle=`rgba(${g},${g},${g},${0.35+Math.random()*0.5})`;x.lineWidth=0.6+Math.random()*1.2;x.beginPath();x.moveTo(px,py);x.quadraticCurveTo(px+(Math.random()-0.5)*6,py+l/2,px+(Math.random()-0.5)*8,py+l);x.stroke()}},true);HAIRTEX.wrapS=HAIRTEX.wrapT=THREE.RepeatWrapping;return HAIRTEX}
+// v70: many survivors get the medium hair
+{const rl=randLook;randLook=function(fem){const L=rl(fem);if(Math.random()<0.45)L.hairStyle='medio';return L}}
 
 /* =====================================================================
    v68 · bigger CÂMERA button (the only zoom on phones), fixed joystick
